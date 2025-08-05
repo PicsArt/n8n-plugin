@@ -283,20 +283,7 @@ export class RemoveBgNode implements INodeType {
     			formData.append('shadow_opacity', shadowOpacity);
     			formData.append('shadow_blur', shadowBlur);
     			formData.append('format', format);
-				
-				console.log('image_url', imageUrl);
-    			console.log('output_type', outputType);
-    			console.log('bg_blur', bgBlur);
-    			console.log('scale', scale);
-    			console.log('auto_center', autoCenter);
-    			console.log('stroke_size', strokeSize);
-    			console.log('stroke_color', strokeColor);
-    			console.log('stroke_opacity', strokeOpacity);
-    			console.log('shadow', shadow);
-    			console.log('shadow_opacity', shadowOpacity);
-    			console.log('shadow_blur', shadowBlur);
-    			console.log('format', format);
-
+				let imageBuffer = null;
 				try {
 					result = await this.helpers.httpRequest({
 						method: 'POST',
@@ -307,12 +294,19 @@ export class RemoveBgNode implements INodeType {
 						},
 						body: formData,
 					});
+					imageBuffer = await this.helpers.request({
+						method: 'GET',
+						url: result?.data?.url,
+						encoding: null,
+					});
 				} catch (err) {
 					console.log(err);
 				}
 				
-	
 				returnData.push({
+					binary: {
+						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
+					},
 					json: {
 						imageUrl,
 						result,

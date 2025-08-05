@@ -109,11 +109,7 @@ export class EnhanceNode implements INodeType {
 				formData.append('upscale_factor', upscaleFactor);
 				formData.append('format', format);
 				formData.append('image_url', imageUrl);
-
-				console.log('image_url', imageUrl);
-				console.log('format', format);
-				console.log('upscale_factor', upscaleFactor);
-
+				let imageBuffer = null;
 				try {
 					result = await this.helpers.httpRequest({
 						method: 'POST',
@@ -124,11 +120,19 @@ export class EnhanceNode implements INodeType {
 						},
 						body: formData,
 					});
+					imageBuffer = await this.helpers.request({
+						method: 'GET',
+						url: result?.data?.url,
+						encoding: null,
+					});
 				} catch (err) {
 					console.log(err);
 				}
 
 				returnData.push({
+					binary: {
+						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
+					},
 					json: {
 						imageUrl,
 						result,
