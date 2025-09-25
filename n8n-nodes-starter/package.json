@@ -1,19 +1,20 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-PicsartAPIs",
   "version": "0.1.0",
-  "description": "",
+  "description": "n8n node to remove image backgrounds and enhance images using the Picsart API.",
   "keywords": [
     "n8n-community-node-package"
   ],
   "license": "MIT",
   "homepage": "",
   "author": {
-    "name": "",
-    "email": ""
-  },
+    "name": "Picsart",
+    "email": "romik.sargsyan@picsart.academy"
+   },
+
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/<...>/n8n-nodes-PicsartAPIs.git"
   },
   "engines": {
     "node": ">=20.15"

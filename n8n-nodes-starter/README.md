@@ -1,12 +1,8 @@
-![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+# Picsart nodes for n8n
 
-# n8n-nodes-starter
-
-This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
-
-To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
-
-If you would like your node to be available on n8n cloud you can also [submit your node for verification](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/).
+Custom n8n nodes that integrate Picsart image APIs:
+- Picsart Enhance: upscale an image (2–8x) and output as binary.
+- Picsart Remove Background: remove background and optionally style the result.
 
 ## Prerequisites
 
@@ -20,28 +16,59 @@ You need the following installed on your development machine:
   ```
 * Recommended: follow n8n's guide to [set up your development environment](https://docs.n8n.io/integrations/creating-nodes/build/node-development-environment/).
 
-## Using this starter
+## Quick start (Docker)
 
-These are the basic steps for working with the starter. For detailed guidance on creating and publishing nodes, refer to the [documentation](https://docs.n8n.io/integrations/creating-nodes/).
+1) Build and run
+```
+docker build --no-cache -t picsart-n8n-nodes .
+docker run -d --rm -p 5678:5678 --name picsart-n8n-nodes picsart-n8n-nodes
+```
 
-1. [Generate a new repository](https://github.com/n8n-io/n8n-nodes-starter/generate) from this template repository.
-2. Clone your new repo:
-   ```
-   git clone https://github.com/<your organization>/<your-repo-name>.git
-   ```
-3. Run `npm i` to install dependencies.
-4. Open the project in your editor.
-5. Browse the examples in `/nodes` and `/credentials`. Modify the examples, or replace them with your own nodes.
-6. Update the `package.json` to match your details.
-7. Run `npm run lint` to check for errors or `npm run lintfix` to automatically fix errors when possible.
-8. Test your node locally. Refer to [Run your node locally](https://docs.n8n.io/integrations/creating-nodes/test/run-node-locally/) for guidance.
-9. Replace this README with documentation for your node. Use the [README_TEMPLATE](README_TEMPLATE.md) to get started.
-10. Update the LICENSE file to use your details.
-11. [Publish](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry) your package to npm.
+2) Open n8n: http://localhost:5678
+
+3) Add credentials
+- Settings → Credentials → add “Picsart API” and paste your API Key.
+
+4) Use the nodes
+- Create a workflow and add one of:
+  - Picsart Enhance
+  - Picsart Remove Background
+
+## Node details
+
+### Picsart Enhance
+- Parameters:
+  - Image URL (required): 1–2083 chars, must be a valid URL. The URL file extension (if present) must be JPG/PNG/WEBP and match the Format.
+  - Upscale Factor: integer 2–16.
+  - Format: JPG | PNG | WEBP (defaults to JPG).
+- Output: binary data under `binary.data` and JSON metadata.
+
+### Picsart Remove Background
+- Parameters:
+  - Image URL (required): source image URL.
+  - Output Type: cutout | mask (default cutout).
+  - Background options (mutually exclusive in UI and validated in execute):
+    - Bg Image URL
+    - Bg Color (CSS color or hex)
+  - Bg Blur: 0–100
+  - Bg Width/Height: integers (optional)
+  - Scale: fit | fill
+  - Auto Center: true | false (works only with cutout)
+  - Stroke: size 0–100, color, opacity 0–100
+  - Shadow: disabled | custom | directional, with opacity/blur/offsets
+  - Format: JPG | PNG | WEBP
+- Output: binary data under `binary.data` and JSON metadata.
+
+## Local development
+```
+npm install
+npm run build
+```
+Run with Docker as above, or use n8n locally with `n8n-node-dev`.
 
 ## More information
 
-Refer to our [documentation on creating nodes](https://docs.n8n.io/integrations/creating-nodes/) for detailed information on building your own nodes.
+Refer to n8n docs for node creation and testing: https://docs.n8n.io/integrations/creating-nodes/
 
 ## License
 

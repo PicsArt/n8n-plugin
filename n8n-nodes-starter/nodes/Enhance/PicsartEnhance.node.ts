@@ -48,8 +48,7 @@ export class EnhanceNode implements INodeType {
 					{name: '6x', value: '6'},
 					{name: '8x', value: '8'},
 				],
-				description: 'Upscale factor'
-			},
+		},
 			{
 				displayName: 'Format',
 				name: 'format',
@@ -61,8 +60,7 @@ export class EnhanceNode implements INodeType {
 					{name: 'PNG', value: 'PNG'},
 					{name: 'WEBP', value: 'WEBP'}
 				],
-				description: 'Format'
-			},
+		},
 		],
 	};
 
@@ -83,11 +81,55 @@ export class EnhanceNode implements INodeType {
 				const imageUrl: string = this.getNodeParameter('image_url', itemIndex) as string;
 				const apiKey: string = credentials.apiKey as string;
 				const upscaleFactor: string = this.getNodeParameter('upscale_factor', itemIndex) as string;
-    			const format: string = this.getNodeParameter('format', itemIndex) as string;
+	    		const format: string = this.getNodeParameter('format', itemIndex) as string;
 
 				if (!apiKey) {
-					throw new Error('invalid token');
+					throw new NodeOperationError(this.getNode(), 'invalid token', { itemIndex });
 				}
+
+				if (!imageUrl || imageUrl.length < 1 || imageUrl.length > 2083) {
+					console.log('imageUrl', imageUrl);
+					throw new NodeOperationError(this.getNode(), 'image_url is required and must be 1..2083 chars', { itemIndex });
+				}
+				try {
+					// Basic URI validation
+					// eslint-disable-next-line no-new
+					new URL(imageUrl);
+				} catch (_) {
+					throw new NodeOperationError(this.getNode(), 'image_url must be a valid URL', { itemIndex });
+				}
+
+				// format validation (default JPG; allowed: JPG, PNG, WEBP)
+				const allowedFormats = ['JPG', 'PNG', 'WEBP'];
+				const normalizedFormat = (format || 'JPG').toUpperCase();
+				console.log('normalizedFormat1', normalizedFormat);
+				
+				if (!allowedFormats.includes(normalizedFormat)) {
+					throw new NodeOperationError(this.getNode(), 'format must be one of: JPG, PNG, WEBP', { itemIndex });
+				}
+
+				// image_url extension validation (must be JPG/PNG/WEBP) and align with selected format when present
+				try {
+					const urlObj = new URL(imageUrl);
+					const pathname = urlObj.pathname || '';
+					const extRaw = pathname.split('.').pop() || '';
+					const ext = extRaw.toLowerCase();
+					const extMap: Record<string, 'JPG' | 'PNG' | 'WEBP'> = { jpg: 'JPG', jpeg: 'JPG', png: 'PNG', webp: 'WEBP' };
+					if (ext && !Object.keys(extMap).includes(ext)) {
+						throw new NodeOperationError(this.getNode(), 'image_url must point to JPG, PNG, or WEBP', { itemIndex });
+					}
+					const urlFormat = ext ? extMap[ext] : undefined;
+					console.log('urlFormat', urlFormat);
+					if (urlFormat && urlFormat !== normalizedFormat) {
+						throw new NodeOperationError(this.getNode(), `format (${normalizedFormat}) must match image_url extension (${urlFormat})`, { itemIndex });
+					}
+				} catch (_) {
+                    // URL already validated above; ignore parse edge cases here        
+                    console.log('urlFormat2', imageUrl);  
+					throw new NodeOperationError(this.getNode(), 'image_url must point to JPG, PNG, or WEBP', { itemIndex });
+
+                }
+
 				let balanceChecker = null;
 				try {
 					balanceChecker = await this.helpers.httpRequest({
@@ -99,15 +141,15 @@ export class EnhanceNode implements INodeType {
 						}
 					});
 				} catch (err) {
-					throw new Error('invalid token');
+					throw new NodeOperationError(this.getNode(), 'invalid token', { itemIndex });
 				}
-				console.log('Balance', balanceChecker);
+				console.log('Balance1', balanceChecker);
 				let result = null;
 
 				// Enhance
 				const formData: FormData = new FormData();
 				formData.append('upscale_factor', upscaleFactor);
-				formData.append('format', format);
+				formData.append('format', normalizedFormat);
 				formData.append('image_url', imageUrl);
 				let imageBuffer = null;
 				try {
@@ -128,14 +170,17 @@ export class EnhanceNode implements INodeType {
 				} catch (err) {
 					console.log(err);
 				}
-
+				const balance = balanceChecker?.data?.balance;
+				console.log(balanceChecker)
 				returnData.push({
 					binary: {
 						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
+						
 					},
 					json: {
 						imageUrl,
 						result,
+						balance,
 					}
 				});
 			} catch (error) {

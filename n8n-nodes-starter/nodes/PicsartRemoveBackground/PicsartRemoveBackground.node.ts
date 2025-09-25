@@ -4,9 +4,10 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
+
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
-export class RemoveBgNode implements INodeType {
+export class PicsartRemoveBackground implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Picsart Remove Background',
 		name: 'picsartRemoveBackground',
@@ -44,22 +45,21 @@ export class RemoveBgNode implements INodeType {
 				default: 'cutout',
 				noDataExpression: true,
 				options: [
-					{name: 'cutout', value: 'cutout'},
-					{name: 'mask', value: 'mask'}
+					{name: 'Cutout', value: 'cutout'},
+					{name: 'Mask', value: 'mask'}
 				],
-				description: 'Output type'
-			},
+		},
 			{
 				displayName: 'Bg Image URL',
 				name: 'bg_image_url',
 				type: 'string',
 				default: '',
-				description: 'Background image url',
+				description: 'Background image URL',
 			},
 			{
 				displayName: 'Bg Color',
 				name: 'bg_color',
-				type: 'string',
+				type: 'color',
 				default: '',
 				description: 'Background color'
 			},
@@ -95,10 +95,9 @@ export class RemoveBgNode implements INodeType {
 				default: 'fit',
 				noDataExpression: true,
 				options: [
-					{name: 'fit', value: 'fit'},
-					{name: 'fill', value: 'fill'}
+					{name: 'Fit', value: 'fit'},
+					{name: 'Fill', value: 'fill'}
 				],
-				description: 'Scale',
 			},
 			{
 				displayName: 'Auto Center',
@@ -107,11 +106,10 @@ export class RemoveBgNode implements INodeType {
 				default: 'false',
 				noDataExpression: true,
 				options: [
-					{name: 'fasle', value: 'false'},
-					{name: 'true', value: 'true'}
+					{name: 'Fasle', value: 'false'},
+					{name: 'True', value: 'true'}
 				],
-				description: 'Auto center'
-			},
+		},
 			{
 				displayName: 'Stroke Size',
 				name: 'stroke_size',
@@ -121,15 +119,13 @@ export class RemoveBgNode implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-				description: 'Stroke size'
-			},
+		},
 			{
 				displayName: 'Stroke Color',
 				name: 'stroke_color',
-				type: 'string',
+				type: 'color',
 				default: 'FFFFFF',
-				description: 'Stroke color'
-			},
+		},
 			{
 				displayName: 'Stroke Opacity',
 				name: 'stroke_opacity',
@@ -139,8 +135,7 @@ export class RemoveBgNode implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-				description: 'Stroke opacity'
-			},
+		},
 			{
 				displayName: 'Shadow',
 				name: 'shadow',
@@ -148,19 +143,18 @@ export class RemoveBgNode implements INodeType {
 				default: 'disabled',
 				noDataExpression: true,
 				options: [
-					{name: 'disabled', value: 'disabled'},
-					{name: 'custom', value: 'custom'},
-					{name: 'bottom-right', value: 'bottom-right'},
-					{name: 'bottom', value: 'bottom'},
-					{name: 'bottom-left', value: 'bottom-left'},
-					{name: 'left', value: 'left'},
-					{name: 'right', value: 'right'},
-					{name: 'top-left', value: 'top-left'},
-					{name: 'top', value: 'top'},
-					{name: 'top-right', value: 'top-right'},
-				],
-				description: 'Shadow'
-			},
+					{ name: 'Bottom', value: 'bottom' },
+					{ name: 'bottom-left', value: 'bottom-left' },
+					{ name: 'bottom-right', value: 'bottom-right' },
+					{ name: 'Custom', value: 'custom' },
+					{ name: 'Disabled', value: 'disabled' },
+					{ name: 'Left', value: 'left' },
+					{ name: 'Right', value: 'right' },
+					{ name: 'Top', value: 'top' },
+					{ name: 'top-left', value: 'top-left' },
+					{ name: 'top-right', value: 'top-right' },
+				  ],
+		},
 			{
 				displayName: 'Shadow Opacity',
 				name: 'shadow_opacity',
@@ -170,8 +164,7 @@ export class RemoveBgNode implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-				description: 'Shadow opacity'
-			},
+		},
 			{
 				displayName: 'Shadow Blur',
 				name: 'shadow_blur',
@@ -181,8 +174,7 @@ export class RemoveBgNode implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-				description: 'Shadow blur'
-			},
+		},
 			{
 				displayName: 'Shadow Offset X',
 				name: 'shadow_offset_x',
@@ -192,10 +184,9 @@ export class RemoveBgNode implements INodeType {
 					minValue: -100,
 					maxValue: 100,
 				},
-				description: 'Shadow offset x'
-			},
+		},
 			{
-				displayName: 'Shadow Offset y',
+				displayName: 'Shadow Offset Y',
 				name: 'shadow_offset_y',
 				type: 'number',
 				default: '',
@@ -203,8 +194,7 @@ export class RemoveBgNode implements INodeType {
 					minValue: -100,
 					maxValue: 100,
 				},
-				description: 'Shadow offset y'
-			},
+		},
 			{
 				displayName: 'Format',
 				name: 'format',
@@ -216,8 +206,7 @@ export class RemoveBgNode implements INodeType {
 					{name: 'PNG', value: 'PNG'},
 					{name: 'WEBP', value: 'WEBP'}
 				],
-				description: 'Format'
-			},
+		},
 		],
 	};
 
@@ -249,7 +238,7 @@ export class RemoveBgNode implements INodeType {
     			
 
 				if (!apiKey) {
-					throw new Error('invalid token');
+					throw new NodeOperationError(this.getNode(), 'Invalid API key', { itemIndex });
 				}
 				let balanceChecker = null;
 				try {
@@ -262,10 +251,9 @@ export class RemoveBgNode implements INodeType {
 						}
 					});
 				} catch (err) {
-					throw new Error('invalid token');
+					throw new NodeOperationError(this.getNode(), 'Invalid API key', { itemIndex });
 				}
 				console.log('balanceChecker', balanceChecker);
-				// throw new Error('balance nemma');
 
 				let result = null;
 				
@@ -302,7 +290,8 @@ export class RemoveBgNode implements INodeType {
 				} catch (err) {
 					console.log(err);
 				}
-				
+				const balance = balanceChecker?.data?.balance;
+
 				returnData.push({
 					binary: {
 						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
@@ -310,6 +299,7 @@ export class RemoveBgNode implements INodeType {
 					json: {
 						imageUrl,
 						result,
+						balance,
 					},
 				});
 			} catch (error) {

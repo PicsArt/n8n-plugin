@@ -6,11 +6,13 @@ import {
 export class PicsartApi implements ICredentialType {
 	name = 'picsartApi';
 	displayName = 'Picsart API';
-	properties = [
+	documentationUrl = 'https://docs.picsart.io/reference/image-upscale'; // 👈 Add a valid docs link
+
+	properties: INodeProperties[] = [
 		{
 			displayName: 'API Key',
 			name: 'apiKey',
-			type: 'string' as NodePropertyTypes,
+			type: 'string',
 			default: '',
             typeOptions: {
                 password: true,
