@@ -20,7 +20,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/PicsArt/n8n-plugin.git"
+    "url": "https://github.com/PicsArt/n8n-plugin.git",
+    "directory": "n8n-nodes-picsart-APIs"
   },
   "bugs": {
     "url": "https://github.com/PicsArt/n8n-plugin/issues"
