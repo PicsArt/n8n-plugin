@@ -46,7 +46,9 @@
     "release:major": "bash release.sh major"
   },
   "files": [
-    "dist"
+    "dist",
+    "credentials",
+    "nodes"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,

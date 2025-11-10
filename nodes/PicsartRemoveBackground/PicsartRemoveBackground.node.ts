@@ -280,10 +280,10 @@ export class PicsartRemoveBackground implements INodeType {
 						},
 						body: formData,
 					});
-					imageBuffer = await this.helpers.request({
+					imageBuffer = await this.helpers.httpRequest({
 						method: 'GET',
 						url: result?.data?.url,
-						encoding: null,
+						encoding: 'arraybuffer',
 					});
 				} catch (err) {
 					console.log('Error: Picsart Remove Background', err);
