@@ -1,0 +1,56 @@
+# Development files
+.DS_Store
+*.tsbuildinfo
+.vscode/
+.idea/
+
+# Source files (only publish dist/)
+nodes/
+credentials/
+*.ts
+!*.d.ts
+tsconfig.json
+.eslintrc*
+.prettierrc*
+
+# Build scripts
+gulpfile.js
+
+# Tests
+test/
+tests/
+*.test.ts
+*.spec.ts
+
+# CI/CD
+.gitlab-ci.yml
+.github/
+
+# Docker
+Dockerfile
+.dockerignore
+rebuild.sh
+docker-compose.yml
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Documentation (keep README, LICENSE, CHANGELOG)
+# docs/
+
+# Misc
+*.log
+.env
+.env.*
+*.swp
+*.swo
+*~
+.cache/

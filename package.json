@@ -1,0 +1,74 @@
+{
+  "name": "@picsart/n8n-nodes-picsart-apis",
+  "version": "0.1.1",
+  "description": "n8n nodes to integrate Picsart API: remove backgrounds and enhance images with AI-powered tools.",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n",
+    "picsart",
+    "image-processing",
+    "background-removal",
+    "image-enhancement",
+    "upscale",
+    "ai"
+  ],
+  "license": "MIT",
+  "homepage": "https://gitlab.com/picsart/api-bu/plugins/n8n-nodes-picsart-apis#readme",
+  "author": {
+    "name": "Picsart",
+    "email": "romik.sargsyan@picsart.academy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/picsart/api-bu/plugins/n8n-nodes-picsart-apis.git"
+  },
+  "bugs": {
+    "url": "https://gitlab.com/picsart/api-bu/plugins/n8n-nodes-picsart-apis/-/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "engines": {
+    "node": ">=20.15"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "npx rimraf dist && tsc && gulp build:icons",
+    "dev": "tsc --watch",
+    "format": "prettier nodes credentials --write",
+    "lint": "eslint nodes credentials package.json",
+    "lintfix": "eslint nodes credentials package.json --fix",
+    "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json",
+    "release": "bash release.sh",
+    "release:patch": "bash release.sh patch",
+    "release:minor": "bash release.sh minor",
+    "release:major": "bash release.sh major"
+  },
+  "files": [
+    "dist"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/PicsartApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/Enhance/PicsartEnhance.node.js",
+      "dist/nodes/PicsartRemoveBackground/PicsartRemoveBackground.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "~8.32.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-n8n-nodes-base": "^1.16.3",
+    "gulp": "^5.0.0",
+    "n8n-node-dev": "^0.100.0",
+    "prettier": "^3.5.3",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.8.2"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

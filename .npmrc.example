@@ -1,0 +1,14 @@
+# Example .npmrc file for publishing to NPM
+# Copy this file to .npmrc and replace YOUR_NPM_TOKEN with your actual token
+# 
+# To generate a token:
+# 1. Go to https://www.npmjs.com/settings/~/tokens
+# 2. Click "Generate New Token"
+# 3. Choose "Automation" for CI/CD or "Publish" for local publishing
+# 4. Copy the token (you'll only see it once!)
+#
+# Note: Never commit .npmrc with real tokens to git!
+# The .npmrc file is already in .gitignore
+
+//registry.npmjs.org/:_authToken=YOUR_NPM_TOKEN
+
