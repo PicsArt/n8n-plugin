@@ -114,8 +114,8 @@ publish_npm:
     - npm publish --access public
     
     - echo "✅ Successfully published to NPM!"
-    - echo "📦 Package: @picsart/n8n-nodes-picsart-apis@${CI_COMMIT_TAG}"
-    - echo "🔗 View at: https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-apis"
+    - echo "📦 Package:" "@picsart/n8n-nodes-picsart-apis@${CI_COMMIT_TAG}"
+    - echo "🔗 View at:" "https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-apis"
   only:
     - tags  # Only run when you push a version tag (e.g., v0.1.1)
   except:
