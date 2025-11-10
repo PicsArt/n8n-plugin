@@ -105,6 +105,21 @@ publish_npm:
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
     - pnpm run build
+    
+    # Check if version already exists on NPM
+    - |
+      PACKAGE_VERSION=$(node -p "require('./package.json').version")
+      echo "📦 Current package version: $PACKAGE_VERSION"
+      
+      if npm view "@picsart/n8n-nodes-picsart-apis@$PACKAGE_VERSION" version 2>/dev/null; then
+        echo "⚠️  Version $PACKAGE_VERSION already exists on NPM"
+        echo "❌ Skipping publish to avoid 403 error"
+        echo "💡 Please bump the version and create a new tag"
+        exit 1
+      fi
+      
+      echo "✅ Version $PACKAGE_VERSION not found on NPM, proceeding with publish"
+    
     - npm pack --dry-run
     - npm whoami
     - npm publish --access public
