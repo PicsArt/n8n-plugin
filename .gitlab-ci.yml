@@ -100,30 +100,13 @@ publish_npm:
   script:
     - echo "📦 Publishing @picsart/n8n-nodes-picsart-apis to NPM..."
     - pnpm install
-    
-    # Check if NPM_TOKEN is set
-    - |
-      if [ -z "$NPM_TOKEN" ]; then
-        echo "❌ ERROR: NPM_TOKEN is not set!"
-        echo "Please add NPM_TOKEN to GitLab CI/CD Variables"
-        exit 1
-      fi
-    - echo "✅ NPM_TOKEN is set (length: ${#NPM_TOKEN})"
-    
-    # Configure npm authentication
+    - if [ -z "$NPM_TOKEN" ]; then echo "❌ ERROR NPM_TOKEN is not set!"; exit 1; fi
+    - echo "✅ NPM_TOKEN is set"
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
     - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
-    
-    # Build the package
     - pnpm run build
-    
-    # Verify package contents
     - npm pack --dry-run
-    
-    # Verify authentication works
     - npm whoami
-    
-    # Publish to NPM with public access
     - npm publish --access public
     
     - echo "✅ Successfully published to NPM!"
