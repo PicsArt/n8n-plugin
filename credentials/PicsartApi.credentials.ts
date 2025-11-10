@@ -1,7 +1,4 @@
-import {
-	ICredentialType,
-	INodeProperties,
-} from 'n8n-workflow';
+import { ICredentialType, INodeProperties } from 'n8n-workflow';
 
 export class PicsartApi implements ICredentialType {
 	name = 'picsartApi';
@@ -14,9 +11,9 @@ export class PicsartApi implements ICredentialType {
 			name: 'apiKey',
 			type: 'string',
 			default: '',
-            typeOptions: {
-                password: true,
-            },
+			typeOptions: {
+				password: true,
+			},
 		},
 	];
 }

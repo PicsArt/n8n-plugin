@@ -25,7 +25,7 @@ export class PicsartRemoveBackground implements INodeType {
 			{
 				name: 'picsartApi',
 				required: true,
-			}
+			},
 		],
 		properties: [
 			// Node properties which the user gets displayed and
@@ -33,10 +33,10 @@ export class PicsartRemoveBackground implements INodeType {
 			{
 				displayName: 'Image URL',
 				name: 'image_url',
-  				type: 'string',
-  				default: '',
-  				placeholder: '{{$json["image_url"]}}',
-  				description: 'URL image for processing',
+				type: 'string',
+				default: '',
+				placeholder: '{{$json["image_url"]}}',
+				description: 'URL image for processing',
 			},
 			{
 				displayName: 'Output Type',
@@ -45,10 +45,10 @@ export class PicsartRemoveBackground implements INodeType {
 				default: 'cutout',
 				noDataExpression: true,
 				options: [
-					{name: 'Cutout', value: 'cutout'},
-					{name: 'Mask', value: 'mask'}
+					{ name: 'Cutout', value: 'cutout' },
+					{ name: 'Mask', value: 'mask' },
 				],
-		},
+			},
 			{
 				displayName: 'Bg Image URL',
 				name: 'bg_image_url',
@@ -61,7 +61,7 @@ export class PicsartRemoveBackground implements INodeType {
 				name: 'bg_color',
 				type: 'color',
 				default: '',
-				description: 'Background color'
+				description: 'Background color',
 			},
 			{
 				displayName: 'Bg Blur',
@@ -72,21 +72,21 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-				description: 'Background blur'
+				description: 'Background blur',
 			},
 			{
 				displayName: 'Bg Width',
 				name: 'bg_width',
 				type: 'number',
 				default: '',
-				description: 'Width'
+				description: 'Width',
 			},
 			{
 				displayName: 'Bg Height',
 				name: 'bg_height',
 				type: 'number',
 				default: '',
-				description: 'Height'
+				description: 'Height',
 			},
 			{
 				displayName: 'Scale',
@@ -95,8 +95,8 @@ export class PicsartRemoveBackground implements INodeType {
 				default: 'fit',
 				noDataExpression: true,
 				options: [
-					{name: 'Fit', value: 'fit'},
-					{name: 'Fill', value: 'fill'}
+					{ name: 'Fit', value: 'fit' },
+					{ name: 'Fill', value: 'fill' },
 				],
 			},
 			{
@@ -106,10 +106,10 @@ export class PicsartRemoveBackground implements INodeType {
 				default: 'false',
 				noDataExpression: true,
 				options: [
-					{name: 'Fasle', value: 'false'},
-					{name: 'True', value: 'true'}
+					{ name: 'Fasle', value: 'false' },
+					{ name: 'True', value: 'true' },
 				],
-		},
+			},
 			{
 				displayName: 'Stroke Size',
 				name: 'stroke_size',
@@ -119,13 +119,13 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-		},
+			},
 			{
 				displayName: 'Stroke Color',
 				name: 'stroke_color',
 				type: 'color',
 				default: 'FFFFFF',
-		},
+			},
 			{
 				displayName: 'Stroke Opacity',
 				name: 'stroke_opacity',
@@ -135,7 +135,7 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-		},
+			},
 			{
 				displayName: 'Shadow',
 				name: 'shadow',
@@ -153,8 +153,8 @@ export class PicsartRemoveBackground implements INodeType {
 					{ name: 'Top', value: 'top' },
 					{ name: 'top-left', value: 'top-left' },
 					{ name: 'top-right', value: 'top-right' },
-				  ],
-		},
+				],
+			},
 			{
 				displayName: 'Shadow Opacity',
 				name: 'shadow_opacity',
@@ -164,7 +164,7 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-		},
+			},
 			{
 				displayName: 'Shadow Blur',
 				name: 'shadow_blur',
@@ -174,7 +174,7 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: 0,
 					maxValue: 100,
 				},
-		},
+			},
 			{
 				displayName: 'Shadow Offset X',
 				name: 'shadow_offset_x',
@@ -184,7 +184,7 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: -100,
 					maxValue: 100,
 				},
-		},
+			},
 			{
 				displayName: 'Shadow Offset Y',
 				name: 'shadow_offset_y',
@@ -194,7 +194,7 @@ export class PicsartRemoveBackground implements INodeType {
 					minValue: -100,
 					maxValue: 100,
 				},
-		},
+			},
 			{
 				displayName: 'Format',
 				name: 'format',
@@ -202,11 +202,11 @@ export class PicsartRemoveBackground implements INodeType {
 				default: 'PNG',
 				noDataExpression: true,
 				options: [
-					{name: 'JPG', value: 'JPG'},
-					{name: 'PNG', value: 'PNG'},
-					{name: 'WEBP', value: 'WEBP'}
+					{ name: 'JPG', value: 'JPG' },
+					{ name: 'PNG', value: 'PNG' },
+					{ name: 'WEBP', value: 'WEBP' },
 				],
-		},
+			},
 		],
 	};
 
@@ -217,7 +217,7 @@ export class PicsartRemoveBackground implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const items: INodeExecutionData[] = this.getInputData();
 		const returnData: INodeExecutionData[] = [];
-		
+
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
 				// default part
@@ -234,8 +234,7 @@ export class PicsartRemoveBackground implements INodeType {
 				const shadow: string = this.getNodeParameter('shadow', itemIndex) as string;
 				const shadowOpacity: string = this.getNodeParameter('shadow_opacity', itemIndex) as string;
 				const shadowBlur: string = this.getNodeParameter('shadow_blur', itemIndex) as string;
-    			const format: string = this.getNodeParameter('format', itemIndex) as string;
-    			
+				const format: string = this.getNodeParameter('format', itemIndex) as string;
 
 				if (!apiKey) {
 					throw new NodeOperationError(this.getNode(), 'Invalid API key', { itemIndex });
@@ -247,29 +246,29 @@ export class PicsartRemoveBackground implements INodeType {
 						url: 'https://api.picsart.io/tools/1.0/balance',
 						headers: {
 							'x-picsart-api-key': apiKey,
-							'accept': 'application/json'
-						}
+							accept: 'application/json',
+						},
 					});
 				} catch (err) {
 					throw new NodeOperationError(this.getNode(), 'Invalid API key', { itemIndex });
 				}
 
 				let result = null;
-				
+
 				// Remove background
 				const formData: FormData = new FormData();
 				formData.append('image_url', imageUrl);
-    			formData.append('output_type', outputType);
-    			formData.append('bg_blur', bgBlur);
-    			formData.append('scale', scale);
-    			formData.append('auto_center', autoCenter);
-    			formData.append('stroke_size', strokeSize);
-    			formData.append('stroke_color', strokeColor);
-    			formData.append('stroke_opacity', strokeOpacity);
-    			formData.append('shadow', shadow);
-    			formData.append('shadow_opacity', shadowOpacity);
-    			formData.append('shadow_blur', shadowBlur);
-    			formData.append('format', format);
+				formData.append('output_type', outputType);
+				formData.append('bg_blur', bgBlur);
+				formData.append('scale', scale);
+				formData.append('auto_center', autoCenter);
+				formData.append('stroke_size', strokeSize);
+				formData.append('stroke_color', strokeColor);
+				formData.append('stroke_opacity', strokeOpacity);
+				formData.append('shadow', shadow);
+				formData.append('shadow_opacity', shadowOpacity);
+				formData.append('shadow_blur', shadowBlur);
+				formData.append('format', format);
 				let imageBuffer = null;
 				try {
 					result = await this.helpers.httpRequest({
@@ -277,7 +276,7 @@ export class PicsartRemoveBackground implements INodeType {
 						url: 'https://api.picsart.io/tools/1.0/removebg',
 						headers: {
 							'x-picsart-api-key': apiKey,
-							'Accept': 'application/json',
+							Accept: 'application/json',
 						},
 						body: formData,
 					});
@@ -301,19 +300,21 @@ export class PicsartRemoveBackground implements INodeType {
 						credits: {
 							balance: credits.balance || 0,
 							credits: credits.credits || credits.balance || 0,
-							...credits
-						}
+							...credits,
+						},
 					},
 				});
 			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					throw new NodeOperationError(this.getNode(), ` ${error.response?.data?.detail}`, { itemIndex });
+					throw new NodeOperationError(this.getNode(), ` ${error.response?.data?.detail}`, {
+						itemIndex,
+					});
 				}
 			}
 		}
-	
+
 		return [returnData];
-	}	
+	}
 }

@@ -24,7 +24,7 @@ export class PicsartEnhance implements INodeType {
 			{
 				name: 'picsartApi',
 				required: true,
-			}
+			},
 		],
 		properties: [
 			// Node properties which the user gets displayed and
@@ -32,10 +32,10 @@ export class PicsartEnhance implements INodeType {
 			{
 				displayName: 'Image URL',
 				name: 'image_url',
-  				type: 'string',
-  				default: '',
-  				placeholder: '{{$json["image_url"]}}',
-  				description: 'URL image for processing',
+				type: 'string',
+				default: '',
+				placeholder: '{{$json["image_url"]}}',
+				description: 'URL image for processing',
 			},
 			{
 				displayName: 'Upscale Factor',
@@ -43,12 +43,12 @@ export class PicsartEnhance implements INodeType {
 				type: 'options',
 				default: '2',
 				options: [
-					{name: '2x', value: '2'},
-					{name: '4x', value: '4'},
-					{name: '6x', value: '6'},
-					{name: '8x', value: '8'},
+					{ name: '2x', value: '2' },
+					{ name: '4x', value: '4' },
+					{ name: '6x', value: '6' },
+					{ name: '8x', value: '8' },
 				],
-		},
+			},
 			{
 				displayName: 'Format',
 				name: 'format',
@@ -56,11 +56,11 @@ export class PicsartEnhance implements INodeType {
 				default: 'PNG',
 				noDataExpression: true,
 				options: [
-					{name: 'JPG', value: 'JPG'},
-					{name: 'PNG', value: 'PNG'},
-					{name: 'WEBP', value: 'WEBP'}
+					{ name: 'JPG', value: 'JPG' },
+					{ name: 'PNG', value: 'PNG' },
+					{ name: 'WEBP', value: 'WEBP' },
 				],
-		},
+			},
 		],
 	};
 
@@ -81,29 +81,37 @@ export class PicsartEnhance implements INodeType {
 				const imageUrl: string = this.getNodeParameter('image_url', itemIndex) as string;
 				const apiKey: string = credentials.apiKey as string;
 				const upscaleFactor: string = this.getNodeParameter('upscale_factor', itemIndex) as string;
-	    		const format: string = this.getNodeParameter('format', itemIndex) as string;
+				const format: string = this.getNodeParameter('format', itemIndex) as string;
 
 				if (!apiKey) {
 					throw new NodeOperationError(this.getNode(), 'invalid token', { itemIndex });
 				}
 
 				if (!imageUrl || imageUrl.length < 1 || imageUrl.length > 2083) {
-					throw new NodeOperationError(this.getNode(), 'image_url is required and must be 1..2083 chars', { itemIndex });
+					throw new NodeOperationError(
+						this.getNode(),
+						'image_url is required and must be 1..2083 chars',
+						{ itemIndex },
+					);
 				}
 				try {
 					// Basic URI validation
 					// eslint-disable-next-line no-new
 					new URL(imageUrl);
 				} catch (_) {
-					throw new NodeOperationError(this.getNode(), 'image_url must be a valid URL', { itemIndex });
+					throw new NodeOperationError(this.getNode(), 'image_url must be a valid URL', {
+						itemIndex,
+					});
 				}
 
 				// format validation (default JPG; allowed: JPG, PNG, WEBP)
 				const allowedFormats = ['JPG', 'PNG', 'WEBP'];
 				const normalizedFormat = (format || 'JPG').toUpperCase();
-				
+
 				if (!allowedFormats.includes(normalizedFormat)) {
-					throw new NodeOperationError(this.getNode(), 'format must be one of: JPG, PNG, WEBP', { itemIndex });
+					throw new NodeOperationError(this.getNode(), 'format must be one of: JPG, PNG, WEBP', {
+						itemIndex,
+					});
 				}
 
 				// image_url extension validation (must be JPG/PNG/WEBP) and align with selected format when present
@@ -112,19 +120,35 @@ export class PicsartEnhance implements INodeType {
 					const pathname = urlObj.pathname || '';
 					const extRaw = pathname.split('.').pop() || '';
 					const ext = extRaw.toLowerCase();
-					const extMap: Record<string, 'JPG' | 'PNG' | 'WEBP'> = { jpg: 'JPG', jpeg: 'JPG', png: 'PNG', webp: 'WEBP' };
+					const extMap: Record<string, 'JPG' | 'PNG' | 'WEBP'> = {
+						jpg: 'JPG',
+						jpeg: 'JPG',
+						png: 'PNG',
+						webp: 'WEBP',
+					};
 					if (ext && !Object.keys(extMap).includes(ext)) {
-						throw new NodeOperationError(this.getNode(), 'image_url must point to JPG, PNG, or WEBP', { itemIndex });
+						throw new NodeOperationError(
+							this.getNode(),
+							'image_url must point to JPG, PNG, or WEBP',
+							{ itemIndex },
+						);
 					}
 					const urlFormat = ext ? extMap[ext] : undefined;
 					if (urlFormat && urlFormat !== normalizedFormat) {
-						throw new NodeOperationError(this.getNode(), `format (${normalizedFormat}) must match image_url extension (${urlFormat})`, { itemIndex });
+						throw new NodeOperationError(
+							this.getNode(),
+							`format (${normalizedFormat}) must match image_url extension (${urlFormat})`,
+							{ itemIndex },
+						);
 					}
 				} catch (_) {
-                    // URL already validated above; ignore parse edge cases here        
-					throw new NodeOperationError(this.getNode(), 'image_url must point to JPG, PNG, or WEBP', { itemIndex });
-
-                }
+					// URL already validated above; ignore parse edge cases here
+					throw new NodeOperationError(
+						this.getNode(),
+						'image_url must point to JPG, PNG, or WEBP',
+						{ itemIndex },
+					);
+				}
 
 				let balanceChecker = null;
 				try {
@@ -133,8 +157,8 @@ export class PicsartEnhance implements INodeType {
 						url: 'https://api.picsart.io/tools/1.0/balance',
 						headers: {
 							'x-picsart-api-key': apiKey,
-							'accept': 'application/json'
-						}
+							accept: 'application/json',
+						},
 					});
 				} catch (err) {
 					throw new NodeOperationError(this.getNode(), 'invalid token', { itemIndex });
@@ -155,7 +179,7 @@ export class PicsartEnhance implements INodeType {
 						url: 'https://api.picsart.io/tools/1.0/upscale',
 						headers: {
 							'x-picsart-api-key': apiKey,
-							'Accept': 'application/json',
+							Accept: 'application/json',
 						},
 						body: formData,
 					});
@@ -164,20 +188,15 @@ export class PicsartEnhance implements INodeType {
 						url: result?.data?.url,
 						encoding: null,
 					});
-				} catch (err: any) {		
+				} catch (err: any) {
 					console.log('err', err.response);
 					// Handle other API errors
-					throw new NodeOperationError(
-						this.getNode(),
-						err.response?.data?.detail,
-						{ itemIndex }
-					);
+					throw new NodeOperationError(this.getNode(), err.response?.data?.detail, { itemIndex });
 				}
 				const credits = balanceChecker?.data || {};
 				returnData.push({
 					binary: {
 						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
-						
 					},
 					json: {
 						imageUrl,
@@ -185,9 +204,9 @@ export class PicsartEnhance implements INodeType {
 						credits: {
 							balance: credits.balance || 0,
 							credits: credits.credits || credits.balance || 0,
-							...credits
-						}
-					}
+							...credits,
+						},
+					},
 				});
 			} catch (error) {
 				// This node should never fail but we want to showcase how
