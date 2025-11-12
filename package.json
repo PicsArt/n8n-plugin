@@ -1,6 +1,6 @@
 {
   "name": "@picsart/n8n-nodes-picsart-apis",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "n8n nodes to integrate Picsart API: remove backgrounds and enhance images with AI-powered tools.",
   "keywords": [
     "n8n-community-node-package",
