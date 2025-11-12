@@ -1,6 +1,6 @@
 {
   "name": "@picsart/n8n-nodes-picsart-apis",
-  "version": "0.2.0",
+  "version": "0.2.9",
   "description": "n8n nodes to integrate Picsart API: remove backgrounds and enhance images with AI-powered tools.",
   "keywords": [
     "n8n-community-node-package",
@@ -47,9 +47,7 @@
     "release:major": "bash release.sh major"
   },
   "files": [
-    "dist",
-    "credentials",
-    "nodes"
+    "dist"
   ],
   "n8n": {
     "n8nNodesApiVersion": 1,
