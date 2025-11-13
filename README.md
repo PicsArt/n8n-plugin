@@ -45,26 +45,12 @@ git push && git push --tags
 
 CI/CD will automatically publish to npm.
 
-## 🤝 Contributing
-
-1. Fork and create a feature branch
-2. Make changes with conventional commits (`feat:`, `fix:`, `docs:`)
-3. Push and open a Merge Request
-
 ## 📖 Resources
 
 - [Picsart API Documentation](https://docs.picsart.io/)
 - [n8n Documentation](https://docs.n8n.io/)
 - [Creating n8n Nodes](https://docs.n8n.io/integrations/creating-nodes/)
-
-## 📝 License
-
-MIT © [Picsart](https://picsart.io)
-
-**Features:**
-- **Enhance**: Upscale images up to 16x with AI
-- **Remove Background**: AI background removal with advanced styling
-
+  
 ## Installation
 
 **For n8n Cloud:**
