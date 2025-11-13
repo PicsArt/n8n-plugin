@@ -15,7 +15,7 @@ export class PicsartApi implements ICredentialType {
 			typeOptions: {
 				password: true,
 			},
-			description: 'Your Picsart API key. You can get it from https://console.picsart.io/dashboard',
+			description: 'API key. You can get it from https://console.picsart.io/dashboard',
 		},
 	];
 
@@ -28,7 +28,6 @@ export class PicsartApi implements ICredentialType {
 		},
 	};
 
-	// The block below tells how this credential can be tested
 	test: ICredentialTestRequest = {
 		request: {
 			baseURL: 'https://api.picsart.io',
