@@ -1,7 +1,7 @@
 {
   "name": "@picsart/n8n-nodes-picsart-apis",
   "version": "0.3.0--no-git-tag-version",
-  "description": "n8n nodes to integrate Picsart API: remove backgrounds and enhance images with AI-powered tools.",
+  "description": "n8n nodes to integrate Picsart API: remove backgrounds, enhance images, and generate AI images from text with AI-powered tools.",
   "keywords": [
     "n8n-community-node-package",
     "n8n",
@@ -10,7 +10,10 @@
     "background-removal",
     "image-enhancement",
     "upscale",
-    "ai"
+    "ai",
+    "text-to-image",
+    "image-generation",
+    "genai"
   ],
   "license": "MIT",
   "homepage": "https://github.com/PicsArt/n8n-plugin#readme",
@@ -40,6 +43,9 @@
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
     "lintfix": "eslint nodes credentials package.json --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "prepublishOnly": "npm run build && npm run lint -c .eslintrc.prepublish.js nodes credentials package.json",
     "release": "bash release.sh",
     "release:patch": "bash release.sh patch",
@@ -56,17 +62,22 @@
     ],
     "nodes": [
       "dist/nodes/Enhance/PicsartEnhance.node.js",
-      "dist/nodes/PicsartRemoveBackground/PicsartRemoveBackground.node.js"
+      "dist/nodes/PicsartRemoveBackground/PicsartRemoveBackground.node.js",
+      "dist/nodes/TextToImage/PicsartTextToImage.node.js"
     ]
   },
   "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.10.1",
     "@typescript-eslint/parser": "~8.32.0",
     "eslint": "^8.57.0",
     "eslint-plugin-n8n-nodes-base": "^1.16.3",
     "gulp": "^5.0.0",
+    "jest": "^30.2.0",
     "n8n-node-dev": "^0.100.0",
     "prettier": "^3.5.3",
     "rimraf": "^6.0.1",
+    "ts-jest": "^29.4.5",
     "typescript": "^5.8.2"
   },
   "peerDependencies": {

@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@picsart/n8n-nodes-picsart-apis.svg)](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-apis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-n8n community nodes for image processing using Picsart APIs.
+n8n community nodes for image processing and AI image generation using Picsart APIs.
 ## 💻 Development
 
 ### Setup
@@ -91,4 +91,20 @@ Upscale and enhance images with AI.
 - Format: JPG | PNG | WEBP
 
 **Output:** Binary image + JSON with URL and credits
+
+### Picsart Text to Image
+
+Generate AI images from text prompts using Picsart GenAI.
+
+**Key Parameters:**
+- Prompt (required): Text description of desired image
+- Negative Prompt (optional): What to avoid in the image
+- Number of Images: 1-10 images per generation
+- Width: 512px | 768px | 1024px
+- Height: 512px | 768px | 1024px
+- Polling Timeout: 30-300 seconds (default: 120s)
+
+**Output:** Binary image(s) + JSON with prompts, URLs, dimensions, and credits
+
+**Note:** This node uses asynchronous processing and may take 10-120 seconds to complete. Each generated image is returned as a separate output item.
 
