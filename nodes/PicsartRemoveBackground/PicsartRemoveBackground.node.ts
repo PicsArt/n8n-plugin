@@ -220,9 +220,10 @@ export class PicsartRemoveBackground implements INodeType {
 
 		for (let itemIndex = 0; itemIndex < items.length; itemIndex++) {
 			try {
-				// default part
+				// Get credentials and parameters
 				const credentials = await this.getCredentials('picsartApi');
 				const apiKey: string = credentials.apiKey as string;
+				const bgColor: string = this.getNodeParameter('bg_color', itemIndex) as string;
 				const imageUrl: string = this.getNodeParameter('image_url', itemIndex) as string;
 				const outputType: string = this.getNodeParameter('output_type', itemIndex) as string;
 				const bgBlur: string = this.getNodeParameter('bg_blur', itemIndex) as string;
@@ -237,27 +238,17 @@ export class PicsartRemoveBackground implements INodeType {
 				const format: string = this.getNodeParameter('format', itemIndex) as string;
 
 				if (!apiKey) {
-					throw new NodeOperationError(this.getNode(), 'Invalid API key', { itemIndex });
-				}
-				let balanceChecker = null;
-				try {
-					balanceChecker = await this.helpers.httpRequest({
-						method: 'GET',
-						url: 'https://api.picsart.io/tools/1.0/balance',
-						headers: {
-							'x-picsart-api-key': apiKey,
-							accept: 'application/json',
-						},
-					});
-				} catch (err) {
-					throw new NodeOperationError(this.getNode(), 'Invalid API key', { itemIndex });
+					throw new NodeOperationError(this.getNode(), 'API key is required', { itemIndex });
 				}
 
-				let result = null;
+				if (!imageUrl) {
+					throw new NodeOperationError(this.getNode(), 'Image URL is required', { itemIndex });
+				}
 
-				// Remove background
+				// Prepare form data for background removal
 				const formData: FormData = new FormData();
 				formData.append('image_url', imageUrl);
+				formData.append('bg_color', bgColor);
 				formData.append('output_type', outputType);
 				formData.append('bg_blur', bgBlur);
 				formData.append('scale', scale);
@@ -269,8 +260,11 @@ export class PicsartRemoveBackground implements INodeType {
 				formData.append('shadow_opacity', shadowOpacity);
 				formData.append('shadow_blur', shadowBlur);
 				formData.append('format', format);
-				let imageBuffer = null;
-				try {
+
+			let result = null;
+			let imageBuffer = null;
+			try {
+					// Call Picsart API to remove background
 					result = await this.helpers.httpRequest({
 						method: 'POST',
 						url: 'https://api.picsart.io/tools/1.0/removebg',
@@ -280,16 +274,57 @@ export class PicsartRemoveBackground implements INodeType {
 						},
 						body: formData,
 					});
+
+					// Download the processed image
 					imageBuffer = await this.helpers.httpRequest({
 						method: 'GET',
 						url: result?.data?.url,
 						encoding: 'arraybuffer',
 					});
-				} catch (err) {
-					console.log('Error: Picsart Remove Background', err);
-				}
-				const credits = balanceChecker?.data || {};
+				} catch (error: any) {
+					// Handle different HTTP error codes
+					const statusCode = error.response?.status || error.statusCode;
+					const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message;
 
+					if (statusCode === 429) {
+						// Rate limit exceeded - user has insufficient credits
+						throw new NodeOperationError(
+							this.getNode(),
+							`Insufficient credits or rate limit exceeded. Please check your Picsart account balance. ${errorMessage || ''}`,
+							{ itemIndex }
+						);
+					} else if (statusCode === 401 || statusCode === 403) {
+						// Authentication/Authorization error
+						throw new NodeOperationError(
+							this.getNode(),
+							`Authentication failed. Please check your API key is valid. ${errorMessage || ''}`,
+							{ itemIndex }
+						);
+					} else if (statusCode >= 400 && statusCode < 500) {
+						// Client error (400-499) - user's fault
+						throw new NodeOperationError(
+							this.getNode(),
+							`Client error: ${errorMessage || 'Invalid request parameters. Please check your input data.'}`,
+							{ itemIndex }
+						);
+					} else if (statusCode >= 500) {
+						// Server error (500-599) - Picsart API issue
+						throw new NodeOperationError(
+							this.getNode(),
+							`Picsart API server error (${statusCode}). Please try again later. ${errorMessage || ''}`,
+							{ itemIndex }
+						);
+					} else {
+						// Unknown error
+						throw new NodeOperationError(
+							this.getNode(),
+							`Failed to process image: ${errorMessage || error.message}`,
+							{ itemIndex }
+						);
+					}
+				}
+
+				// Return processed image data
 				returnData.push({
 					binary: {
 						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
@@ -297,20 +332,17 @@ export class PicsartRemoveBackground implements INodeType {
 					json: {
 						imageUrl,
 						result,
-						credits: {
-							balance: credits.balance || 0,
-							credits: credits.credits || credits.balance || 0,
-							...credits,
-						},
 					},
 				});
 			} catch (error) {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					throw new NodeOperationError(this.getNode(), ` ${error.response?.data?.detail}`, {
-						itemIndex,
-					});
+					// Re-throw if it's already a NodeOperationError, otherwise wrap it
+					if (error instanceof NodeOperationError) {
+						throw error;
+					}
+					throw new NodeOperationError(this.getNode(), error.message, { itemIndex });
 				}
 			}
 		}
