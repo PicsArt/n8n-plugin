@@ -1,4 +1,4 @@
-# GitLab CI/CD Pipeline for @picsart/n8n-nodes-picsart-apis
+# GitLab CI/CD Pipeline for @picsart/n8n-nodes-picsart-creative-apis
 # This pipeline automatically builds, tests, and publishes to NPM
 
 # Use Node.js 20 Docker image (matches package.json requirement)
@@ -98,7 +98,7 @@ build:
 publish_npm:
   stage: publish
   script:
-    - echo "📦 Publishing @picsart/n8n-nodes-picsart-apis to NPM..."
+    - echo "📦 Publishing @picsart/n8n-nodes-picsart-creative-apis to NPM..."
     - pnpm install
     - if [ -z "$NPM_TOKEN" ]; then echo "❌ ERROR NPM_TOKEN is not set!"; exit 1; fi
     - echo "✅ NPM_TOKEN is set"
@@ -111,7 +111,7 @@ publish_npm:
       PACKAGE_VERSION=$(node -p "require('./package.json').version")
       echo "📦 Current package version: $PACKAGE_VERSION"
       
-      if npm view "@picsart/n8n-nodes-picsart-apis@$PACKAGE_VERSION" version 2>/dev/null; then
+      if npm view "@picsart/n8n-nodes-picsart-creative-apis@$PACKAGE_VERSION" version 2>/dev/null; then
         echo "⚠️  Version $PACKAGE_VERSION already exists on NPM"
         echo "❌ Skipping publish to avoid 403 error"
         echo "💡 Please bump the version and create a new tag"
@@ -125,8 +125,8 @@ publish_npm:
     - npm publish --access public
     
     - echo "✅ Successfully published to NPM!"
-    - echo "📦 Package:" "@picsart/n8n-nodes-picsart-apis@${CI_COMMIT_TAG}"
-    - echo "🔗 View at:" "https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-apis"
+    - echo "📦 Package:" "@picsart/n8n-nodes-picsart-creative-apis@${CI_COMMIT_TAG}"
+    - echo "🔗 View at:" "https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-creative-apis"
   rules:
     - if: $CI_COMMIT_TAG
       when: on_success
@@ -144,20 +144,20 @@ create_release:
     tag_name: $CI_COMMIT_TAG
     name: 'Release $CI_COMMIT_TAG'
     description: |
-      ## @picsart/n8n-nodes-picsart-apis $CI_COMMIT_TAG
+      ## @picsart/n8n-nodes-picsart-creative-apis $CI_COMMIT_TAG
       
       ### Installation
       ```bash
-      npm install @picsart/n8n-nodes-picsart-apis
+      npm install @picsart/n8n-nodes-picsart-creative-apis
       ```
       
       ### What's New
       See [CHANGELOG.md](CHANGELOG.md) for details.
       
       ### Links
-      - 📦 [NPM Package](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-apis)
+      - 📦 [NPM Package](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-creative-apis)
       - 📚 [Documentation](README.md)
-      - 🐛 [Report Issues](https://gitlab.com/picsart/api-bu/plugins/n8n-nodes-picsart-apis/-/issues)
+      - 🐛 [Report Issues](https://gitlab.com/picsart/api-bu/plugins/n8n-nodes-picsart-creative-apis/-/issues)
   rules:
     - if: $CI_COMMIT_TAG
       when: on_success

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Release script for @picsart/n8n-nodes-picsart-apis
+# Release script for @picsart/n8n-nodes-picsart-creative-apis
 # Usage: ./release.sh [patch|minor|major]
 
 # Colors for output

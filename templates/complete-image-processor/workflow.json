@@ -1,0 +1,387 @@
+{
+  "name": "Process images via API with Picsart",
+  "meta": {
+    "templateId": "picsart-image-processing-api"
+  },
+  "nodes": [
+    {
+      "id": "webhook-trigger",
+      "name": "Webhook Endpoint",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        200,
+        460
+      ],
+      "webhookId": "picsart-api",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "picsart-process",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "validate-input",
+      "name": "Validate Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        460
+      ],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const body = $input.item.json.body;\n\nif (!body.imageUrl) throw new Error('Missing: imageUrl');\nif (!['enhance', 'remove-bg'].includes(body.operation)) throw new Error('Invalid operation');\n\nreturn {\n  json: {\n    imageUrl: body.imageUrl,\n    operation: body.operation,\n    upscaleFactor: body.upscaleFactor || '4',\n    bgColor: body.bgColor || 'transparent',\n    format: body.format || 'PNG'\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fetch-image",
+      "name": "Fetch Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        800,
+        460
+      ],
+      "parameters": {
+        "url": "={{ $json.imageUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "route-operation",
+      "name": "Route by Operation",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1100,
+        460
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $('Validate Request').item.json.operation }}",
+              "operation": "equals",
+              "value2": "enhance"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "picsart-enhance-api",
+      "name": "Picsart Enhance",
+      "type": "@picsart/n8n-nodes-picsart-apis.picsartEnhance",
+      "position": [
+        1400,
+        360
+      ],
+      "parameters": {
+        "imageUrl": "={{ $binary.data.id }}",
+        "upscaleFactor": "={{ $('Validate Request').item.json.upscaleFactor }}",
+        "format": "={{ $('Validate Request').item.json.format }}"
+      },
+      "credentials": {
+        "picsartApi": {
+          "name": "Picsart API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "picsart-remove-bg-api",
+      "name": "Picsart Remove Background",
+      "type": "@picsart/n8n-nodes-picsart-apis.picsartRemoveBackground",
+      "position": [
+        1400,
+        560
+      ],
+      "parameters": {
+        "imageUrl": "={{ $binary.data.id }}",
+        "outputType": "cutout",
+        "bgColor": "={{ $('Validate Request').item.json.bgColor }}",
+        "format": "={{ $('Validate Request').item.json.format }}"
+      },
+      "credentials": {
+        "picsartApi": {
+          "name": "Picsart API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "merge-results",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1700,
+        460
+      ],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "format-response",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2000,
+        460
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "success",
+              "name": "success",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "operation",
+              "name": "operation",
+              "type": "string",
+              "value": "={{ $('Validate Request').item.json.operation }}"
+            },
+            {
+              "id": "url",
+              "name": "imageUrl",
+              "type": "string",
+              "value": "={{ $json.data?.url || $json.url }}"
+            },
+            {
+              "id": "credits",
+              "name": "creditsUsed",
+              "type": "number",
+              "value": "={{ $json.credits || 0 }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "respond-webhook",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2300,
+        460
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-main-api",
+      "name": "Template Description",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 440,
+        "height": 840,
+        "content": "## 🚀 Process images via API with Picsart\n\n### What it does\n\nCreates a webhook-based REST API for image processing. Send an image URL and operation type, get back the AI-processed result. Routes requests to either enhancement (upscaling) or background removal based on the operation parameter.\n\n### Who's it for\n\n- Developers building image processing into apps\n- SaaS platforms needing image automation\n- E-commerce systems with automated processing\n- Mobile app backends\n- Integration platforms connecting to Picsart\n\n### How it works\n\n1. Receives POST request with image URL and parameters\n2. Validates input and sets defaults\n3. Fetches the image from provided URL\n4. Routes to appropriate Picsart operation (enhance or remove-bg)\n5. Returns JSON response with processed image URL and metadata\n\n### Requirements\n\n- Picsart API key ([console.picsart.io](https://console.picsart.io))\n- Install: `@picsart/n8n-nodes-picsart-apis`\n- Workflow must be **activated** to receive requests\n- Add Picsart credentials in Settings\n\n### Setup\n\n1. Activate this workflow (toggle ON)\n2. Copy the webhook URL from \"Webhook Endpoint\" node\n3. Use this URL as your API endpoint\n\n### API Usage\n\n**Endpoint:** `POST /webhook/picsart-process`\n\n**Request body:**\n```json\n{\n  \"imageUrl\": \"https://example.com/image.jpg\",\n  \"operation\": \"enhance\",\n  \"upscaleFactor\": \"4\"\n}\n```\n\n**Response:**\n```json\n{\n  \"success\": true,\n  \"operation\": \"enhance\",\n  \"imageUrl\": \"https://cdn.picsart.io/result.png\",\n  \"creditsUsed\": 20\n}\n```\n\n### Parameters\n\n- `imageUrl` (required): Image to process\n- `operation` (required): \"enhance\" or \"remove-bg\"\n- `upscaleFactor`: 2, 4, 6, 8, or 16 (default: 4)\n- `bgColor`: hex or \"transparent\" (default: transparent)\n- `format`: PNG, JPG, or WEBP (default: PNG)\n\n### How to customize\n\n- Add API key authentication in validation\n- Implement rate limiting\n- Add logging to database or sheets\n- Chain both operations (enhance + remove bg)\n- Add file upload support\n- Include processing time in response\n- Send completion webhooks\n- Add error notifications\n\n[Picsart API Docs](https://docs.picsart.io/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step1-api",
+      "name": "Step 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 360,
+        "content": "## 1. Receive Request\n\nWebhook accepts POST requests.\n\n**Endpoint:**\n`/webhook/picsart-process`\n\n**Must be activated** to work.\n\n**Request format:**\n```json\n{\n  \"imageUrl\": \"...\",\n  \"operation\": \"enhance\"\n}\n```\n\n**Test with curl:**\n```bash\ncurl -X POST [URL] \\\n  -H \"Content-Type: application/json\" \\\n  -d '{...}'\n```"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step2-api",
+      "name": "Step 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 360,
+        "content": "## 2. Validate Input\n\nChecks required fields and sets defaults.\n\n**Required:**\n- `imageUrl` must exist\n- `operation` must be \"enhance\" or \"remove-bg\"\n\n**Defaults:**\n- upscaleFactor: \"4\"\n- bgColor: \"transparent\"\n- format: \"PNG\"\n\nThrows error if invalid."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step3-api",
+      "name": "Step 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 360,
+        "content": "## 3. Fetch & Route\n\n**Fetch:** Downloads image from URL\n\n**Route:** Directs to correct operation\n\n```\nIF operation = \"enhance\"\n  → Picsart Enhance\nELSE\n  → Picsart Remove BG\n```\n\nBoth paths merge at the end."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step4-api",
+      "name": "Step 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 360,
+        "content": "## 4. Process with AI\n\n**Enhance:**\nAI upscaling (10-50 credits)\n\n**Remove Background:**\nAI cutout (~1 credit)\n\nBoth return:\n- Processed image URL\n- Credits used\n- Status\n\nResults merge for response."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step5-api",
+      "name": "Step 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1340,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 360,
+        "content": "## 5. Return Response\n\nFormats and sends JSON response.\n\n**Success (200):**\n```json\n{\n  \"success\": true,\n  \"operation\": \"...\",\n  \"imageUrl\": \"...\",\n  \"creditsUsed\": 20\n}\n```\n\n**Error (400):**\n```json\n{\n  \"success\": false,\n  \"error\": \"...\"\n}\n```"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Webhook Endpoint": {
+      "main": [
+        [
+          {
+            "node": "Validate Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Image": {
+      "main": [
+        [
+          {
+            "node": "Route by Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Operation": {
+      "main": [
+        [
+          {
+            "node": "Picsart Enhance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Picsart Remove Background",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Picsart Enhance": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Picsart Remove Background": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}

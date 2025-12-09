@@ -1,6 +1,6 @@
-# @picsart/n8n-nodes-picsart-apis
+# @picsart/n8n-nodes-picsart-creative-apis
 
-[![npm version](https://img.shields.io/npm/v/@picsart/n8n-nodes-picsart-apis.svg)](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-apis)
+[![npm version](https://img.shields.io/npm/v/@picsart/n8n-nodes-picsart-creative-apis.svg)](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-creative-apis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 n8n community nodes for image processing using Picsart APIs.
@@ -9,7 +9,7 @@ n8n community nodes for image processing using Picsart APIs.
 ### Setup
 ```bash
 git clone <repository-url>
-cd n8n-nodes-picsart-apis
+cd n8n-nodes-picsart-creative-apis
 pnpm install
 pnpm run build
 ```
@@ -69,11 +69,11 @@ MIT © [Picsart](https://picsart.io)
 
 **For n8n Cloud:**
 1. Settings > Community Nodes > Install
-2. Enter: `@picsart/n8n-nodes-picsart-apis`
+2. Enter: `@picsart/n8n-nodes-picsart-creative-apis`
 
 **For Self-hosted:**
 
-npm install @picsart/n8n-nodes-picsart-apis
+npm install @picsart/n8n-nodes-picsart-creative-apis
 
 Then restart n8n.
 

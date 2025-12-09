@@ -1,0 +1,290 @@
+{
+  "name": "Remove backgrounds from images in batch with Picsart",
+  "meta": {
+    "templateId": "picsart-batch-background-removal"
+  },
+  "nodes": [
+    {
+      "id": "manual-trigger-002",
+      "name": "When clicking 'Execute Workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        200,
+        400
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "set-image-urls",
+      "name": "Image URLs to Process",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        500,
+        400
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "url-1",
+              "name": "imageUrl",
+              "type": "string",
+              "value": "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+            },
+            {
+              "id": "product-name-1",
+              "name": "productName",
+              "type": "string",
+              "value": "Product_1"
+            }
+          ]
+        },
+        "options": {
+          "duplicateItem": true,
+          "duplicateCount": 3
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "split-in-batches",
+      "name": "Loop Through Images",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        800,
+        400
+      ],
+      "parameters": {
+        "batchSize": 1
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "http-get-image",
+      "name": "Fetch Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1100,
+        400
+      ],
+      "parameters": {
+        "url": "={{ $json.imageUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "picsart-remove-bg",
+      "name": "Remove Background",
+      "type": "@picsart/n8n-nodes-picsart-creative-apis.picsartRemoveBackground",
+      "position": [
+        1400,
+        400
+      ],
+      "parameters": {
+        "imageUrl": "={{ $binary.data.id }}",
+        "outputType": "cutout",
+        "bgColor": "transparent",
+        "format": "PNG"
+      },
+      "credentials": {
+        "picsartApi": {
+          "name": "Picsart API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "save-image",
+      "name": "Save Result",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "position": [
+        1700,
+        400
+      ],
+      "parameters": {
+        "fileName": "={{ $json.productName }}_no-bg.png"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "loop-complete",
+      "name": "All Done",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1700,
+        600
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-main-batch",
+      "name": "Template Description",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "height": 720,
+        "content": "## 🔄 Remove backgrounds from images in batch with Picsart\n\n### What it does\n\nAutomatically removes backgrounds from multiple images using Picsart's AI. Process dozens or hundreds of images efficiently with transparent backgrounds, custom colors, or replacement images.\n\n### Who's it for\n\n- E-commerce sellers preparing product catalogs\n- Photographers processing event or portrait photos\n- Marketing teams creating branded content\n- Designers preparing assets for composition\n- Marketplace sellers (Amazon, eBay, Etsy)\n\n### How it works\n\n1. Define a list of image URLs to process\n2. Loop through each image one by one\n3. Fetch and process with Picsart AI background removal\n4. Save results with custom filenames\n5. Repeat until all images complete\n\n### Requirements\n\n- Picsart API key ([console.picsart.io](https://console.picsart.io))\n- Install: `@picsart/n8n-nodes-picsart-creative-apis`\n- Add credentials in Settings → Credentials\n\n### How to customize\n\n- Replace \"Image URLs\" node with CSV import, Google Sheets, or database\n- Change background to color (hex) or custom image URL\n- Add effects: blur, stroke, shadow\n- Increase batch size for parallel processing\n- Upload results to Google Drive, Dropbox, or S3\n- Add progress notifications via email or Slack\n\n**Performance:** ~1 credit per image, ~2-5 seconds each\n\n[Picsart Remove BG API Docs](https://docs.picsart.io/docs/remove-background-api)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step1-batch",
+      "name": "Step 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 280,
+        "content": "## 1. Define Image List\n\nAdd your image URLs and product names here.\n\n**Better for large batches:**\n- CSV File Import\n- Google Sheets\n- Airtable\n- Database query\n- API call\n\nEach item should have:\n- `imageUrl`: Image location\n- `productName`: For organized output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step2-batch",
+      "name": "Step 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 280,
+        "content": "## 2. Loop Through Items\n\nProcesses one image at a time for reliability.\n\n**Batch Size:**\n- `1` = Sequential (most stable)\n- `5` = Process 5 simultaneously\n- `10` = Faster, uses more resources\n\n**Flow:**\nImage 1 → Process → Save ↓\nImage 2 → Process → Save ↓\n... until complete"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step3-batch",
+      "name": "Step 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 280,
+        "content": "## 3. Fetch & Remove BG\n\n**Fetch:** Downloads image from URL\n\n**Remove Background:** AI processes the image\n\n**Options:**\n- Output: cutout or mask\n- Background: transparent, color, or image\n- Format: PNG (transparency), JPG, WEBP\n\n**Effects available:**\nBlur, stroke, shadow, opacity"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-step4-batch",
+      "name": "Step 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 280,
+        "content": "## 4. Save & Continue\n\nSaves each processed image with custom name.\n\n**Filename format:**\n`ProductName_no-bg.png`\n\n**Alternatives:**\n- Google Drive upload\n- Dropbox storage\n- AWS S3 bucket\n- Update Airtable record\n- Send via email\n\nLoops back until all done!"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "When clicking 'Execute Workflow'": {
+      "main": [
+        [
+          {
+            "node": "Image URLs to Process",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image URLs to Process": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Images": {
+      "main": [
+        [
+          {
+            "node": "Fetch Image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "All Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Image": {
+      "main": [
+        [
+          {
+            "node": "Remove Background",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Background": {
+      "main": [
+        [
+          {
+            "node": "Save Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Result": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Images",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}

@@ -84,7 +84,7 @@ export class PicsartEnhance implements INodeType {
 				const format: string = this.getNodeParameter('format', itemIndex) as string;
 
 				if (!apiKey) {
-					throw new NodeOperationError(this.getNode(), 'invalid token', { itemIndex });
+					throw new NodeOperationError(this.getNode(), 'API key is required', { itemIndex });
 				}
 
 				if (!imageUrl || imageUrl.length < 1 || imageUrl.length > 2083) {
@@ -150,30 +150,17 @@ export class PicsartEnhance implements INodeType {
 					);
 				}
 
-				let balanceChecker = null;
-				try {
-					balanceChecker = await this.helpers.httpRequest({
-						method: 'GET',
-						url: 'https://api.picsart.io/tools/1.0/balance',
-						headers: {
-							'x-picsart-api-key': apiKey,
-							accept: 'application/json',
-						},
-					});
-				} catch (err) {
-					throw new NodeOperationError(this.getNode(), 'invalid token', { itemIndex });
-				}
 				let result = null;
-				console.log('normalizedFormat', normalizedFormat);
-				console.log('upscaleFactor', upscaleFactor);
-				// Enhance
+				let imageBuffer = null;
+
+				// Prepare form data for upscaling
 				const formData: FormData = new FormData();
 				formData.append('upscale_factor', upscaleFactor);
 				formData.append('format', normalizedFormat);
 				formData.append('image_url', imageUrl);
-				let imageBuffer = null;
-				console.log('formData', formData);
+
 				try {
+					// Call Picsart API to enhance/upscale image
 					result = await this.helpers.httpRequest({
 						method: 'POST',
 						url: 'https://api.picsart.io/tools/1.0/upscale',
@@ -183,17 +170,57 @@ export class PicsartEnhance implements INodeType {
 						},
 						body: formData,
 					});
+
+					// Download the processed image
 					imageBuffer = await this.helpers.httpRequest({
 						method: 'GET',
 						url: result?.data?.url,
 						encoding: 'arraybuffer',
 					});
-				} catch (err: any) {
-					console.log('err', err.response);
-					// Handle other API errors
-					throw new NodeOperationError(this.getNode(), err.response?.data?.detail, { itemIndex });
+				} catch (error: any) {
+					// Handle different HTTP error codes
+					const statusCode = error.response?.status || error.statusCode;
+					const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message;
+
+					if (statusCode === 429) {
+						// Rate limit exceeded - user has insufficient credits
+						throw new NodeOperationError(
+							this.getNode(),
+							`Insufficient credits or rate limit exceeded. Please check your Picsart account balance. ${errorMessage || ''}`,
+							{ itemIndex }
+						);
+					} else if (statusCode === 401 || statusCode === 403) {
+						// Authentication/Authorization error
+						throw new NodeOperationError(
+							this.getNode(),
+							`Authentication failed. Please check your API key is valid. ${errorMessage || ''}`,
+							{ itemIndex }
+						);
+					} else if (statusCode >= 400 && statusCode < 500) {
+						// Client error (400-499) - user's fault
+						throw new NodeOperationError(
+							this.getNode(),
+							`Client error: ${errorMessage || 'Invalid request parameters. Please check your input data.'}`,
+							{ itemIndex }
+						);
+					} else if (statusCode >= 500) {
+						// Server error (500-599) - Picsart API issue
+						throw new NodeOperationError(
+							this.getNode(),
+							`Picsart API server error (${statusCode}). Please try again later. ${errorMessage || ''}`,
+							{ itemIndex }
+						);
+					} else {
+						// Unknown error
+						throw new NodeOperationError(
+							this.getNode(),
+							`Failed to process image: ${errorMessage || error.message}`,
+							{ itemIndex }
+						);
+					}
 				}
-				const credits = balanceChecker?.data || {};
+
+				// Return processed image data
 				returnData.push({
 					binary: {
 						data: await this.helpers.prepareBinaryData(imageBuffer, 'result.png'),
@@ -201,20 +228,17 @@ export class PicsartEnhance implements INodeType {
 					json: {
 						imageUrl,
 						result,
-						credits: {
-							balance: credits.balance || 0,
-							credits: credits.credits || credits.balance || 0,
-							...credits,
-						},
 					},
 				});
 			} catch (error) {
-				// This node should never fail but we want to showcase how
-				// to handle errors.
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					throw new NodeOperationError(this.getNode(), error, { itemIndex });
+					// Re-throw if it's already a NodeOperationError, otherwise wrap it
+					if (error instanceof NodeOperationError) {
+						throw error;
+					}
+					throw new NodeOperationError(this.getNode(), error.message, { itemIndex });
 				}
 			}
 		}

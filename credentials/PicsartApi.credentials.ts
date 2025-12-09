@@ -3,7 +3,7 @@ import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, INodePro
 export class PicsartApi implements ICredentialType {
 	name = 'picsartApi';
 	displayName = 'Picsart API';
-	documentationUrl = 'https://docs.picsart.io/docs/getting-started-with-picsart-api';
+	documentationUrl = 'https://docs.picsart.io/docs';
 
 	properties: INodeProperties[] = [
 		{
