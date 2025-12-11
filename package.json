@@ -1,6 +1,6 @@
 {
   "name": "@picsart/n8n-nodes-picsart-creative-apis",
-  "version": "2.0.1",
+  "version": "3.0.2",
   "description": "n8n nodes to integrate Picsart API: remove backgrounds and enhance images with AI-powered tools.",
   "keywords": [
     "n8n-community-node-package",
@@ -16,7 +16,7 @@
   "homepage": "https://github.com/PicsArt/n8n-plugin#readme",
   "author": {
     "name": "Picsart",
-    "email": "romik.sargsyan@picsart.academy"
+    "email": "picsart-enterprise@picsart.com"
   },
   "repository": {
     "type": "git",
@@ -55,8 +55,7 @@
       "dist/credentials/PicsartApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/Enhance/PicsartEnhance.node.js",
-      "dist/nodes/PicsartRemoveBackground/PicsartRemoveBackground.node.js"
+      "dist/nodes/PicsartImage/PicsartImage.node.js"
     ]
   },
   "devDependencies": {
@@ -72,8 +71,5 @@
   },
   "peerDependencies": {
     "n8n-workflow": "*"
-  },
-  "dependencies": {
-    "@picsart/n8n-nodes-picsart-creative-apis": "^2.0.2"
   }
 }

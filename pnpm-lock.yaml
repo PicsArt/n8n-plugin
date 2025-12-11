@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@picsart/n8n-nodes-picsart-creative-apis':
-        specifier: ^2.0.2
-        version: 2.0.2(n8n-workflow@1.82.0)
       n8n-workflow:
         specifier: '*'
         version: 1.82.0
@@ -349,18 +346,6 @@ packages:
   '@phun-ky/typeof@2.0.3':
     resolution: {integrity: sha512-oeQJs1aa8Ghke8JIK9yuq/+KjMiaYeDZ38jx7MhkXncXlUKjqQ3wEm2X3qCKyjo+ZZofZj+WsEEiqkTtRuE2xQ==}
     engines: {node: ^20.9.0 || >=22.0.0, npm: '>=10.8.2'}
-
-  '@picsart/n8n-nodes-picsart-creative-apis@0.0.4':
-    resolution: {integrity: sha512-zvS/DwJeotGWx/trer5GDmZ2CUxiLk1BB77Ri+PV0zfQzT3BVqiOBxEkmSshU/ssAitjOMn2OH6y5MDHZPx/Sw==}
-    engines: {node: '>=20.15'}
-    peerDependencies:
-      n8n-workflow: '*'
-
-  '@picsart/n8n-nodes-picsart-creative-apis@2.0.2':
-    resolution: {integrity: sha512-j7FKPLF4hVzNdnxhozXsLcM3LWEKh3PyfnfwUIq3N68wjspdMZo7PpAdQGPwhJZUIQhHBAfP5VcMHVMv5RCZWw==}
-    engines: {node: '>=20.15'}
-    peerDependencies:
-      n8n-workflow: '*'
 
   '@servie/events@1.0.0':
     resolution: {integrity: sha512-sBSO19KzdrJCM3gdx6eIxV8M9Gxfgg6iDQmH5TIAGaUu+X9VDdsINXJOnoiZ1Kx3TrHdH4bt5UVglkjsEGBcvw==}
@@ -3024,15 +3009,6 @@ snapshots:
       '@octokit/openapi-types': 27.0.0
 
   '@phun-ky/typeof@2.0.3': {}
-
-  '@picsart/n8n-nodes-picsart-creative-apis@0.0.4(n8n-workflow@1.82.0)':
-    dependencies:
-      n8n-workflow: 1.82.0
-
-  '@picsart/n8n-nodes-picsart-creative-apis@2.0.2(n8n-workflow@1.82.0)':
-    dependencies:
-      '@picsart/n8n-nodes-picsart-creative-apis': 0.0.4(n8n-workflow@1.82.0)
-      n8n-workflow: 1.82.0
 
   '@servie/events@1.0.0': {}
 

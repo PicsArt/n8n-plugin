@@ -1,5 +1,5 @@
 {
-	"node": "n8n-nodes-base.picsartRemoveBackground",
+	"node": "n8n-nodes-base.picsartImage",
 	"nodeVersion": "1.0",
 	"codexVersion": "1.0",
 	"categories": ["Marketing & Content", "Utility"],
@@ -7,3 +7,4 @@
 		"documentationUrl": "https://docs.picsart.io/"
 	}
 }
+
