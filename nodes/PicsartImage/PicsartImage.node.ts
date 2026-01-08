@@ -4,6 +4,8 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
+import FormData from 'form-data';
+
 import { enhanceProperties } from './enhanceProperties';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 import { removeBgProperties } from './removeBgProperties';
@@ -38,11 +40,15 @@ export class PicsartImage implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Image',
-						value: 'image',
+						name: 'Binary Image',
+						value: 'binaryImage',
+					},
+					{
+						name: 'Image URL',
+						value: 'imageUrl',
 					},
 				],
-				default: 'image',
+				default: 'binaryImage',
 
 			},
 			{
@@ -52,7 +58,7 @@ export class PicsartImage implements INodeType {
 				noDataExpression: true,
 				displayOptions: {
 					show: {
-						resource: ['image'],
+						resource: ['binaryImage', 'imageUrl'],
 					},
 				},
 				options: [
@@ -121,69 +127,125 @@ async function executeRemoveBackground(
 	itemIndex: number,
 	returnData: INodeExecutionData[],
 ): Promise<void> {
-		// Get parameters
-		const imageUrl: string = context.getNodeParameter('image_url', itemIndex) as string;
-		const bgImageUrl: string = context.getNodeParameter('bg_image_url', itemIndex) as string;
-		const bgColor: string = context.getNodeParameter('bg_color', itemIndex) as string;
-		const format: string = context.getNodeParameter('format', itemIndex) as string;
+	// Get resource type
+	const resource: string = context.getNodeParameter('resource', itemIndex) as string;
+	
+	// Get parameters
+	const inputBinaryField: string = context.getNodeParameter('inputBinaryField', itemIndex, '') as string;
+	const imageUrl: string = context.getNodeParameter('image_url', itemIndex, '') as string;
+	const bgImageUrl: string = context.getNodeParameter('bg_image_url', itemIndex, '') as string;
+	const bgColor: string = context.getNodeParameter('bg_color', itemIndex, '') as string;
+	const format: string = context.getNodeParameter('format', itemIndex) as string;
 
-		if (!imageUrl) {
-			throw new NodeOperationError(context.getNode(), 'Image URL is required', { itemIndex });
-		}
+	// Check if binary data exists (only if resource is binaryImage)
+	let binaryDataBuffer = null;
+	let fileName = 'image.png';
+	let mimeType = 'image/png';
 
-		// Prepare form data for background removal
-		const formData: FormData = new FormData();
-		formData.append('image_url', imageUrl);
-
-		if (bgImageUrl) {
-			formData.append('bg_image_url', bgImageUrl);
-		}
-
-		if (bgColor) {
-			formData.append('bg_color', bgColor);
-		}
-
-		if (format) {
-			formData.append('format', format);
-		}
-
-		let result = null;
-		let imageBuffer = null;
-		try {
-			// Call Picsart API to remove background
-			result = await context.helpers.httpRequestWithAuthentication.call(
-				context,
-				'picsartApi',
-				{
-					method: 'POST',
-					url: 'https://api.picsart.io/tools/1.0/removebg',
-					headers: {
-						Accept: 'application/json',
-					},
-					body: formData,
-				},
+	if (resource === 'binaryImage') {
+		if (!inputBinaryField) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Input Binary Field is required when using Binary Image resource',
+				{ itemIndex }
 			);
-
-			// Download the processed image
-			imageBuffer = await context.helpers.httpRequest({
-				method: 'GET',
-				url: result?.data?.url,
-				encoding: 'arraybuffer',
-			});
-		} catch (error: any) {
-			handleApiError(context, error, itemIndex);
 		}
+		try {
+			// Get binary data metadata using assertBinaryData
+			const binaryData = context.helpers.assertBinaryData(itemIndex, inputBinaryField);
+			binaryDataBuffer = await context.helpers.getBinaryDataBuffer(itemIndex, inputBinaryField);
+			fileName = binaryData.fileName || (binaryData.fileExtension ? `image.${binaryData.fileExtension}` : 'image.png');
+			mimeType = binaryData.mimeType || 'image/png';
+		} catch (error) {
+			throw new NodeOperationError(
+				context.getNode(),
+				`Binary data not found in field "${inputBinaryField}". Please ensure the previous node provides binary data.`,
+				{ itemIndex }
+			);
+		}
+	} else if (resource === 'imageUrl') {
+		if (!imageUrl) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Image URL is required when using Image URL resource',
+				{ itemIndex }
+			);
+		}
+	}
 
-		// Return processed image data
-		returnData.push({
-			binary: {
-				data: await context.helpers.prepareBinaryData(imageBuffer, 'result.png'),
-			},
-			json: {
-				imageUrl,
-				result,
-			},
+	// Prepare form data for background removal
+	const formData = new FormData();
+
+	if (binaryDataBuffer) {
+		// Send binary file - use 'image' as the field name (matching browser code)
+		// form-data package will properly format this as a file upload
+		formData.append('image', binaryDataBuffer, {
+			filename: fileName,
+			contentType: mimeType,
 		});
+		// Add "size" parameter like in the browser example
+		formData.append('size', 'auto');
+	} else {
+		// Send image URL (only when no binary data)
+		formData.append('image_url', imageUrl);
+	}
+
+	if (bgImageUrl) {
+		formData.append('bg_image_url', bgImageUrl);
+	}
+
+	if (bgColor) {
+		formData.append('bg_color', bgColor);
+	}
+
+	if (format) {
+		formData.append('format', format);
+	}
+
+	let result = null;
+	let imageBuffer = null;
+	try {
+		// Call Picsart API to remove background
+		result = await context.helpers.httpRequestWithAuthentication.call(
+			context,
+			'picsartApi',
+			{
+				method: 'POST',
+				url: 'https://api.picsart.io/tools/1.0/removebg',
+				headers: {
+					Accept: 'application/json',
+					// form-data package sets Content-Type with boundary automatically
+					...formData.getHeaders(),
+				},
+				body: formData,
+			},
+		);
+
+		// Download the processed image
+		imageBuffer = await context.helpers.httpRequest({
+			method: 'GET',
+			url: result?.data?.url,
+			encoding: 'arraybuffer',
+		});
+	} catch (error: any) {
+		// Log full error details for debugging
+		console.log('=== FULL ERROR OBJECT ===');
+		console.log('Error context.data:', error.context?.data);
+		console.log('========================');
+		
+		handleApiError(context, error, itemIndex);
+	}
+
+	// Return processed image data
+	returnData.push({
+		binary: {
+			data: await context.helpers.prepareBinaryData(imageBuffer, 'result.png'),
+		},
+		json: {
+			imageUrl: binaryDataBuffer ? `[Binary: ${fileName}]` : imageUrl,
+			result,
+		},
+	});
 }
 
 async function executeEnhance(
@@ -191,10 +253,53 @@ async function executeEnhance(
 	itemIndex: number,
 	returnData: INodeExecutionData[],
 ): Promise<void> {
-		const imageUrl: string = context.getNodeParameter('image_url', itemIndex) as string;
-		const upscaleFactor: string = context.getNodeParameter('upscale_factor', itemIndex) as string;
-		const format: string = context.getNodeParameter('format', itemIndex) as string;
+	// Get resource type
+	const resource: string = context.getNodeParameter('resource', itemIndex) as string;
+	
+	// Get parameters
+	const inputBinaryField: string = context.getNodeParameter('inputBinaryField', itemIndex, '') as string;
+	const imageUrl: string = context.getNodeParameter('image_url', itemIndex, '') as string;
+	const upscaleFactor: string = context.getNodeParameter('upscale_factor', itemIndex) as string;
+	const format: string = context.getNodeParameter('format', itemIndex) as string;
 
+	// Check if binary data exists (only if resource is binaryImage)
+	let binaryDataBuffer = null;
+	let fileName = 'image.png';
+	let mimeType = 'image/png';
+
+	if (resource === 'binaryImage') {
+		if (!inputBinaryField) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Input Binary Field is required when using Binary Image resource',
+				{ itemIndex }
+			);
+		}
+		try {
+			// Get binary data metadata using assertBinaryData
+			const binaryData = context.helpers.assertBinaryData(itemIndex, inputBinaryField);
+			binaryDataBuffer = await context.helpers.getBinaryDataBuffer(itemIndex, inputBinaryField);
+			fileName = binaryData.fileName || (binaryData.fileExtension ? `image.${binaryData.fileExtension}` : 'image.png');
+			mimeType = binaryData.mimeType || 'image/png';
+		} catch (error) {
+			throw new NodeOperationError(
+				context.getNode(),
+				`Binary data not found in field "${inputBinaryField}". Please ensure the previous node provides binary data.`,
+				{ itemIndex }
+			);
+		}
+	} else if (resource === 'imageUrl') {
+		if (!imageUrl) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Image URL is required when using Image URL resource',
+				{ itemIndex }
+			);
+		}
+	}
+
+	// If using URL, validate it
+	if (!binaryDataBuffer && imageUrl) {
 		if (!imageUrl || imageUrl.length < 1 || imageUrl.length > 2083) {
 			throw new NodeOperationError(
 				context.getNode(),
@@ -212,18 +317,20 @@ async function executeEnhance(
 				itemIndex,
 			});
 		}
+	}
 
-		// format validation (default JPG; allowed: JPG, PNG, WEBP)
-		const allowedFormats = ['JPG', 'PNG', 'WEBP'];
-		const normalizedFormat = (format || 'JPG').toUpperCase();
+	// format validation (default JPG; allowed: JPG, PNG, WEBP)
+	const allowedFormats = ['JPG', 'PNG', 'WEBP'];
+	const normalizedFormat = (format || 'JPG').toUpperCase();
 
-		if (!allowedFormats.includes(normalizedFormat)) {
-			throw new NodeOperationError(context.getNode(), 'format must be one of: JPG, PNG, WEBP', {
-				itemIndex,
-			});
-		}
+	if (!allowedFormats.includes(normalizedFormat)) {
+		throw new NodeOperationError(context.getNode(), 'format must be one of: JPG, PNG, WEBP', {
+			itemIndex,
+		});
+	}
 
-		// image_url extension validation (must be JPG/PNG/WEBP) and align with selected format when present
+	// image_url extension validation (only if using URL)
+	if (!binaryDataBuffer && imageUrl) {
 		try {
 			const urlObj = new URL(imageUrl);
 			const pathname = urlObj.pathname || '';
@@ -258,57 +365,74 @@ async function executeEnhance(
 				{ itemIndex },
 			);
 		}
+	}
 
-		let result = null;
-		let imageBuffer = null;
+	let result = null;
+	let imageBuffer = null;
 
-		// Prepare form data for upscaling
-		const formData: FormData = new FormData();
-		formData.append('upscale_factor', upscaleFactor);
-		formData.append('format', normalizedFormat);
-		formData.append('image_url', imageUrl);
+	// Prepare form data for upscaling
+	const formData = new FormData();
+	formData.append('upscale_factor', upscaleFactor);
+	formData.append('format', normalizedFormat);
 
-		try {
-			// Call Picsart API to enhance/upscale image
-			result = await context.helpers.httpRequestWithAuthentication.call(
-				context,
-				'picsartApi',
-				{
-					method: 'POST',
-					url: 'https://api.picsart.io/tools/1.0/upscale',
-					headers: {
-						Accept: 'application/json',
-					},
-					body: formData,
-				},
-			);
-
-			// Download the processed image
-			imageBuffer = await context.helpers.httpRequest({
-				method: 'GET',
-				url: result?.data?.url,
-				encoding: 'arraybuffer',
-			});
-		} catch (error: any) {
-			handleApiError(context, error, itemIndex);
-		}
-
-		// Return processed image data
-		returnData.push({
-			binary: {
-				data: await context.helpers.prepareBinaryData(imageBuffer, 'result.png'),
-			},
-			json: {
-				imageUrl,
-				result,
-			},
+	if (binaryDataBuffer) {
+		// Send binary file
+		formData.append('image', binaryDataBuffer, {
+			filename: fileName,
+			contentType: mimeType,
 		});
+	} else {
+		// Send image URL (only when no binary data)
+		formData.append('image_url', imageUrl);
+	}
+
+	try {
+		// Call Picsart API to enhance/upscale image
+		result = await context.helpers.httpRequestWithAuthentication.call(
+			context,
+			'picsartApi',
+			{
+				method: 'POST',
+				url: 'https://api.picsart.io/tools/1.0/upscale',
+				headers: {
+					Accept: 'application/json',
+					// form-data package sets Content-Type with boundary automatically
+					...formData.getHeaders(),
+				},
+				body: formData,
+			},
+		);
+
+		// Download the processed image
+		imageBuffer = await context.helpers.httpRequest({
+			method: 'GET',
+			url: result?.data?.url,
+			encoding: 'arraybuffer',
+		});
+	} catch (error: any) {
+		handleApiError(context, error, itemIndex);
+	}
+
+	// Return processed image data
+	returnData.push({
+		binary: {
+			data: await context.helpers.prepareBinaryData(imageBuffer, 'result.png'),
+		},
+		json: {
+			imageUrl: binaryDataBuffer ? `[Binary: ${fileName}]` : imageUrl,
+			result,
+		},
+	});
 }
 
 function handleApiError(context: IExecuteFunctions, error: any, itemIndex: number): void {
-		const statusCode = error.response?.status || error.statusCode;
+		const statusCode = error.response?.status || error.statusCode || error.httpCode;
 		const errorMessage =
-			error.response?.data?.detail || error.response?.data?.message || error.message;
+			error.context?.data?.detail ||
+			error.response?.data?.detail ||
+			error.response?.data?.message ||
+			error.context?.data?.message ||
+			error.message;
 
 		if (statusCode === 429) {
 			// Rate limit exceeded - user has insufficient credits

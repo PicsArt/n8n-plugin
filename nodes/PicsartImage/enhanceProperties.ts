@@ -2,6 +2,20 @@ import type { INodeProperties } from 'n8n-workflow';
 
 export const enhanceProperties: INodeProperties[] = [
 	{
+		displayName: 'Input Binary Field',
+		name: 'inputBinaryField',
+		type: 'string',
+		default: 'data',
+		description: 'The name of the input field containing the binary data',
+		hint: 'The field typically comes from HTTP Request, Read Binary File, or previous processing nodes',
+		displayOptions: {
+			show: {
+				resource: ['binaryImage'],
+				operation: ['enhance'],
+			},
+		},
+	},
+	{
 		displayName: 'Image URL',
 		name: 'image_url',
 		type: 'string',
@@ -10,7 +24,7 @@ export const enhanceProperties: INodeProperties[] = [
 		description: 'URL image for processing',
 		displayOptions: {
 			show: {
-				resource: ['image'],
+				resource: ['imageUrl'],
 				operation: ['enhance'],
 			},
 		},
@@ -28,7 +42,7 @@ export const enhanceProperties: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['image'],
+				resource: ['binaryImage', 'imageUrl'],
 				operation: ['enhance'],
 			},
 		},
@@ -46,7 +60,7 @@ export const enhanceProperties: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['image'],
+				resource: ['binaryImage', 'imageUrl'],
 				operation: ['enhance'],
 			},
 		},
