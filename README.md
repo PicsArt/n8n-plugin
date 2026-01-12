@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@picsart/n8n-nodes-picsart-creative-apis.svg)](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-creative-apis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-n8n community nodes for image processing using Picsart APIs.
+n8n community nodes for image processing and generation using Picsart APIs.
 ## 💻 Development
 
 ### Setup
@@ -70,6 +70,18 @@ Then restart n8n.
 
 
 ## 📚 Nodes
+
+### Picsart Text2Image
+Generate images from text prompts using Picsart GenAI API.
+
+**Key Parameters:**
+- Prompt (required): Text description of the image to generate
+- Width: Image width in pixels (default: 1024, max: 1024)
+- Height: Image height in pixels (default: 1024, max: 1024)
+
+**Output:** Binary image + JSON with prompt, dimensions, transaction ID, and image URL
+
+**Documentation:** [Picsart Text2Image API](https://docs.picsart.io/reference/genai-text2image-1)
 
 ### Picsart Enhance
 Upscale and enhance images with AI.
