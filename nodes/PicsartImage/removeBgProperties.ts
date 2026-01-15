@@ -10,8 +10,8 @@ export const removeBgProperties: INodeProperties[] = [
         hint: 'The field typically comes from HTTP Request, Read Binary File, or previous processing nodes',
         displayOptions: {
             show: {
-                resource: ['binaryImage'],
-                operation: ['removeBackground'],
+                resource: ['DATA'],
+                operation: ['Remove Background'],
             },
         },
     },
@@ -24,8 +24,8 @@ export const removeBgProperties: INodeProperties[] = [
         description: 'URL image for processing',
         displayOptions: {
             show: {
-                resource: ['imageUrl'],
-                operation: ['removeBackground'],
+                resource: ['Image URL'],
+                operation: ['Remove Background'],
             },
         },
         modes: [
@@ -70,31 +70,6 @@ export const removeBgProperties: INodeProperties[] = [
             },
         ],
     },
-    // {
-    //     displayName: 'Background Image URL',
-    //     name: 'bg_image_url',
-    //     type: 'string',
-    //     default: '',
-    //     displayOptions: {
-    //         show: {
-    //             resource: ['binaryImage', 'imageUrl'],
-    //             operation: ['removeBackground'],
-    //         },
-    //     },
-    // },
-    // {
-    //     displayName: 'Background Color',
-    //     name: 'bg_color',
-    //     type: 'color',
-    //     default: '',
-    //     displayOptions: {
-    //         show: {
-    //             resource: ['binaryImage', 'imageUrl'],
-    //             operation: ['removeBackground'],
-    //         },
-    //     },
-    // },
-    // selector field
     {
         displayName: 'Background Type',
         name: 'backgroundType',
@@ -104,6 +79,11 @@ export const removeBgProperties: INodeProperties[] = [
         { name: 'Color', value: 'color' },
         ],
         default: 'color',
+        displayOptions: {
+            show: {
+                operation: ['Remove Background'],
+            },
+        },
     },
     
     // background image field
@@ -114,6 +94,7 @@ export const removeBgProperties: INodeProperties[] = [
         default: '',
         displayOptions: {
         show: {
+                operation: ['Remove Background'],
             backgroundType: ['image'],
         },
         },
@@ -127,6 +108,7 @@ export const removeBgProperties: INodeProperties[] = [
         default: '',
         displayOptions: {
         show: {
+                operation: ['Remove Background'],
             backgroundType: ['color'],
         },
         },
@@ -144,8 +126,8 @@ export const removeBgProperties: INodeProperties[] = [
         ],
         displayOptions: {
             show: {
-                resource: ['binaryImage', 'imageUrl'],
-                operation: ['removeBackground'],
+                resource: ['DATA', 'Image URL'],
+                operation: ['Remove Background'],
             },
         },
     },

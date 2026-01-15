@@ -1,6 +1,6 @@
 {
   "name": "@picsart/n8n-nodes-picsart-creative-apis",
-  "version": "5.1.0",
+  "version": "5.1.1",
   "description": "n8n nodes to integrate Picsart API: generate images from text, remove backgrounds, and enhance images with AI-powered tools.",
   "keywords": [
     "n8n-community-node-package",
@@ -57,8 +57,7 @@
       "dist/credentials/PicsartApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/PicsartImage/PicsartImage.node.js",
-      "dist/nodes/PicsartText2Image/PicsartText2Image.node.js"
+      "dist/nodes/PicsartImage/PicsartImage.node.js"
     ]
   },
   "devDependencies": {

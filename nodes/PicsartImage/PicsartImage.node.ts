@@ -9,6 +9,7 @@ import FormData from 'form-data';
 import { enhanceProperties } from './enhanceProperties';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 import { removeBgProperties } from './removeBgProperties';
+import { text2ImageProperties } from './text2ImageProperties';
 
 export class PicsartImage implements INodeType {
 	description: INodeTypeDescription = {
@@ -17,10 +18,10 @@ export class PicsartImage implements INodeType {
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Process images with Picsart API: remove backgrounds and enhance images',
-		subtitle: '={{ $parameter["operation"] + ": " + $parameter["resource"] }}',
+		description: 'Process and generate images with Picsart API: generate from text, remove backgrounds, and enhance images',
+		subtitle: '={{ $parameter["operation"] === "text2Image" ? $parameter["operation"] : $parameter["operation"] + ": " + $parameter["resource"] }}',
 		defaults: {
-			name: 'Picsart Image',
+			name: 'Picsart',
 		},
 		inputs: [NodeConnectionType.Main],
 		outputs: [NodeConnectionType.Main],
@@ -34,52 +35,61 @@ export class PicsartImage implements INodeType {
 		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
 		properties: [
 			{
+				displayName: 'Operation',
+				name: 'operation',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					
+					{
+						name: 'Remove Background',
+						value: 'Remove Background',
+						action: 'Remove background from an image',
+						description: 'Remove background from an image',
+					},
+					{
+						name: 'Enhance',
+						value: 'Enhance',
+						action: 'Enhance and upscale an image',
+						description: 'Enhance and upscale an image',
+					},
+					{
+						name: 'Text2Image',
+						value: 'text2Image',
+						action: 'Generate an image from text prompt',
+						description: 'Generate an image from a text prompt using AI',
+					}
+				],
+				default: 'Remove Background',
+			},
+			{
 				displayName: 'Resource',
 				name: 'resource',
 				type: 'options',
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Binary Image',
-						value: 'binaryImage',
+						name: 'DATA',
+						value: 'DATA',
 					},
 					{
 						name: 'Image URL',
-						value: 'imageUrl',
-					},
-				],
-				default: 'binaryImage',
+						value: 'Image URL',
+					}
 
-			},
-			{
-				displayName: 'Operation',
-				name: 'operation',
-				type: 'options',
-				noDataExpression: true,
+
+				],
+				default: 'Image URL',
 				displayOptions: {
 					show: {
-						resource: ['binaryImage', 'imageUrl'],
+						operation: ['Remove Background', 'Enhance'],
 					},
 				},
-				options: [
-					{
-						name: 'Remove Background',
-						value: 'removeBackground',
-						action: 'Remove background from an image',
-						description: 'Remove background from an image',
-					},
-					{
-						name: 'Enhance',
-						value: 'enhance',
-						action: 'Enhance an image',
-						description: 'Enhance and upscale an image',
-					},
-				],
-				default: 'removeBackground',
 			},
+			// Text2Image Operation Parameters
+			...text2ImageProperties,
 			// Remove Background Operation Parameters
             ...removeBgProperties,
-
 			// Enhance Operation Parameters
             ...enhanceProperties,
 		],
@@ -94,9 +104,11 @@ export class PicsartImage implements INodeType {
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
 
-				if (operation === 'removeBackground') {
+				if (operation === 'text2Image') {
+					await executeText2Image(this, itemIndex, returnData);
+				} else if (operation === 'Remove Background') {
 					await executeRemoveBackground(this, itemIndex, returnData);
-				} else if (operation === 'enhance') {
+				} else if (operation === 'Enhance') {
 					await executeEnhance(this, itemIndex, returnData);
 				} else {
 					throw new NodeOperationError(
@@ -137,12 +149,13 @@ async function executeRemoveBackground(
 	const bgColor: string = context.getNodeParameter('bg_color', itemIndex, '') as string;
 	const format: string = context.getNodeParameter('format', itemIndex) as string;
 
-	// Check if binary data exists (only if resource is binaryImage)
+	// Check if binary data exists (only if resource is DATA)
 	let binaryDataBuffer = null;
 	let fileName = 'image.png';
 	let mimeType = 'image/png';
-
-	if (resource === 'binaryImage') {
+	
+	console.log('resource', resource);
+	if (resource === 'DATA') {
 		if (!inputBinaryField) {
 			throw new NodeOperationError(
 				context.getNode(),
@@ -163,7 +176,7 @@ async function executeRemoveBackground(
 				{ itemIndex }
 			);
 		}
-	} else if (resource === 'imageUrl') {
+	} else if (resource === 'Image URL') {
 		if (!imageUrl) {
 			throw new NodeOperationError(
 				context.getNode(),
@@ -201,7 +214,7 @@ async function executeRemoveBackground(
 	if (format) {
 		formData.append('format', format);
 	}
-
+	console.log(formData);
 	let result = null;
 	let imageBuffer = null;
 	try {
@@ -262,12 +275,12 @@ async function executeEnhance(
 	const upscaleFactor: string = context.getNodeParameter('upscale_factor', itemIndex) as string;
 	const format: string = context.getNodeParameter('format', itemIndex) as string;
 
-	// Check if binary data exists (only if resource is binaryImage)
+	// Check if binary data exists (only if resource is DATA)
 	let binaryDataBuffer = null;
 	let fileName = 'image.png';
 	let mimeType = 'image/png';
-
-	if (resource === 'binaryImage') {
+	console.log('resource', resource);
+	if (resource === 'DATA') {
 		if (!inputBinaryField) {
 			throw new NodeOperationError(
 				context.getNode(),
@@ -288,7 +301,7 @@ async function executeEnhance(
 				{ itemIndex }
 			);
 		}
-	} else if (resource === 'imageUrl') {
+	} else if (resource === 'Image URL') {
 		if (!imageUrl) {
 			throw new NodeOperationError(
 				context.getNode(),
@@ -385,7 +398,7 @@ async function executeEnhance(
 		// Send image URL (only when no binary data)
 		formData.append('image_url', imageUrl);
 	}
-
+	console.log('formData', formData);	
 	try {
 		// Call Picsart API to enhance/upscale image
 		result = await context.helpers.httpRequestWithAuthentication.call(
@@ -423,6 +436,205 @@ async function executeEnhance(
 			result,
 		},
 	});
+}
+
+async function executeText2Image(
+	context: IExecuteFunctions,
+	itemIndex: number,
+	returnData: INodeExecutionData[],
+): Promise<void> {
+	// Get parameters
+	const prompt: string = context.getNodeParameter('prompt', itemIndex) as string;
+	const width: number = context.getNodeParameter('width', itemIndex, 1024) as number;
+	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
+	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
+	// Polling configuration (hardcoded, not exposed to user)
+	const pollInterval: number = 2; // seconds
+	const maxPollAttempts: number = 30; // maximum attempts
+
+	// Validate prompt
+	if (!prompt || prompt.trim().length === 0) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Prompt is required and cannot be empty',
+			{ itemIndex }
+		);
+	}
+
+	// Validate dimensions
+	if (width < 1 || width > 1024) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Width must be between 1 and 1024 pixels',
+			{ itemIndex }
+		);
+	}
+
+	if (height < 1 || height > 1024) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Height must be between 1 and 1024 pixels',
+			{ itemIndex }
+		);
+	}
+
+	// Validate count
+	if (count < 1 || count > 10) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Count must be between 1 and 10',
+			{ itemIndex }
+		);
+	}
+
+	let transactionId: string;
+	let result: any;
+
+	try {
+		// Step 1: Submit the text2image request
+		// POST https://genai-api.picsart.io/v1/text2image
+		const submitResponse = await context.helpers.httpRequestWithAuthentication.call(
+			context,
+			'picsartApi',
+			{
+				method: 'POST',
+				url: 'https://genai-api.picsart.io/v1/text2image',
+				headers: {
+					'Content-Type': 'application/json',
+					'Accept': 'application/json',
+				},
+				body: {
+					prompt,
+					width,
+					height,
+					count,
+					model: 'urn:air:sdxl:model:fluxai:flux_kontext_max@1',
+				},
+			},
+		);
+		// Extract transaction ID from response
+		transactionId = submitResponse.inference_id || submitResponse.id || submitResponse.transactionId;
+		
+		if (!transactionId) {
+			throw new NodeOperationError(
+				context.getNode(),
+				'Failed to get transaction ID from API response. Response: ' + JSON.stringify(submitResponse),
+				{ itemIndex }
+			);
+		}
+
+		// Step 2: Poll for the result
+		// GET https://genai-api.picsart.io/v1/text2image/inferences/{transaction_id}
+		let pollAttempts = 0;
+		let imageUrls: string[] = [];
+
+		while (pollAttempts < maxPollAttempts) {
+			// Wait before polling (except on first attempt)
+			if (pollAttempts > 0) {
+				await new Promise(resolve => setTimeout(resolve, pollInterval * 1000));
+			}
+
+			try {
+				result = await context.helpers.httpRequestWithAuthentication.call(
+					context,
+					'picsartApi',
+					{
+						method: 'GET',
+						url: `https://genai-api.picsart.io/v1/text2image/inferences/${transactionId}`,
+						headers: {
+							'Accept': 'application/json',
+						},
+					},
+				);
+				// Check if the result is ready
+				// The API returns status: 'success' with data as an array: [{ url: '...' }, ...]
+				if (result.status === 'completed' || result.status === 'success') {
+					// Handle data as array (multiple images possible)
+					if (Array.isArray(result.data) && result.data.length > 0) {
+						// Extract all image URLs from the array (up to count)
+						imageUrls = result.data
+							.slice(0, count)
+							.map((item: any) => item.url)
+							.filter((url: string) => url);
+						if (imageUrls.length > 0) {
+							break;
+						}
+					}
+					// Fallback: handle data as object with url property
+					else if (result.data?.url) {
+						imageUrls = [result.data.url];
+						if (imageUrls.length > 0) {
+							break;
+						}
+					}
+					// Fallback: direct url property
+					else if (result.url) {
+						imageUrls = [result.url];
+						if (imageUrls.length > 0) {
+							break;
+						}
+					}
+				}
+
+				// Check if failed
+				if (result.status === 'failed' || result.status === 'error') {
+					throw new NodeOperationError(
+						context.getNode(),
+						`Image generation failed: ${result.message || result.error || result.data?.message || 'Unknown error'}`,
+						{ itemIndex }
+					);
+				}
+
+				// Still processing - continue polling
+				pollAttempts++;
+			} catch (error: any) {
+				// If it's a 404, the transaction might not be ready yet
+				if (error.statusCode === 404 || error.response?.status === 404) {
+					pollAttempts++;
+					continue;
+				}
+				// Otherwise, re-throw the error
+				throw error;
+			}
+		}
+
+		if (imageUrls.length === 0) {
+			throw new NodeOperationError(
+				context.getNode(),
+				`Image generation timed out after ${maxPollAttempts} attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}`,
+				{ itemIndex }
+			);
+		}
+
+		// Step 3: Download all generated images and return them
+		for (let i = 0; i < imageUrls.length; i++) {
+			const imageUrl = imageUrls[i];
+			const imageBuffer = await context.helpers.httpRequest({
+				method: 'GET',
+				url: imageUrl,
+				encoding: 'arraybuffer',
+			});
+
+			// Return each generated image as a separate item
+			returnData.push({
+				binary: {
+					data: await context.helpers.prepareBinaryData(imageBuffer, `generated-image-${i + 1}.png`),
+				},
+				json: {
+					prompt,
+					width,
+					height,
+					count: imageUrls.length,
+					imageIndex: i + 1,
+					transactionId,
+					imageUrl,
+					result,
+				},
+			});
+		}
+	} catch (error: any) {
+		handleApiError(context, error, itemIndex);
+	}
 }
 
 function handleApiError(context: IExecuteFunctions, error: any, itemIndex: number): void {
@@ -471,3 +683,4 @@ function handleApiError(context: IExecuteFunctions, error: any, itemIndex: numbe
 			);
 		}
 }
+

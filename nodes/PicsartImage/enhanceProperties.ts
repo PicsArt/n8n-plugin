@@ -10,8 +10,8 @@ export const enhanceProperties: INodeProperties[] = [
 		hint: 'The field typically comes from HTTP Request, Read Binary File, or previous processing nodes',
 		displayOptions: {
 			show: {
-				resource: ['binaryImage'],
-				operation: ['enhance'],
+				resource: ['DATA'],
+				operation: ['Enhance'],
 			},
 		},
 	},
@@ -24,8 +24,8 @@ export const enhanceProperties: INodeProperties[] = [
 		description: 'URL image for processing',
 		displayOptions: {
 			show: {
-				resource: ['imageUrl'],
-				operation: ['enhance'],
+				resource: ['Image URL'],
+				operation: ['Enhance'],
 			},
 		},
 	},
@@ -42,8 +42,8 @@ export const enhanceProperties: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['binaryImage', 'imageUrl'],
-				operation: ['enhance'],
+				resource: ['DATA', 'Image URL'],
+				operation: ['Enhance'],
 			},
 		},
 	},
@@ -60,8 +60,8 @@ export const enhanceProperties: INodeProperties[] = [
 		],
 		displayOptions: {
 			show: {
-				resource: ['binaryImage', 'imageUrl'],
-				operation: ['enhance'],
+				resource: ['DATA', 'Image URL'],
+				operation: ['Enhance'],
 			},
 		},
 	},

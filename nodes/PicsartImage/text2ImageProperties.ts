@@ -9,6 +9,11 @@ export const text2ImageProperties: INodeProperties[] = [
 		default: '',
 		description: 'Text prompt describing the image to generate',
 		placeholder: 'e.g., A beautiful sunset over mountains',
+		displayOptions: {
+			show: {
+				operation: ['text2Image'],
+			},
+		},
 	},
 	{
 		displayName: 'Width',
@@ -19,6 +24,11 @@ export const text2ImageProperties: INodeProperties[] = [
 		typeOptions: {
 			minValue: 1,
 			maxValue: 1024,
+		},
+		displayOptions: {
+			show: {
+				operation: ['text2Image'],
+			},
 		},
 	},
 	{
@@ -31,5 +41,27 @@ export const text2ImageProperties: INodeProperties[] = [
 			minValue: 1,
 			maxValue: 1024,
 		},
+		displayOptions: {
+			show: {
+				operation: ['text2Image'],
+			},
+		},
+	},
+	{
+		displayName: 'Count',
+		name: 'count',
+		type: 'number',
+		default: 1,
+		description: 'Number of images to generate',
+		typeOptions: {
+			minValue: 1,
+			maxValue: 10,
+		},
+		displayOptions: {
+			show: {
+				operation: ['text2Image'],
+			},
+		},
 	},
 ];
+
