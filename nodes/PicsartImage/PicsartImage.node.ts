@@ -4,12 +4,59 @@ import type {
 	INodeType,
 	INodeTypeDescription,
 } from 'n8n-workflow';
-import FormData from 'form-data';
 
 import { enhanceProperties } from './enhanceProperties';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 import { removeBgProperties } from './removeBgProperties';
 import { text2ImageProperties } from './text2ImageProperties';
+
+// Buffer type for Node.js (available at runtime)
+// Declare Buffer as global to avoid requiring @types/node
+declare const Buffer: {
+	from(data: string | Uint8Array): any;
+	isBuffer(obj: any): boolean;
+	concat(buffers: any[]): any;
+};
+
+/**
+ * Build multipart/form-data body manually (n8n Cloud doesn't allow form-data package)
+ */
+function buildMultipartFormData(fields: Record<string, string | any | { data: any; filename?: string; contentType?: string }>): { body: any; contentType: string } {
+	const BufferClass = Buffer;
+	const boundary = `----n8n-${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+	const parts: any[] = [];
+
+	for (const [key, value] of Object.entries(fields)) {
+		parts.push(BufferClass.from(`--${boundary}\r\n`));
+		
+		if (BufferClass.isBuffer && BufferClass.isBuffer(value)) {
+			// Binary data
+			parts.push(BufferClass.from(`Content-Disposition: form-data; name="${key}"; filename="image.png"\r\n`));
+			parts.push(BufferClass.from(`Content-Type: application/octet-stream\r\n\r\n`));
+			parts.push(value);
+		} else if (typeof value === 'object' && value !== null && 'data' in value) {
+			// Object with data, filename, contentType
+			const fileData = value as { data: any; filename?: string; contentType?: string };
+			const filename = fileData.filename || 'image.png';
+			const contentType = fileData.contentType || 'application/octet-stream';
+			parts.push(BufferClass.from(`Content-Disposition: form-data; name="${key}"; filename="${filename}"\r\n`));
+			parts.push(BufferClass.from(`Content-Type: ${contentType}\r\n\r\n`));
+			parts.push(fileData.data);
+		} else {
+			// String value
+			parts.push(BufferClass.from(`Content-Disposition: form-data; name="${key}"\r\n\r\n`));
+			parts.push(BufferClass.from(String(value)));
+		}
+		parts.push(BufferClass.from(`\r\n`));
+	}
+
+	parts.push(BufferClass.from(`--${boundary}--\r\n`));
+
+	return {
+		body: BufferClass.concat(parts),
+		contentType: `multipart/form-data; boundary=${boundary}`,
+	};
+}
 
 export class PicsartImage implements INodeType {
 	description: INodeTypeDescription = {
@@ -154,7 +201,6 @@ async function executeRemoveBackground(
 	let fileName = 'image.png';
 	let mimeType = 'image/png';
 	
-	console.log('resource', resource);
 	if (resource === 'DATA') {
 		if (!inputBinaryField) {
 			throw new NodeOperationError(
@@ -186,35 +232,35 @@ async function executeRemoveBackground(
 		}
 	}
 
-	// Prepare form data for background removal
-	const formData = new FormData();
+	// Prepare form data for background removal (manual multipart - no form-data package)
+	const formFields: Record<string, string | { data: any; filename?: string; contentType?: string }> = {};
 
 	if (binaryDataBuffer) {
-		// Send binary file - use 'image' as the field name (matching browser code)
-		// form-data package will properly format this as a file upload
-		formData.append('image', binaryDataBuffer, {
+		// Send binary file
+		formFields.image = {
+			data: binaryDataBuffer,
 			filename: fileName,
 			contentType: mimeType,
-		});
-		// Add "size" parameter like in the browser example
-		formData.append('size', 'auto');
+		};
+		formFields.size = 'auto';
 	} else {
 		// Send image URL (only when no binary data)
-		formData.append('image_url', imageUrl);
+		formFields.image_url = imageUrl;
 	}
 
 	if (bgImageUrl) {
-		formData.append('bg_image_url', bgImageUrl);
+		formFields.bg_image_url = bgImageUrl;
 	}
 
 	if (bgColor) {
-		formData.append('bg_color', bgColor);
+		formFields.bg_color = bgColor;
 	}
 
 	if (format) {
-		formData.append('format', format);
+		formFields.format = format;
 	}
-	console.log(formData);
+
+	const multipart = buildMultipartFormData(formFields);
 	let result = null;
 	let imageBuffer = null;
 	try {
@@ -227,10 +273,9 @@ async function executeRemoveBackground(
 				url: 'https://api.picsart.io/tools/1.0/removebg',
 				headers: {
 					Accept: 'application/json',
-					// form-data package sets Content-Type with boundary automatically
-					...formData.getHeaders(),
+					'Content-Type': multipart.contentType,
 				},
-				body: formData,
+				body: multipart.body,
 			},
 		);
 
@@ -241,11 +286,6 @@ async function executeRemoveBackground(
 			encoding: 'arraybuffer',
 		});
 	} catch (error: any) {
-		// Log full error details for debugging
-		console.log('=== FULL ERROR OBJECT ===');
-		console.log('Error context.data:', error.context?.data);
-		console.log('========================');
-		
 		handleApiError(context, error, itemIndex);
 	}
 
@@ -279,7 +319,6 @@ async function executeEnhance(
 	let binaryDataBuffer = null;
 	let fileName = 'image.png';
 	let mimeType = 'image/png';
-	console.log('resource', resource);
 	if (resource === 'DATA') {
 		if (!inputBinaryField) {
 			throw new NodeOperationError(
@@ -383,22 +422,25 @@ async function executeEnhance(
 	let result = null;
 	let imageBuffer = null;
 
-	// Prepare form data for upscaling
-	const formData = new FormData();
-	formData.append('upscale_factor', upscaleFactor);
-	formData.append('format', normalizedFormat);
+	// Prepare form data for upscaling (manual multipart - no form-data package)
+	const formFields: Record<string, string | { data: any; filename?: string; contentType?: string }> = {
+		upscale_factor: upscaleFactor,
+		format: normalizedFormat,
+	};
 
 	if (binaryDataBuffer) {
 		// Send binary file
-		formData.append('image', binaryDataBuffer, {
+		formFields.image = {
+			data: binaryDataBuffer,
 			filename: fileName,
 			contentType: mimeType,
-		});
+		};
 	} else {
 		// Send image URL (only when no binary data)
-		formData.append('image_url', imageUrl);
+		formFields.image_url = imageUrl;
 	}
-	console.log('formData', formData);	
+
+	const multipart = buildMultipartFormData(formFields);
 	try {
 		// Call Picsart API to enhance/upscale image
 		result = await context.helpers.httpRequestWithAuthentication.call(
@@ -409,10 +451,9 @@ async function executeEnhance(
 				url: 'https://api.picsart.io/tools/1.0/upscale',
 				headers: {
 					Accept: 'application/json',
-					// form-data package sets Content-Type with boundary automatically
-					...formData.getHeaders(),
+					'Content-Type': multipart.contentType,
 				},
-				body: formData,
+				body: multipart.body,
 			},
 		);
 
@@ -449,7 +490,6 @@ async function executeText2Image(
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
-	const pollInterval: number = 2; // seconds
 	const maxPollAttempts: number = 30; // maximum attempts
 
 	// Validate prompt
@@ -529,11 +569,8 @@ async function executeText2Image(
 		let imageUrls: string[] = [];
 
 		while (pollAttempts < maxPollAttempts) {
-			// Wait before polling (except on first attempt)
-			if (pollAttempts > 0) {
-				await new Promise(resolve => setTimeout(resolve, pollInterval * 1000));
-			}
-
+			// Poll immediately - n8n Cloud doesn't allow setTimeout
+			// The API will handle rate limiting appropriately
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
