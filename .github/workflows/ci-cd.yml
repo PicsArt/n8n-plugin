@@ -1,0 +1,85 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  quality-checks:
+    name: Quality Checks (Lint, Build, Scan)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: false
+
+      - name: Build package
+        run: npm run build
+        continue-on-error: false
+
+      - name: Pack package for scanning
+        run: npm pack
+        continue-on-error: false
+
+      - name: Scan community package
+        run: |
+          PACKAGE_FILE=$(ls picsart-n8n-nodes-picsart-creative-apis-*.tgz | head -1)
+          npx @n8n/scan-community-package "$PACKAGE_FILE"
+        continue-on-error: false
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish:
+    name: Publish to NPM
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build package
+        run: npm run build
+
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
