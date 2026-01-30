@@ -5,8 +5,8 @@ import type {
 	INodeTypeDescription,
 } from 'n8n-workflow';
 
-import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 import { enhanceProperties } from './enhanceProperties';
+import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 import { removeBgProperties } from './removeBgProperties';
 import { text2ImageProperties } from './text2ImageProperties';
 
@@ -489,8 +489,7 @@ async function executeText2Image(
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
-	const maxPollAttempts: number = 150; // maximum attempts (up to 5 minutes with 2s delay)
-	const pollDelayMs: number = 1500; // 2 seconds between polls
+	const maxPollAttempts: number = 300; // maximum attempts
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
@@ -569,11 +568,8 @@ async function executeText2Image(
 		let imageUrls: string[] = [];
 
 		while (pollAttempts < maxPollAttempts) {
-			// Add delay between polling attempts (skip first attempt)
-			if (pollAttempts > 0) {
-				await new Promise(resolve => setTimeout(resolve, pollDelayMs));
-			}
-			
+			// Poll immediately - n8n Cloud doesn't allow setTimeout
+			// The API will handle rate limiting appropriately
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
@@ -639,10 +635,9 @@ async function executeText2Image(
 		}
 
 		if (imageUrls.length === 0) {
-			const timeoutMinutes = Math.floor((maxPollAttempts * pollDelayMs) / 60000);
 			throw new NodeOperationError(
 				context.getNode(),
-				`Image generation timed out after ${maxPollAttempts} attempts (~${timeoutMinutes} minutes). Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}`,
+				`Image generation timed out after ${maxPollAttempts} attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}`,
 				{ itemIndex }
 			);
 		}
