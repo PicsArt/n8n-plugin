@@ -81,7 +81,13 @@ jobs:
 
       - name: Configure NPM authentication
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          cat > .npmrc << EOF
+          @picsart:registry=https://registry.npmjs.org/
+          registry=https://registry.npmjs.org/
+          //registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}
+          EOF
           
       - name: Publish to NPM
         run: npm publish --access public
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
