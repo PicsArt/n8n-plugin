@@ -490,8 +490,9 @@ async function executeText2Image(
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
-	const maxPollAttempts: number = 150; // maximum attempts
-	const pollDelayMs: number = 2000; // 2 seconds between polls
+	// Note: We use many attempts as n8n doesn't allow setTimeout in community nodes
+	// The API will naturally rate-limit if we poll too fast
+	const maxPollAttempts: number = 600; // maximum attempts (API rate limiting will slow this down)
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
@@ -570,11 +571,8 @@ async function executeText2Image(
 		let imageUrls: string[] = [];
 
 		while (pollAttempts < maxPollAttempts) {
-			// Add delay between polling attempts (skip first attempt)
-			if (pollAttempts > 0) {
-				await new Promise(resolve => setTimeout(resolve, pollDelayMs));
-			}
-			
+			// Note: n8n community nodes cannot use setTimeout
+			// The API's rate limiting will naturally slow down rapid polling
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
@@ -642,7 +640,7 @@ async function executeText2Image(
 		if (imageUrls.length === 0) {
 			throw new NodeOperationError(
 				context.getNode(),
-				`Image generation timed out after ${maxPollAttempts} attempts (${maxPollAttempts * pollDelayMs / 1000} seconds). Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. Please try again or contact support if the issue persists.`,
+				`Image generation timed out after ${maxPollAttempts} polling attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. The image may still be processing - please try again in a few moments or contact support if the issue persists.`,
 				{ itemIndex }
 			);
 		}
