@@ -192,8 +192,8 @@ async function executeRemoveBackground(
 	// Get parameters
 	const inputBinaryField: string = context.getNodeParameter('inputBinaryField', itemIndex, '') as string;
 	const imageUrl: string = context.getNodeParameter('image_url', itemIndex, '') as string;
-	const bgImageUrl: string = context.getNodeParameter('bg_image_url', itemIndex, '') as string;
-	const bgColor: string = context.getNodeParameter('bg_color', itemIndex, '') as string;
+	const bgImageUrl: string = context.getNodeParameter('backgroundImage', itemIndex, '') as string;
+	const bgColor: string = context.getNodeParameter('backgroundColor', itemIndex, '') as string;
 	const format: string = context.getNodeParameter('format', itemIndex) as string;
 
 	// Check if binary data exists (only if resource is DATA)
@@ -278,7 +278,6 @@ async function executeRemoveBackground(
 				body: multipart.body,
 			},
 		);
-
 		// Download the processed image
 		imageBuffer = await context.helpers.httpRequest({
 			method: 'GET',
@@ -490,7 +489,7 @@ async function executeText2Image(
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
-	const maxPollAttempts: number = 30; // maximum attempts
+	const maxPollAttempts: number = 300; // maximum attempts
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
