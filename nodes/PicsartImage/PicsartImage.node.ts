@@ -3,10 +3,11 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	NodeConnectionType,
 } from 'n8n-workflow';
 
 import { enhanceProperties } from './enhanceProperties';
-import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 import { removeBgProperties } from './removeBgProperties';
 import { text2ImageProperties } from './text2ImageProperties';
 
@@ -70,8 +71,8 @@ export class PicsartImage implements INodeType {
 		defaults: {
 			name: 'Picsart',
 		},
-		inputs: [NodeConnectionType.Main],
-		outputs: [NodeConnectionType.Main],
+		inputs: ['main' as NodeConnectionType],
+		outputs: ['main' as NodeConnectionType],
 		usableAsTool: true,
 		credentials: [
 			{
