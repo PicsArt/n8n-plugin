@@ -490,7 +490,8 @@ async function executeText2Image(
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
-	const maxPollAttempts: number = 300; // maximum attempts
+	const maxPollAttempts: number = 150; // maximum attempts
+	const pollDelayMs: number = 2000; // 2 seconds between polls
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
@@ -569,8 +570,11 @@ async function executeText2Image(
 		let imageUrls: string[] = [];
 
 		while (pollAttempts < maxPollAttempts) {
-			// Poll immediately - n8n Cloud doesn't allow setTimeout
-			// The API will handle rate limiting appropriately
+			// Add delay between polling attempts (skip first attempt)
+			if (pollAttempts > 0) {
+				await new Promise(resolve => setTimeout(resolve, pollDelayMs));
+			}
+			
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
