@@ -489,7 +489,7 @@ async function executeText2Image(
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
-	const maxPollAttempts: number = 280; // maximum attempts
+	const maxPollAttempts: number = 300; // maximum attempts
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
