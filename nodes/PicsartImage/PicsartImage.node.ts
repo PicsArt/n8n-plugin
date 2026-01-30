@@ -642,7 +642,7 @@ async function executeText2Image(
 		if (imageUrls.length === 0) {
 			throw new NodeOperationError(
 				context.getNode(),
-				`Image generation timed out after ${maxPollAttempts} attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}`,
+				`Image generation timed out after ${maxPollAttempts} attempts (${maxPollAttempts * pollDelayMs / 1000} seconds). Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. Please try again or contact support if the issue persists.`,
 				{ itemIndex }
 			);
 		}
