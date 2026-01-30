@@ -490,7 +490,7 @@ async function executeText2Image(
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	// Polling configuration (hardcoded, not exposed to user)
 	const maxPollAttempts: number = 150; // maximum attempts (up to 5 minutes with 2s delay)
-	const pollDelayMs: number = 2000; // 2 seconds between polls
+	const pollDelayMs: number = 1500; // 2 seconds between polls
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
