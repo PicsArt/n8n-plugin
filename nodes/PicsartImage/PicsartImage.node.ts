@@ -7,14 +7,14 @@ import type {
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-import { enhanceProperties } from './enhanceProperties';
-import { removeBgProperties } from './removeBgProperties';
-import { text2ImageProperties } from './text2ImageProperties';
-import { ultraUpscaleProperties } from './ultraUpscaleProperties';
-import { executeRemoveBackground } from './executeRemoveBackground';
-import { executeEnhance } from './executeEnhance';
-import { executeUltraUpscale } from './executeUltraUpscale';
-import { executeText2Image } from './executeText2Image';
+import { enhanceProperties } from './properties/enhanceProperties';
+import { removeBgProperties } from './properties/removeBgProperties';
+import { text2ImageProperties } from './properties/text2ImageProperties';
+import { ultraUpscaleProperties } from './properties/ultraUpscaleProperties';
+import { executeRemoveBackground } from './execute/executeRemoveBackground';
+import { executeEnhance } from './execute/executeEnhance';
+import { executeUltraUpscale } from './execute/executeUltraUpscale';
+import { executeText2Image } from './execute/executeText2Image';
 
 export class PicsartImage implements INodeType {
 	description: INodeTypeDescription = {
