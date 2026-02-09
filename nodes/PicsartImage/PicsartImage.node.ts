@@ -10,11 +10,31 @@ import { NodeOperationError } from 'n8n-workflow';
 import { enhanceProperties } from './properties/enhanceProperties';
 import { removeBgProperties } from './properties/removeBgProperties';
 import { text2ImageProperties } from './properties/text2ImageProperties';
+import { text2StickerProperties } from './properties/text2StickerProperties';
+import { carClassifyProperties } from './properties/carClassifyProperties';
+import { describeImageProperties } from './properties/describeImageProperties';
+import { hashtagProperties } from './properties/hashtagProperties';
+import { editImageProperties } from './properties/editImageProperties';
+import { watermarkProperties } from './properties/watermarkProperties';
+import { videoFpsUpscaleProperties } from './properties/videoFpsUpscaleProperties';
+import { videoWatermarkProperties } from './properties/videoWatermarkProperties';
 import { ultraUpscaleProperties } from './properties/ultraUpscaleProperties';
+import { ultraEnhanceProperties } from './properties/ultraEnhanceProperties';
+import { faceEnhanceProperties } from './properties/faceEnhanceProperties';
 import { executeRemoveBackground } from './execute/executeRemoveBackground';
 import { executeEnhance } from './execute/executeEnhance';
 import { executeUltraUpscale } from './execute/executeUltraUpscale';
+import { executeUltraEnhance } from './execute/executeUltraEnhance';
+import { executeFaceEnhance } from './execute/executeFaceEnhance';
 import { executeText2Image } from './execute/executeText2Image';
+import { executeText2Sticker } from './execute/executeText2Sticker';
+import { executeCarClassify } from './execute/executeCarClassify';
+import { executeDescribeImage } from './execute/executeDescribeImage';
+import { executeHashtag } from './execute/executeHashtag';
+import { executeEditImage } from './execute/executeEditImage';
+import { executeWatermark } from './execute/executeWatermark';
+import { executeVideoFpsUpscale } from './execute/executeVideoFpsUpscale';
+import { executeVideoWatermark } from './execute/executeVideoWatermark';
 
 export class PicsartImage implements INodeType {
 	description: INodeTypeDescription = {
@@ -24,7 +44,7 @@ export class PicsartImage implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description: 'Process and generate images with Picsart API: generate from text, remove backgrounds, and enhance images',
-		subtitle: '={{ $parameter["operation"] === "text2Image" ? $parameter["operation"] : $parameter["operation"] + ": " + $parameter["resource"] }}',
+		subtitle: '={{ $parameter["operation"] === "text2Image" || $parameter["operation"] === "text2Sticker" || $parameter["operation"] === "Video FPS Upscale" || $parameter["operation"] === "Video Watermark" ? $parameter["operation"] : $parameter["operation"] + ": " + $parameter["resource"] }}',
 		defaults: {
 			name: 'Picsart',
 		},
@@ -44,33 +64,92 @@ export class PicsartImage implements INodeType {
 				name: 'operation',
 				type: 'options',
 				noDataExpression: true,
-				options: [
-					
-					{
-						name: 'Remove Background',
-						value: 'Remove Background',
-						action: 'Remove background from an image',
-						description: 'Remove background from an image',
-					},
-					{
-						name: 'Enhance',
-						value: 'Enhance',
-						action: 'Enhance and upscale an image',
-						description: 'Enhance and upscale an image',
-					},
-					{
-						name: 'Ultra Upscale',
-						value: 'Ultra Upscale',
-						action: 'Ultra upscale an image up to 16x',
-						description: 'Ultra upscale an image with advanced AI (2x-16x)',
-					},
-					{
-						name: 'Text2Image',
-						value: 'text2Image',
-						action: 'Generate an image from text prompt',
-						description: 'Generate an image from a text prompt using AI',
-					}
-				],
+			options: [
+				{
+					name: 'Car Classify',
+					value: 'Car Classify',
+					action: 'Classify car image',
+					description: 'Classify a car image into categories (exterior, interior, engine, undercarriage, other)',
+				},
+				{
+					name: 'Describe Image',
+					value: 'Describe Image',
+					action: 'Generate text description from image',
+					description: 'Generate a detailed text description for the provided image (image-to-text)',
+				},
+				{
+					name: 'Edit Image',
+					value: 'Edit Image',
+					action: 'Apply basic image editing',
+					description: 'Apply basic editing operations: resize, crop, flip, rotate, and perspective manipulation',
+				},
+				{
+					name: 'Enhance',
+					value: 'Enhance',
+					action: 'Enhance and upscale an image',
+					description: 'Enhance and upscale an image',
+				},
+				{
+					name: 'Face Enhance',
+					value: 'Face Enhance',
+					action: 'Enhance faces in photos',
+					description: 'Turn old, blurry photos into clear portraits with AI face restoration',
+				},
+				{
+					name: 'Hashtag',
+					value: 'Hashtag',
+					action: 'Generate hashtags from image',
+					description: 'Analyze image and suggest relevant hashtags for the content',
+				},
+				{
+					name: 'Remove Background',
+					value: 'Remove Background',
+					action: 'Remove background from an image',
+					description: 'Remove background from an image',
+				},
+				{
+					name: 'Text2Image',
+					value: 'text2Image',
+					action: 'Generate an image from text prompt',
+					description: 'Generate an image from a text prompt using AI',
+				},
+				{
+					name: 'Text2Sticker',
+					value: 'text2Sticker',
+					action: 'Generate a sticker from text prompt',
+					description: 'Generate a sticker from a text prompt using AI',
+				},
+				{
+					name: 'Ultra Enhance',
+					value: 'Ultra Enhance',
+					action: 'Ultra enhance with generative model',
+					description: 'Generative upscaling with high frequency detail (2x-16x, up to 64Mpx)',
+				},
+				{
+					name: 'Ultra Upscale',
+					value: 'Ultra Upscale',
+					action: 'Ultra upscale an image up to 16x',
+					description: 'Ultra upscale an image with advanced AI (2x-16x)',
+				},
+				{
+					name: 'Video FPS Upscale',
+					value: 'Video FPS Upscale',
+					action: 'Upscale video FPS to 60FPS',
+					description: 'Upscale low FPS videos to 60FPS high-quality videos using Generative AI',
+				},
+				{
+					name: 'Video Watermark',
+					value: 'Video Watermark',
+					action: 'Add watermark to video',
+					description: 'Add a watermark or logo to protect videos from unauthorized usage',
+				},
+				{
+					name: 'Watermark',
+					value: 'Watermark',
+					action: 'Add watermark to image',
+					description: 'Add a watermark or logo to protect images from unauthorized usage',
+				}
+			],
 				default: 'Remove Background',
 			},
 			{
@@ -90,21 +169,41 @@ export class PicsartImage implements INodeType {
 
 
 				],
-				default: 'Image URL',
-				displayOptions: {
-					show: {
-						operation: ['Remove Background', 'Enhance'],
-					},
+			default: 'Image URL',
+			displayOptions: {
+				show: {
+					operation: ['Remove Background', 'Enhance', 'Car Classify', 'Describe Image', 'Edit Image', 'Watermark', 'Hashtag'],
 				},
 			},
-			// Text2Image Operation Parameters
-			...text2ImageProperties,
-			// Remove Background Operation Parameters
-            ...removeBgProperties,
-			// Enhance Operation Parameters
-            ...enhanceProperties,
-			// Ultra Upscale Operation Parameters
-            ...ultraUpscaleProperties,
+		},
+		// Text2Image Operation Parameters
+		...text2ImageProperties,
+		// Text2Sticker Operation Parameters
+		...text2StickerProperties,
+		// Video FPS Upscale Operation Parameters
+		...videoFpsUpscaleProperties,
+		// Video Watermark Operation Parameters
+		...videoWatermarkProperties,
+		// Car Classify Operation Parameters
+		...carClassifyProperties,
+		// Describe Image Operation Parameters
+		...describeImageProperties,
+		// Hashtag Operation Parameters
+		...hashtagProperties,
+		// Edit Image Operation Parameters
+		...editImageProperties,
+		// Watermark Operation Parameters
+		...watermarkProperties,
+		// Remove Background Operation Parameters
+        ...removeBgProperties,
+		// Enhance Operation Parameters
+        ...enhanceProperties,
+		// Ultra Upscale Operation Parameters
+        ...ultraUpscaleProperties,
+		// Ultra Enhance Operation Parameters
+        ...ultraEnhanceProperties,
+		// Face Enhance Operation Parameters
+        ...faceEnhanceProperties,
 		],
 	};
 
@@ -119,12 +218,32 @@ export class PicsartImage implements INodeType {
 
 				if (operation === 'text2Image') {
 					await executeText2Image(this, itemIndex, returnData);
+				} else if (operation === 'text2Sticker') {
+					await executeText2Sticker(this, itemIndex, returnData);
+				} else if (operation === 'Video FPS Upscale') {
+					await executeVideoFpsUpscale(this, itemIndex, returnData);
+				} else if (operation === 'Video Watermark') {
+					await executeVideoWatermark(this, itemIndex, returnData);
+				} else if (operation === 'Car Classify') {
+					await executeCarClassify(this, itemIndex, returnData);
+				} else if (operation === 'Describe Image') {
+					await executeDescribeImage(this, itemIndex, returnData);
+				} else if (operation === 'Hashtag') {
+					await executeHashtag(this, itemIndex, returnData);
+				} else if (operation === 'Edit Image') {
+					await executeEditImage(this, itemIndex, returnData);
+				} else if (operation === 'Watermark') {
+					await executeWatermark(this, itemIndex, returnData);
 				} else if (operation === 'Remove Background') {
 					await executeRemoveBackground(this, itemIndex, returnData);
 				} else if (operation === 'Enhance') {
 					await executeEnhance(this, itemIndex, returnData);
 				} else if (operation === 'Ultra Upscale') {
 					await executeUltraUpscale(this, itemIndex, returnData);
+				} else if (operation === 'Ultra Enhance') {
+					await executeUltraEnhance(this, itemIndex, returnData);
+				} else if (operation === 'Face Enhance') {
+					await executeFaceEnhance(this, itemIndex, returnData);
 				} else {
 					throw new NodeOperationError(
 						this.getNode(),
