@@ -14,10 +14,11 @@ import { text2StickerProperties } from './properties/text2StickerProperties';
 import { carClassifyProperties } from './properties/carClassifyProperties';
 import { describeImageProperties } from './properties/describeImageProperties';
 import { hashtagProperties } from './properties/hashtagProperties';
-import { editImageProperties } from './properties/editImageProperties';
+import { convertPngToJpgProperties } from './properties/convertPngToJpgProperties';
+import { convertPngToWebpProperties } from './properties/convertPngToWebpProperties';
+import { cropImageProperties } from './properties/cropImageProperties';
+import { resizeImageProperties } from './properties/resizeImageProperties';
 import { watermarkProperties } from './properties/watermarkProperties';
-import { videoFpsUpscaleProperties } from './properties/videoFpsUpscaleProperties';
-import { videoWatermarkProperties } from './properties/videoWatermarkProperties';
 import { ultraUpscaleProperties } from './properties/ultraUpscaleProperties';
 import { ultraEnhanceProperties } from './properties/ultraEnhanceProperties';
 import { faceEnhanceProperties } from './properties/faceEnhanceProperties';
@@ -31,10 +32,11 @@ import { executeText2Sticker } from './execute/executeText2Sticker';
 import { executeCarClassify } from './execute/executeCarClassify';
 import { executeDescribeImage } from './execute/executeDescribeImage';
 import { executeHashtag } from './execute/executeHashtag';
-import { executeEditImage } from './execute/executeEditImage';
+import { executeConvertPngToJpg } from './execute/executeConvertPngToJpg';
+import { executeConvertPngToWebp } from './execute/executeConvertPngToWebp';
+import { executeCropImage } from './execute/executeCropImage';
+import { executeResizeImage } from './execute/executeResizeImage';
 import { executeWatermark } from './execute/executeWatermark';
-import { executeVideoFpsUpscale } from './execute/executeVideoFpsUpscale';
-import { executeVideoWatermark } from './execute/executeVideoWatermark';
 
 export class PicsartImage implements INodeType {
 	description: INodeTypeDescription = {
@@ -44,7 +46,7 @@ export class PicsartImage implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description: 'Process and generate images with Picsart API: generate from text, remove backgrounds, and enhance images',
-		subtitle: '={{ $parameter["operation"] === "text2Image" || $parameter["operation"] === "text2Sticker" || $parameter["operation"] === "Video FPS Upscale" || $parameter["operation"] === "Video Watermark" ? $parameter["operation"] : $parameter["operation"] + ": " + $parameter["resource"] }}',
+		subtitle: '={{ $parameter["operation"] === "text2Image" || $parameter["operation"] === "text2Sticker" ? $parameter["operation"] : $parameter["operation"] + ": " + $parameter["resource"] }}',
 		defaults: {
 			name: 'Picsart',
 		},
@@ -72,16 +74,28 @@ export class PicsartImage implements INodeType {
 					description: 'Classify a car image into categories (exterior, interior, engine, undercarriage, other)',
 				},
 				{
+					name: 'Convert PNG to JPG',
+					value: 'Convert PNG to JPG',
+					action: 'Convert PNG image to JPG format',
+					description: 'Convert PNG images to JPG format',
+				},
+				{
+					name: 'Convert PNG to WEBP',
+					value: 'Convert PNG to WEBP',
+					action: 'Convert PNG image to WEBP format',
+					description: 'Convert PNG images to WEBP format',
+				},
+				{
+					name: 'Crop Image',
+					value: 'Crop Image',
+					action: 'Crop image to specific dimensions',
+					description: 'Crop image to specified width and height',
+				},
+				{
 					name: 'Describe Image',
 					value: 'Describe Image',
 					action: 'Generate text description from image',
 					description: 'Generate a detailed text description for the provided image (image-to-text)',
-				},
-				{
-					name: 'Edit Image',
-					value: 'Edit Image',
-					action: 'Apply basic image editing',
-					description: 'Apply basic editing operations: resize, crop, flip, rotate, and perspective manipulation',
 				},
 				{
 					name: 'Enhance',
@@ -108,6 +122,12 @@ export class PicsartImage implements INodeType {
 					description: 'Remove background from an image',
 				},
 				{
+					name: 'Resize Image',
+					value: 'Resize Image',
+					action: 'Resize image to specific dimensions',
+					description: 'Resize image to specified width and height',
+				},
+				{
 					name: 'Text2Image',
 					value: 'text2Image',
 					action: 'Generate an image from text prompt',
@@ -125,30 +145,18 @@ export class PicsartImage implements INodeType {
 					action: 'Ultra enhance with generative model',
 					description: 'Generative upscaling with high frequency detail (2x-16x, up to 64Mpx)',
 				},
-				{
-					name: 'Ultra Upscale',
-					value: 'Ultra Upscale',
-					action: 'Ultra upscale an image up to 16x',
-					description: 'Ultra upscale an image with advanced AI (2x-16x)',
-				},
-				{
-					name: 'Video FPS Upscale',
-					value: 'Video FPS Upscale',
-					action: 'Upscale video FPS to 60FPS',
-					description: 'Upscale low FPS videos to 60FPS high-quality videos using Generative AI',
-				},
-				{
-					name: 'Video Watermark',
-					value: 'Video Watermark',
-					action: 'Add watermark to video',
-					description: 'Add a watermark or logo to protect videos from unauthorized usage',
-				},
-				{
-					name: 'Watermark',
-					value: 'Watermark',
-					action: 'Add watermark to image',
-					description: 'Add a watermark or logo to protect images from unauthorized usage',
-				}
+			{
+				name: 'Ultra Upscale',
+				value: 'Ultra Upscale',
+				action: 'Ultra upscale an image up to 16x',
+				description: 'Ultra upscale an image with advanced AI (2x-16x)',
+			},
+			{
+				name: 'Watermark',
+				value: 'Watermark',
+				action: 'Add watermark to image',
+				description: 'Add a watermark or logo to protect images from unauthorized usage',
+			}
 			],
 				default: 'Remove Background',
 			},
@@ -172,7 +180,7 @@ export class PicsartImage implements INodeType {
 			default: 'Image URL',
 			displayOptions: {
 				show: {
-					operation: ['Remove Background', 'Enhance', 'Car Classify', 'Describe Image', 'Edit Image', 'Watermark', 'Hashtag'],
+					operation: ['Remove Background', 'Enhance', 'Car Classify', 'Describe Image', 'Watermark', 'Hashtag', 'Convert PNG to JPG', 'Convert PNG to WEBP', 'Crop Image', 'Resize Image'],
 				},
 			},
 		},
@@ -180,22 +188,24 @@ export class PicsartImage implements INodeType {
 		...text2ImageProperties,
 		// Text2Sticker Operation Parameters
 		...text2StickerProperties,
-		// Video FPS Upscale Operation Parameters
-		...videoFpsUpscaleProperties,
-		// Video Watermark Operation Parameters
-		...videoWatermarkProperties,
 		// Car Classify Operation Parameters
 		...carClassifyProperties,
 		// Describe Image Operation Parameters
 		...describeImageProperties,
 		// Hashtag Operation Parameters
 		...hashtagProperties,
-		// Edit Image Operation Parameters
-		...editImageProperties,
+		// Convert PNG to JPG Operation Parameters
+		...convertPngToJpgProperties,
+		// Convert PNG to WEBP Operation Parameters
+		...convertPngToWebpProperties,
+		// Crop Image Operation Parameters
+		...cropImageProperties,
+		// Resize Image Operation Parameters
+		...resizeImageProperties,
 		// Watermark Operation Parameters
 		...watermarkProperties,
 		// Remove Background Operation Parameters
-        ...removeBgProperties,
+            ...removeBgProperties,
 		// Enhance Operation Parameters
         ...enhanceProperties,
 		// Ultra Upscale Operation Parameters
@@ -216,25 +226,27 @@ export class PicsartImage implements INodeType {
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
 
-				if (operation === 'text2Image') {
-					await executeText2Image(this, itemIndex, returnData);
-				} else if (operation === 'text2Sticker') {
-					await executeText2Sticker(this, itemIndex, returnData);
-				} else if (operation === 'Video FPS Upscale') {
-					await executeVideoFpsUpscale(this, itemIndex, returnData);
-				} else if (operation === 'Video Watermark') {
-					await executeVideoWatermark(this, itemIndex, returnData);
-				} else if (operation === 'Car Classify') {
-					await executeCarClassify(this, itemIndex, returnData);
-				} else if (operation === 'Describe Image') {
-					await executeDescribeImage(this, itemIndex, returnData);
-				} else if (operation === 'Hashtag') {
-					await executeHashtag(this, itemIndex, returnData);
-				} else if (operation === 'Edit Image') {
-					await executeEditImage(this, itemIndex, returnData);
-				} else if (operation === 'Watermark') {
-					await executeWatermark(this, itemIndex, returnData);
-				} else if (operation === 'Remove Background') {
+		if (operation === 'text2Image') {
+			await executeText2Image(this, itemIndex, returnData);
+		} else if (operation === 'text2Sticker') {
+			await executeText2Sticker(this, itemIndex, returnData);
+		} else if (operation === 'Car Classify') {
+			await executeCarClassify(this, itemIndex, returnData);
+		} else if (operation === 'Describe Image') {
+			await executeDescribeImage(this, itemIndex, returnData);
+		} else if (operation === 'Hashtag') {
+			await executeHashtag(this, itemIndex, returnData);
+		} else if (operation === 'Convert PNG to JPG') {
+			await executeConvertPngToJpg(this, itemIndex, returnData);
+		} else if (operation === 'Convert PNG to WEBP') {
+			await executeConvertPngToWebp(this, itemIndex, returnData);
+		} else if (operation === 'Crop Image') {
+			await executeCropImage(this, itemIndex, returnData);
+		} else if (operation === 'Resize Image') {
+			await executeResizeImage(this, itemIndex, returnData);
+		} else if (operation === 'Watermark') {
+			await executeWatermark(this, itemIndex, returnData);
+		} else if (operation === 'Remove Background') {
 					await executeRemoveBackground(this, itemIndex, returnData);
 				} else if (operation === 'Enhance') {
 					await executeEnhance(this, itemIndex, returnData);

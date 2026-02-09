@@ -186,7 +186,6 @@ export async function executeText2Sticker(
 					result,
 				},
 			});
-            console.log('returnData', returnData);
 		}
 	} catch (error: any) {
 		handleApiError(context, error, itemIndex);
