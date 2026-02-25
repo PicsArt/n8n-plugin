@@ -12,6 +12,7 @@ export async function executeText2Image(
 	const width: number = context.getNodeParameter('width', itemIndex, 1024) as number;
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
+	const model: string = context.getNodeParameter('model', itemIndex, 'urn:air:sdxl:model:fluxai:flux_kontext_max@1') as string;
 	// Polling configuration (hardcoded, not exposed to user)
 	// Note: We use many attempts as n8n doesn't allow setTimeout in community nodes
 	// The API will naturally rate-limit if we poll too fast
@@ -73,7 +74,7 @@ export async function executeText2Image(
 					width,
 					height,
 					count,
-					model: 'urn:air:sdxl:model:fluxai:flux_kontext_max@1',
+					model,
 				},
 			},
 		);
@@ -187,6 +188,7 @@ export async function executeText2Image(
 					width,
 					height,
 					count: imageUrls.length,
+					model,
 					imageIndex: i + 1,
 					transactionId,
 					imageUrl,

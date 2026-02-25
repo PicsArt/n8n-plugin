@@ -9,8 +9,6 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { enhanceProperties } from './properties/enhanceProperties';
 import { removeBgProperties } from './properties/removeBgProperties';
-import { text2ImageProperties } from './properties/text2ImageProperties';
-import { text2StickerProperties } from './properties/text2StickerProperties';
 import { carClassifyProperties } from './properties/carClassifyProperties';
 import { describeImageProperties } from './properties/describeImageProperties';
 import { hashtagProperties } from './properties/hashtagProperties';
@@ -27,8 +25,6 @@ import { executeEnhance } from './execute/executeEnhance';
 import { executeUltraUpscale } from './execute/executeUltraUpscale';
 import { executeUltraEnhance } from './execute/executeUltraEnhance';
 import { executeFaceEnhance } from './execute/executeFaceEnhance';
-import { executeText2Image } from './execute/executeText2Image';
-import { executeText2Sticker } from './execute/executeText2Sticker';
 import { executeCarClassify } from './execute/executeCarClassify';
 import { executeDescribeImage } from './execute/executeDescribeImage';
 import { executeHashtag } from './execute/executeHashtag';
@@ -40,15 +36,15 @@ import { executeWatermark } from './execute/executeWatermark';
 
 export class PicsartImage implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Picsart',
+		displayName: 'Picsart Image AI',
 		name: 'picsartImage',
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Process and generate images with Picsart API: generate from text, remove backgrounds, and enhance images',
-		subtitle: '={{ $parameter["operation"] === "text2Image" || $parameter["operation"] === "text2Sticker" ? $parameter["operation"] : $parameter["operation"] + ": " + $parameter["resource"] }}',
+		description: 'Image processing with Picsart API: convert formats, crop, resize, remove backgrounds, enhance, upscale, restore faces, watermark, and analyze images',
+		subtitle: '={{ $parameter["operation"] : $parameter["resource"] }}',
 		defaults: {
-			name: 'Picsart',
+			name: 'Picsart Image AI',
 		},
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],
@@ -128,18 +124,6 @@ export class PicsartImage implements INodeType {
 					description: 'Resize image to specified width and height',
 				},
 				{
-					name: 'Text2Image',
-					value: 'text2Image',
-					action: 'Generate an image from text prompt',
-					description: 'Generate an image from a text prompt using AI',
-				},
-				{
-					name: 'Text2Sticker',
-					value: 'text2Sticker',
-					action: 'Generate a sticker from text prompt',
-					description: 'Generate a sticker from a text prompt using AI',
-				},
-				{
 					name: 'Ultra Enhance',
 					value: 'Ultra Enhance',
 					action: 'Ultra enhance with generative model',
@@ -184,10 +168,7 @@ export class PicsartImage implements INodeType {
 				},
 			},
 		},
-		// Text2Image Operation Parameters
-		...text2ImageProperties,
-		// Text2Sticker Operation Parameters
-		...text2StickerProperties,
+
 		// Car Classify Operation Parameters
 		...carClassifyProperties,
 		// Describe Image Operation Parameters
@@ -225,28 +206,23 @@ export class PicsartImage implements INodeType {
 			try {
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
-
-		if (operation === 'text2Image') {
-			await executeText2Image(this, itemIndex, returnData);
-		} else if (operation === 'text2Sticker') {
-			await executeText2Sticker(this, itemIndex, returnData);
-		} else if (operation === 'Car Classify') {
-			await executeCarClassify(this, itemIndex, returnData);
-		} else if (operation === 'Describe Image') {
-			await executeDescribeImage(this, itemIndex, returnData);
-		} else if (operation === 'Hashtag') {
-			await executeHashtag(this, itemIndex, returnData);
-		} else if (operation === 'Convert PNG to JPG') {
-			await executeConvertPngToJpg(this, itemIndex, returnData);
-		} else if (operation === 'Convert PNG to WEBP') {
-			await executeConvertPngToWebp(this, itemIndex, returnData);
-		} else if (operation === 'Crop Image') {
-			await executeCropImage(this, itemIndex, returnData);
-		} else if (operation === 'Resize Image') {
-			await executeResizeImage(this, itemIndex, returnData);
-		} else if (operation === 'Watermark') {
-			await executeWatermark(this, itemIndex, returnData);
-		} else if (operation === 'Remove Background') {
+				if (operation === 'Car Classify') {
+					await executeCarClassify(this, itemIndex, returnData);
+				} else if (operation === 'Describe Image') {
+					await executeDescribeImage(this, itemIndex, returnData);
+				} else if (operation === 'Hashtag') {
+					await executeHashtag(this, itemIndex, returnData);
+				} else if (operation === 'Convert PNG to JPG') {
+					await executeConvertPngToJpg(this, itemIndex, returnData);
+				} else if (operation === 'Convert PNG to WEBP') {
+					await executeConvertPngToWebp(this, itemIndex, returnData);
+				} else if (operation === 'Crop Image') {
+					await executeCropImage(this, itemIndex, returnData);
+				} else if (operation === 'Resize Image') {
+					await executeResizeImage(this, itemIndex, returnData);
+				} else if (operation === 'Watermark') {
+					await executeWatermark(this, itemIndex, returnData);
+				} else if (operation === 'Remove Background') {
 					await executeRemoveBackground(this, itemIndex, returnData);
 				} else if (operation === 'Enhance') {
 					await executeEnhance(this, itemIndex, returnData);

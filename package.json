@@ -57,7 +57,9 @@
       "dist/credentials/PicsartApi.credentials.js"
     ],
     "nodes": [
-      "dist/nodes/PicsartImage/PicsartImage.node.js"
+      "dist/nodes/PicsartImage/PicsartImage.node.js",
+      "dist/nodes/PicsartGeneration/PicsartGeneration.node.js",
+      "dist/nodes/PicsartVideo/PicsartVideo.node.js"
     ]
   },
   "devDependencies": {

@@ -12,6 +12,7 @@ export async function executeText2Sticker(
 	const width: number = context.getNodeParameter('width', itemIndex, 1024) as number;
 	const height: number = context.getNodeParameter('height', itemIndex, 1024) as number;
 	const count: number = context.getNodeParameter('count', itemIndex, 2) as number;
+	const model: string = context.getNodeParameter('model', itemIndex, 'urn:air:sdxl:model:fluxai:flux_kontext_max@1') as string;
 	
 	// Polling configuration (hardcoded, not exposed to user)
 	// Note: We use many attempts as n8n doesn't allow setTimeout in community nodes
@@ -26,7 +27,10 @@ export async function executeText2Sticker(
 			{ itemIndex }
 		);
 	}
-
+	// console.log('width:', width);
+	// console.log('height:', height);
+	// console.log('count:', count);
+	// console.log('model:', model);
 	// Validate dimensions
 	if (width < 64 || width > 1024) {
 		throw new NodeOperationError(
@@ -74,6 +78,7 @@ export async function executeText2Sticker(
 					prompt,
 					width,
 					height,
+					model,
 				},
 				},
 			);
@@ -180,6 +185,7 @@ export async function executeText2Sticker(
 					width,
 					height,
 					count,
+					model,
 					imageIndex: stickerIndex + 1,
 					transactionId,
 					imageUrl,
