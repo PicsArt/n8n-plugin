@@ -32,7 +32,7 @@ import { executeFpsUpscale } from './execute/executeFpsUpscale';
 
 export class PicsartVideo implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Picsart',
+		displayName: 'Picsart Video AI',
 		name: 'picsartVideo',
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
@@ -40,7 +40,7 @@ export class PicsartVideo implements INodeType {
 		description: 'Generate images and stickers with Picsart API: generate from prompt',
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		defaults: {
-			name: 'Picsart',
+			name: 'Picsart Video AI',
 		},
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],

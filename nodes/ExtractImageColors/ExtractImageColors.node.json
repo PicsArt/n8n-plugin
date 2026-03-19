@@ -1,0 +1,9 @@
+{
+	"node": "n8n-nodes-base.extractImageColors",
+	"nodeVersion": "1.0",
+	"codexVersion": "1.0",
+	"categories": ["Marketing & Content", "Productivity", "Utility"],
+	"resources": {
+		"documentationUrl": "https://docs.picsart.io/"
+	}
+}

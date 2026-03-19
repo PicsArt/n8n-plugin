@@ -127,7 +127,7 @@ export async function executeWatermark(
 		} else {
 			const binaryPropertyName = context.getNodeParameter('watermarkBinaryPropertyName', itemIndex) as string;
 			const binaryData = context.getInputData()[itemIndex].binary![binaryPropertyName];
-			const data = await context.helpers.binaryToBuffer(binaryData);
+			const data = await context.helpers.getBinaryDataBuffer(itemIndex, binaryPropertyName);
 			const filename = binaryData.fileName || 'watermark.png';
 			const mimeType = binaryData.mimeType || 'image/png';
 			formFields.watermark = { data, filename, contentType: mimeType };

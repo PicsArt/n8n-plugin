@@ -27,10 +27,7 @@ export async function executeText2Sticker(
 			{ itemIndex }
 		);
 	}
-	// console.log('width:', width);
-	// console.log('height:', height);
-	// console.log('count:', count);
-	// console.log('model:', model);
+
 	// Validate dimensions
 	if (width < 64 || width > 1024) {
 		throw new NodeOperationError(
