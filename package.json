@@ -1,6 +1,6 @@
 {
   "name": "@picsart/n8n-nodes-picsart-creative-apis",
-  "version": "5.3.1",
+  "version": "5.3.3",
   "description": "n8n nodes to integrate Picsart API: generate images from text, remove backgrounds, and enhance images with AI-powered tools.",
   "keywords": [
     "n8n-community-node-package",
@@ -9,6 +9,9 @@
     "image-processing",
     "image-generation",
     "text2image",
+    "generate-images-from-prompt",
+    "generate-stickers-from-prompt",
+    "image2video",
     "background-removal",
     "image-enhancement",
     "upscale",
