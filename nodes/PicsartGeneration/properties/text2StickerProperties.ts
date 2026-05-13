@@ -11,7 +11,7 @@ export const text2StickerProperties: INodeProperties[] = [
 		placeholder: 'e.g., A cute cartoon cat with big eyes',
 		displayOptions: {
 			show: {
-				operation: ['text2Sticker'],
+				operation: ['Generate Stickers from Prompt'],
 			},
 		},
 	},
@@ -27,7 +27,7 @@ export const text2StickerProperties: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				operation: ['text2Sticker'],
+				operation: ['Generate Stickers from Prompt'],
 			},
 		},
 	},
@@ -43,7 +43,7 @@ export const text2StickerProperties: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				operation: ['text2Sticker'],
+				operation: ['Generate Stickers from Prompt'],
 			},
 		},
 	},
@@ -59,7 +59,7 @@ export const text2StickerProperties: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				operation: ['text2Sticker'],
+				operation: ['Generate Stickers from Prompt'],
 			},
 		},
 	},
@@ -72,7 +72,7 @@ export const text2StickerProperties: INodeProperties[] = [
 			'Optionally choose a specific AI model to use. If not specified, a default model will be applied. For consistent behavior or to evaluate different models, set this parameter explicitly.',
 		displayOptions: {
 			show: {
-				operation: ['text2Sticker'],
+				operation: ['Generate Stickers from Prompt'],
 			},
 		},
 		options: [

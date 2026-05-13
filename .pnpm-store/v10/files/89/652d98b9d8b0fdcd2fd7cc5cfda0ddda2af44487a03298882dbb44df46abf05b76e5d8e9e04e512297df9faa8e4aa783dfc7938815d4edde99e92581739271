@@ -1,0 +1,6 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.WAIT_TIME_UNLIMITED = exports.BINARY_ENCODING = void 0;
+exports.BINARY_ENCODING = 'base64';
+exports.WAIT_TIME_UNLIMITED = '3000-01-01T00:00:00.000Z';
+//# sourceMappingURL=Constants.js.map

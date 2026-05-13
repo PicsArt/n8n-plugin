@@ -40,8 +40,8 @@
   },
   "main": "index.js",
   "scripts": {
-    "build": "npx rimraf dist && tsc && gulp build:icons",
-    "dev": "tsc --watch",
+    "build": "npx rimraf dist && node ./node_modules/typescript/bin/tsc && node ./node_modules/gulp/bin/gulp.js build:icons",
+    "dev": "node ./node_modules/typescript/bin/tsc --watch",
     "format": "prettier nodes credentials --write",
     "lint": "eslint nodes credentials package.json",
     "lintfix": "eslint nodes credentials package.json --fix",

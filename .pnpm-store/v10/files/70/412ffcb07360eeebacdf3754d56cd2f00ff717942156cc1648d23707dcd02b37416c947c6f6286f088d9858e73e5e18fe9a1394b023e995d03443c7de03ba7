@@ -1,0 +1,29 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getWorkflowExecutionMetadata = exports.getAllWorkflowExecutionMetadata = exports.setAllWorkflowExecutionMetadata = exports.setWorkflowExecutionMetadata = exports.KV_LIMIT = void 0;
+exports.KV_LIMIT = 10;
+function setWorkflowExecutionMetadata(executionData, key, value) {
+    if (!executionData.resultData.metadata) {
+        executionData.resultData.metadata = {};
+    }
+    if (!(key in executionData.resultData.metadata) &&
+        Object.keys(executionData.resultData.metadata).length >= exports.KV_LIMIT) {
+        return;
+    }
+    executionData.resultData.metadata[String(key).slice(0, 50)] = String(value).slice(0, 255);
+}
+exports.setWorkflowExecutionMetadata = setWorkflowExecutionMetadata;
+function setAllWorkflowExecutionMetadata(executionData, obj) {
+    Object.entries(obj).forEach(([key, value]) => setWorkflowExecutionMetadata(executionData, key, value));
+}
+exports.setAllWorkflowExecutionMetadata = setAllWorkflowExecutionMetadata;
+function getAllWorkflowExecutionMetadata(executionData) {
+    var _a;
+    return (_a = { ...executionData.resultData.metadata }) !== null && _a !== void 0 ? _a : {};
+}
+exports.getAllWorkflowExecutionMetadata = getAllWorkflowExecutionMetadata;
+function getWorkflowExecutionMetadata(executionData, key) {
+    return getAllWorkflowExecutionMetadata(executionData)[String(key).slice(0, 50)];
+}
+exports.getWorkflowExecutionMetadata = getWorkflowExecutionMetadata;
+//# sourceMappingURL=WorkflowExecutionMetadata.js.map

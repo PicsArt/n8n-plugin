@@ -13,7 +13,7 @@ export const text2ImageProperties: INodeProperties[] = [
 		placeholder: 'e.g., A beautiful sunset over mountains',
 		displayOptions: {
 			show: {
-				operation: ['text2Image'],
+				operation: ['Generate Images from Prompt'],
 			},
 		},
 	},
@@ -29,7 +29,7 @@ export const text2ImageProperties: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				operation: ['text2Image'],
+				operation: ['Generate Images from Prompt'],
 			},
 		},
 	},
@@ -45,7 +45,7 @@ export const text2ImageProperties: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				operation: ['text2Image'],
+				operation: ['Generate Images from Prompt'],
 			},
 		},
 	},
@@ -61,7 +61,7 @@ export const text2ImageProperties: INodeProperties[] = [
 		},
 		displayOptions: {
 			show: {
-				operation: ['text2Image'],
+				operation: ['Generate Images from Prompt'],
 			},
 		},
 	},
@@ -74,7 +74,7 @@ export const text2ImageProperties: INodeProperties[] = [
 			'Optionally choose a specific AI model to use. If not specified, a default model will be applied. For consistent behavior or to evaluate different models, set this parameter explicitly.',
 		displayOptions: {
 			show: {
-				operation: ['text2Image'],
+				operation: ['Generate Images from Prompt'],
 			},
 		},
 		options: [

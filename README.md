@@ -2,6 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/@picsart/n8n-nodes-picsart-creative-apis.svg)](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-creative-apis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+npx @n8n/scan-community-package n8n-nodes-picsart-creative-apis
 
 n8n community nodes for image processing and generation using Picsart APIs.
 ## 💻 Development

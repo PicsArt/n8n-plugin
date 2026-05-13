@@ -1,0 +1,121 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.augmentObject = exports.augmentArray = void 0;
+const augmentedObjects = new WeakSet();
+function augment(value) {
+    if (typeof value !== 'object' ||
+        value === null ||
+        value instanceof RegExp ||
+        augmentedObjects.has(value))
+        return value;
+    augmentedObjects.add(value);
+    if (value instanceof Date)
+        return new Date(value.valueOf());
+    if (Array.isArray(value))
+        return augmentArray(value);
+    return augmentObject(value);
+}
+function augmentArray(data) {
+    let newData = undefined;
+    function getData() {
+        if (newData === undefined) {
+            newData = [...data];
+        }
+        return newData;
+    }
+    return new Proxy(data, {
+        deleteProperty(target, key) {
+            return Reflect.deleteProperty(getData(), key);
+        },
+        get(target, key, receiver) {
+            const value = Reflect.get(newData !== undefined ? newData : target, key, receiver);
+            const newValue = augment(value);
+            if (newValue !== value) {
+                newData = getData();
+                Reflect.set(newData, key, newValue);
+                return newValue;
+            }
+            return value;
+        },
+        getOwnPropertyDescriptor(target, key) {
+            if (newData === undefined) {
+                return Reflect.getOwnPropertyDescriptor(target, key);
+            }
+            if (key === 'length') {
+                return Reflect.getOwnPropertyDescriptor(newData, key);
+            }
+            return { configurable: true, enumerable: true };
+        },
+        has(target, key) {
+            return Reflect.has(newData !== undefined ? newData : target, key);
+        },
+        ownKeys(target) {
+            return Reflect.ownKeys(newData !== undefined ? newData : target);
+        },
+        set(target, key, newValue) {
+            if (newValue !== null && typeof newValue === 'object') {
+                newValue = new Proxy(newValue, {});
+            }
+            return Reflect.set(getData(), key, newValue);
+        },
+    });
+}
+exports.augmentArray = augmentArray;
+function augmentObject(data) {
+    const newData = {};
+    const deletedProperties = [];
+    return new Proxy(data, {
+        get(target, key, receiver) {
+            if (deletedProperties.indexOf(key) !== -1) {
+                return undefined;
+            }
+            if (newData[key] !== undefined) {
+                return newData[key];
+            }
+            const value = Reflect.get(target, key, receiver);
+            const newValue = augment(value);
+            if (newValue !== value) {
+                Object.assign(newData, { [key]: newValue });
+                return newValue;
+            }
+            return value;
+        },
+        deleteProperty(target, key) {
+            if (key in newData) {
+                delete newData[key];
+            }
+            if (key in target) {
+                deletedProperties.push(key);
+            }
+            return true;
+        },
+        set(target, key, newValue) {
+            if (newValue === undefined) {
+                if (key in newData) {
+                    delete newData[key];
+                }
+                if (key in target) {
+                    deletedProperties.push(key);
+                }
+                return true;
+            }
+            newData[key] = newValue;
+            const deleteIndex = deletedProperties.indexOf(key);
+            if (deleteIndex !== -1) {
+                deletedProperties.splice(deleteIndex, 1);
+            }
+            return true;
+        },
+        ownKeys(target) {
+            return [...new Set([...Reflect.ownKeys(target), ...Object.keys(newData)])].filter((key) => deletedProperties.indexOf(key) === -1);
+        },
+        getOwnPropertyDescriptor(k) {
+            return {
+                enumerable: true,
+                configurable: true,
+            };
+        },
+    });
+}
+exports.augmentObject = augmentObject;
+//# sourceMappingURL=AugmentObject.js.map

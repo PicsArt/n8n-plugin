@@ -1,6 +1,13 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")"
+
+if [ ! -d node_modules/typescript ]; then
+	echo "📦 Installing dependencies (node_modules missing)..."
+	pnpm install
+fi
+
 echo "🧹 Cleaning up old containers and images..."
 docker stop n8n-picsart 2>/dev/null || true
 docker rm n8n-picsart 2>/dev/null || true

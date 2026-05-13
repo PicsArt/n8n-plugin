@@ -9,8 +9,18 @@ import { NodeOperationError } from 'n8n-workflow';
 
 import { text2ImageProperties } from './properties/text2ImageProperties';
 import { text2StickerProperties } from './properties/text2StickerProperties';
+import { image2VideoProperties } from './properties/image2VideoProperties';
+import { text2VideoProperties } from './properties/text2VideoProperties';
+import { text2SpeechProperties } from './properties/text2SpeechProperties';
+import { text2SoundProperties } from './properties/text2SoundProperties';
+import { paintingEditProperties } from './properties/paintingEditProperties';
 import { executeText2Image } from './execute/executeText2Image';
 import { executeText2Sticker } from './execute/executeText2Sticker';
+import { executeText2Video } from './execute/executeText2Video';
+import { executeText2Speech } from './execute/executeText2Speech';
+import { executeText2Sound } from './execute/executeText2Sound';
+import { executeImage2Video } from './execute/executeImage2Video';
+import { executePaintingEdit } from './execute/executePaintingEdit';
 
 export class PicsartGeneration implements INodeType {
 	description: INodeTypeDescription = {
@@ -19,7 +29,8 @@ export class PicsartGeneration implements INodeType {
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Generate images and stickers with Picsart API: generate from prompt',
+		description:
+			'Generate and edit media with Picsart GenAI API: images, stickers, speech, sound, video, and prompt-based image editing.',
 		subtitle: '={{ $parameter["operation"] }}',
 		defaults: {
 			name: 'Picsart Generative AI-Hub',
@@ -42,24 +53,66 @@ export class PicsartGeneration implements INodeType {
 				noDataExpression: true,
 			options: [
 				{
-					name: 'text2Image',
-					value: 'text2Image',
+					name: 'Edit Image With Prompt',
+					value: 'Edit Image with Prompt',
+					action: 'Edit an image using a text prompt',
+					description: 'Edit or transform a source image with an AI model using a text prompt',
+				},
+				{
+					name: 'Generate Images From Prompt',
+					value: 'Generate Images from Prompt',
 					action: 'Generate an image from text prompt',
 					description: 'Generate an image from a text prompt using AI',
 				},
 				{
-					name: 'text2Sticker',
-					value: 'text2Sticker',
+					name: 'Generate Music/Sound From Prompt',
+					value: 'Generate Music/Sound from Prompt',
+					action: 'Generate music or sound from a text prompt',
+					description: 'Generate music or sound effects from a text prompt using AI',
+				},
+				{
+					name: 'Generate Speech From Prompt',
+					value: 'Generate Speech from Prompt',
+					action: 'Generate speech audio from text',
+					description: 'Generate spoken audio from input text using AI text-to-speech',
+				},
+				{
+					name: 'Generate Stickers From Prompt',
+					value: 'Generate Stickers from Prompt',
 					action: 'Generate a sticker from text prompt',
 					description: 'Generate a sticker from a text prompt using AI',
 				},
+				{
+					name: 'Generate Video From Prompt',
+					value: 'Generate Video from Prompt',
+					action: 'Generate a video from a text prompt',
+					description:
+						'Generate one video per request from a text prompt only. Output duration, resolution, and audio depend on the selected model.',
+				},
+				{
+					name: 'Generate Video From Prompt and Image',
+					value: 'Generate Video from Prompt and Image',
+					action: 'Generate a video from an image and text prompt',
+					description:
+						'Generate one video per request from a source image and prompt. Output duration, resolution, and audio depend on the selected model.',
+				},
 			],
-				default: 'text2Image',
+				default: 'Generate Images from Prompt',
 			},
 		// Text2Image Operation Parameters
 		...text2ImageProperties,
 		// Text2Sticker Operation Parameters
 		...text2StickerProperties,
+		// Image2Video Operation Parameters
+		...image2VideoProperties,
+		// Text2Video Operation Parameters
+		...text2VideoProperties,
+		// Text2Speech Operation Parameters
+		...text2SpeechProperties,
+		// Text2Sound Operation Parameters
+		...text2SoundProperties,
+		// Painting edit (image with prompt) parameters
+		...paintingEditProperties,
 		],
 	};
 
@@ -71,10 +124,20 @@ export class PicsartGeneration implements INodeType {
 			try {
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
-                if (operation === 'text2Image') {
+                if (operation === 'Edit Image with Prompt') {
+                    await executePaintingEdit(this, itemIndex, returnData);
+                } else if (operation === 'Generate Images from Prompt') {
                     await executeText2Image(this, itemIndex, returnData);
-                } else if (operation === 'text2Sticker') {
+                } else if (operation === 'Generate Music/Sound from Prompt') {
+                    await executeText2Sound(this, itemIndex, returnData);
+                } else if (operation === 'Generate Speech from Prompt') {
+                    await executeText2Speech(this, itemIndex, returnData);
+                } else if (operation === 'Generate Stickers from Prompt') {
                     await executeText2Sticker(this, itemIndex, returnData);
+                } else if (operation === 'Generate Video from Prompt and Image') {
+                    await executeImage2Video(this, itemIndex, returnData);
+                } else if (operation === 'Generate Video from Prompt') {
+                    await executeText2Video(this, itemIndex, returnData);
                 } else { // This should never happen
                     throw new NodeOperationError(
                         this.getNode(),
