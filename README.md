@@ -102,5 +102,5 @@ Upscale and enhance images with AI.
 - Effects: blur, stroke, shadow
 - Format: JPG | PNG | WEBP
 
-**Output:** Binary image + JSON with URL and credits
+**Output:** Binary image + JSON with URL and credit
 
