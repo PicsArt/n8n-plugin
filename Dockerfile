@@ -5,10 +5,9 @@ USER root
 COPY ./ /home/node/.n8n/custom
 
 RUN chown -R node:node /home/node/.n8n/custom \
-    && rm -rf /home/node/.n8n/custom/node_modules \
-    && rm -f /home/node/.n8n/custom/pnpm-lock.yaml
-
+    && rm -rf /home/node/.n8n/custom/node_modules
 
 USER node
 
-RUN pnpm install --prefix /home/node/.n8n/custom
+# rebuild.sh builds dist/ on the host; install runtime deps only (npm ships with the n8n image)
+RUN npm install --prefix /home/node/.n8n/custom --omit=dev --ignore-scripts
