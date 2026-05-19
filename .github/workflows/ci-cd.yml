@@ -2,6 +2,8 @@ name: CI/CD Pipeline
 
 on:
   push:
+    branches:
+      - main
     tags:
       - 'v*'
   pull_request:
@@ -13,32 +15,28 @@ jobs:
   quality-checks:
     name: Quality Checks (Lint & Build)
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - name: Setup Node.js and pnpm
+        run: |
+          node --version
+          NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
+          if [ "$NODE_MAJOR" -lt 20 ]; then
+            echo "Node.js 20+ is required (engines in package.json). Found: $(node -v)"
+            exit 1
+          fi
+          corepack enable
+          corepack prepare pnpm@9 --activate
+          pnpm --version
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Run linter
         run: npm run lint
-        continue-on-error: false
 
       - name: Build package
         run: npm run build
-        continue-on-error: false
 
   publish:
     name: Publish to NPM
@@ -48,28 +46,31 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 8
+      - name: Setup Node.js and pnpm
+        run: |
+          node --version
+          NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
+          if [ "$NODE_MAJOR" -lt 20 ]; then
+            echo "Node.js 20+ is required (engines in package.json). Found: $(node -v)"
+            exit 1
+          fi
+          corepack enable
+          corepack prepare pnpm@9 --activate
+          pnpm --version
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build package
         run: npm run build
-          
+
+      - name: Configure npm registry
+        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish to NPM with provenance
         run: npm publish --provenance --access public
         env:
@@ -80,18 +81,20 @@ jobs:
     needs: publish
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    
+
     steps:
       - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+        run: |
+          node --version
+          NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
+          if [ "$NODE_MAJOR" -lt 20 ]; then
+            echo "Node.js 20+ is required. Found: $(node -v)"
+            exit 1
+          fi
 
       - name: Wait for NPM to propagate
         run: sleep 30
 
       - name: Scan published package from NPM
-        run: |
-          npx @n8n/scan-community-package @picsart/n8n-nodes-picsart-creative-apis
+        run: npx @n8n/scan-community-package @picsart/n8n-nodes-picsart-creative-apis
         continue-on-error: true
-
