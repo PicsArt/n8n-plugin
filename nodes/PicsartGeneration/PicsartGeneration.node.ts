@@ -30,7 +30,7 @@ export class PicsartGeneration implements INodeType {
 		group: ['transform'],
 		version: 1,
 		description:
-			'Generate and edit media with Picsart GenAI API: images, stickers, speech, sound, video, and prompt-based image editing.',
+			'Generate and edit media with Picsart GenAI API: images, stickers, sound, video, and prompt-based image editing.',
 		subtitle: '={{ $parameter["operation"] }}',
 		defaults: {
 			name: 'Picsart Generative AI-Hub',
