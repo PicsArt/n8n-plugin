@@ -11,7 +11,7 @@ test('video retry delay is two seconds; initial poll is immediate',async t=>{
  t.mock.timers.tick(1);await wait;assert.equal(done,true);
 });
 function context(responses){
- const calls=[];const p={authentication:'oAuth2',videoUrl:'https://example.com/test.mp4',start:0,end:4000,cropExportFormat:'MP4',mode:'simple',max_size_mb:8};
+ const calls=[];const p={videoUrl:'https://example.com/test.mp4',start:0,end:4000,cropExportFormat:'MP4',mode:'simple',max_size_mb:8};
  return {calls,getNode:()=>({name:'Video',type:'test',typeVersion:1,parameters:{}}),getNodeParameter:(k,i,d)=>p[k]??d,helpers:{
  httpRequestWithAuthentication:async (credential,options)=>{calls.push({credential,options});const response=responses.length?responses.shift():{status:'processing'};if(response instanceof Error)throw response;return response;},
  httpRequest:async()=>Buffer.from('test video'),prepareBinaryData:async()=>({data:'dGVzdA==',mimeType:'video/mp4'})}};
@@ -23,7 +23,7 @@ for(const [name,execute]of [['trim',executeTrim],['compression',executeCompressV
  const c=context([{transaction_id:'job'},e,{status:'processing'},{status:'success',data:{url:'https://example.com/result.mp4'}}]);const out=[];
  await execute(c,0,out);assert.deepEqual(attempts,[0,1,2]);assert.equal(out.length,1);
  assert.equal(c.calls.filter(x=>x.options.method==='POST').length,1);
- assert(c.calls.every(x=>x.credential==='picsartOAuth2Api'));
+ assert(c.calls.every(x=>x.credential==='picsartApi'));
  });
  test(name+': terminal failure stops and exhaustion retains task ID',async t=>{
  t.mock.method(polling,'waitBeforeVideoPoll',async()=>{});
