@@ -5,7 +5,7 @@ import type { VideoApiResult, HttpError } from './types';
 
 const TRIM_API_URL = 'https://video-api.picsart.io/v1/trim';
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 
 export async function executeTrim(
@@ -104,6 +104,7 @@ export async function executeTrim(
 			let result: VideoApiResult = response as VideoApiResult;
 
 			while (pollAttempts < maxPollAttempts) {
+				await waitBeforeVideoPoll(pollAttempts);
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
