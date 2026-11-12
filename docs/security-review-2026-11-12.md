@@ -6,19 +6,18 @@ This change removes 17,207 tracked pnpm store files and the obsolete 5.1.2 packa
 
 Video polling now waits between attempts, remains bounded at 300 attempts, preserves the task ID on exhaustion, and never resubmits from polling. Its five regression checks exercise the default branch's existing API-key credential contract; OAuth changes are a separate pending rollout.
 
-## Validation
+## Final remediation and validation
 
+The earlier 1 high and 3 moderate registry findings are resolved in this branch. Parser tooling is updated to 8.72.2 and the n8n ESLint plugin to 2.0.0. The development graph uses patched Zod 4.6.6, uuid 11.1.1, and minimatch 11.0.1. A checked-in pnpm patch migrates three n8n-workflow record schemas to explicit string keys in both CommonJS and ESM output. This is a build/test dependency compatibility patch, not an alteration of an installed n8n server.
+
+- Frozen forced reinstall successfully applies the patch.
 - TypeScript build, ordinary lint and prepublish lint pass.
-- Five polling regression checks pass.
-- npm pack dry-run contains 263 files; no cache, archive, or node_modules tree is included.
-- Registry audit after changes: 0 critical, 1 high, 3 moderate findings. Audit remains nonzero; no advisory is suppressed.
+- Ten regression checks cover polling, valid/invalid record schemas, workflow inputs, UUID output-buffer bounds, and tooling glob semantics.
+- Registry audit: zero vulnerabilities at all severities. CI now runs the audit with no suppressions.
+- Package output remains limited to the existing published artifact contract; no cache or dependency tree is bundled.
 
-## Unresolved advisories
+The runtime n8n-workflow remains supplied by the host. These development overrides do not patch users' installed n8n servers. The PR must be reviewed, merged, and rescanned before default-branch Dependabot status can be considered resolved. No release tag or npm publication was performed.
 
-- Zod 3.25.67 via n8n-workflow 2.16.0: high, GHSA-mrhx-c7xc-m3w5. Patched line starts at 4.6.6; forcing a new major into the host workflow library is not treated as safe.
-- uuid 10 via n8n-workflow: moderate, GHSA-w5hq-g745-h8pq. Patched line starts at 11.1.1; upstream/compatibility work remains.
-- minimatch 9 via TypeScript ESLint tooling: moderate, GHSA-g3hv-75wg-m249, reported through two dependency paths. Patched line starts at 11.0.1; tooling migration remains.
+## Repository protections
 
-The package's runtime n8n-workflow is provided by the host. Build-dependency overrides do not patch an installed n8n host. This PR does not establish a clean release or close default-branch alerts until reviewed, merged, and rescanned.
-
-Repository settings were independently checked: secret scanning and push protection initially reported disabled and main unprotected. Both secret protections were enabled and read back. Main now requires one approving review, stale-review dismissal, conversation resolution, and admin enforcement; force pushes and branch deletion are disabled. Required CI status is added after the new check is observed. Enabling scanning is not proof that a historical scan has completed or that secrets never existed.
+Secret scanning and push protection were enabled and read back. Main requires one approving review, stale-review dismissal, conversation resolution, admin enforcement, and an up-to-date passing Quality Checks (Lint & Build) status. Force pushes and branch deletion are disabled. Enabling scanning does not establish that the history scan has completed or that secrets never existed.

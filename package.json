@@ -69,9 +69,9 @@
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
-    "@typescript-eslint/parser": "~8.32.1",
+    "@typescript-eslint/parser": "8.72.2",
     "eslint": "^8.57.1",
-    "eslint-plugin-n8n-nodes-base": "^1.16.7",
+    "eslint-plugin-n8n-nodes-base": "2.0.0",
     "n8n-workflow": "2.16.0",
     "prettier": "^3.10.1",
     "typescript": "~5.8.3"
@@ -83,7 +83,13 @@
   "pnpm": {
     "overrides": {
       "form-data@4": "^4.0.6",
-      "lodash@4": "^4.18.1"
+      "lodash@4": "^4.18.1",
+      "n8n-workflow@2.16.0>uuid": "11.1.1",
+      "n8n-workflow@2.16.0>zod": "4.6.6",
+      "minimatch@>=7 <11": "11.0.1"
+    },
+    "patchedDependencies": {
+      "n8n-workflow@2.16.0": "patches/n8n-workflow@2.16.0.patch"
     }
   }
 }

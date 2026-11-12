@@ -1,0 +1,70 @@
+diff --git a/dist/cjs/message-event-bus.js b/dist/cjs/message-event-bus.js
+index 08717efc76300104041ae572ee585a5c34ce9ef4..85db60b76d8dacbb8db81f529d07a3e3904dc8b4 100644
+--- a/dist/cjs/message-event-bus.js
++++ b/dist/cjs/message-event-bus.js
+@@ -123,7 +123,7 @@
+         label: zod_1.z.string().min(1).optional(),
+         enabled: zod_1.z.boolean().optional(),
+         subscribedEvents: zod_1.z.array(zod_1.z.string()).optional(),
+-        credentials: zod_1.z.record(zod_1.z.unknown()).optional(),
++        credentials: zod_1.z.record(zod_1.z.string(), zod_1.z.unknown()).optional(),
+         anonymizeAuditMessages: zod_1.z.boolean().optional(),
+         circuitBreaker: circuitBreakerSchema,
+     });
+diff --git a/dist/cjs/schemas.js b/dist/cjs/schemas.js
+index 65d3620e32097a4c99f97c91b14d9e20dfee4e45..1865f32dfa0edb255eb0952f1713ad4618e03912 100644
+--- a/dist/cjs/schemas.js
++++ b/dist/cjs/schemas.js
+@@ -142,7 +142,7 @@
+     });
+     exports.IPostReceiveSetKeyValueSchema = exports.IPostReceiveBaseSchema.extend({
+         type: zod_1.z.literal('setKeyValue'),
+-        properties: zod_1.z.record(zod_1.z.union([zod_1.z.string(), zod_1.z.number()])),
++        properties: zod_1.z.record(zod_1.z.string(), zod_1.z.union([zod_1.z.string(), zod_1.z.number()])),
+     });
+     exports.IPostReceiveSortSchema = exports.IPostReceiveBaseSchema.extend({
+         type: zod_1.z.literal('sort'),
+@@ -253,7 +253,7 @@
+     });
+     exports.ResourceMapperValueSchema = zod_1.z.object({
+         mappingMode: zod_1.z.string(),
+-        value: zod_1.z.record(zod_1.z.union([zod_1.z.string(), zod_1.z.number(), zod_1.z.boolean(), zod_1.z.null()])),
++        value: zod_1.z.record(zod_1.z.string(), zod_1.z.union([zod_1.z.string(), zod_1.z.number(), zod_1.z.boolean(), zod_1.z.null()])),
+         matchingColumns: zod_1.z.array(zod_1.z.string()),
+         schema: zod_1.z.array(exports.ResourceMapperFieldSchema),
+         attemptToConvertTypes: zod_1.z.boolean(),
+diff --git a/dist/esm/message-event-bus.js b/dist/esm/message-event-bus.js
+index 5c72075cdc46dfb54df274f87950fae6883065f8..52db66e1a9f5bac2380239a505f07122f39f876e 100644
+--- a/dist/esm/message-event-bus.js
++++ b/dist/esm/message-event-bus.js
+@@ -111,7 +111,7 @@ export const MessageEventBusDestinationOptionsSchema = z.object({
+     label: z.string().min(1).optional(),
+     enabled: z.boolean().optional(),
+     subscribedEvents: z.array(z.string()).optional(),
+-    credentials: z.record(z.unknown()).optional(),
++    credentials: z.record(z.string(), z.unknown()).optional(),
+     anonymizeAuditMessages: z.boolean().optional(),
+     circuitBreaker: circuitBreakerSchema,
+ });
+diff --git a/dist/esm/schemas.js b/dist/esm/schemas.js
+index 9c196b0f0ad83a70973ad6eae0b2e1da529cd1dc..b234f497d5a787abb3b3d46a37c0219f2f984b0e 100644
+--- a/dist/esm/schemas.js
++++ b/dist/esm/schemas.js
+@@ -130,7 +130,7 @@ export const IPostReceiveSetSchema = IPostReceiveBaseSchema.extend({
+ });
+ export const IPostReceiveSetKeyValueSchema = IPostReceiveBaseSchema.extend({
+     type: z.literal('setKeyValue'),
+-    properties: z.record(z.union([z.string(), z.number()])),
++    properties: z.record(z.string(), z.union([z.string(), z.number()])),
+ });
+ export const IPostReceiveSortSchema = IPostReceiveBaseSchema.extend({
+     type: z.literal('sort'),
+@@ -241,7 +241,7 @@ export const ResourceMapperFieldSchema = z.object({
+ });
+ export const ResourceMapperValueSchema = z.object({
+     mappingMode: z.string(),
+-    value: z.record(z.union([z.string(), z.number(), z.boolean(), z.null()])),
++    value: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
+     matchingColumns: z.array(z.string()),
+     schema: z.array(ResourceMapperFieldSchema),
+     attemptToConvertTypes: z.boolean(),
