@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -5,7 +6,7 @@ import type { VideoApiResult, HttpError } from './types';
 import { buildMultipartFormData } from './utils';
 
 const WATERMARK_API_URL = 'https://video-api.picsart.io/v1/watermark';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 export async function executeWatermark(
 	context: IExecuteFunctions,
@@ -135,7 +136,7 @@ export async function executeWatermark(
 		const { body, contentType } = buildMultipartFormData(formFields);
 		const response = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: WATERMARK_API_URL,
@@ -167,10 +168,11 @@ export async function executeWatermark(
 			let result: VideoApiResult = response as VideoApiResult;
 
 			while (pollAttempts < maxPollAttempts) {
+				await waitBeforeVideoPoll(pollAttempts);
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `https://video-api.picsart.io/v1/video/${transactionId}`,

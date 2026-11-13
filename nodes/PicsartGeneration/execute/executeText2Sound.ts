@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -38,7 +39,7 @@ export async function executeText2Sound(
 	}
 
 	try {
-		const submitResponse = await context.helpers.httpRequestWithAuthentication.call(context, 'picsartApi', {
+		const submitResponse = await context.helpers.httpRequestWithAuthentication.call(context, picsartCredentialType(context), {
 			method: 'POST',
 			url: TEXT2SOUND_SUBMIT_URL,
 			headers: {

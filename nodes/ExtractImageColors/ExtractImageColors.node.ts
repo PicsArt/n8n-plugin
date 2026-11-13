@@ -1,3 +1,4 @@
+import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
@@ -26,13 +27,9 @@ export class ExtractImageColors implements INodeType {
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],
 		usableAsTool: true,
-		credentials: [
-			{
-				name: 'picsartApi',
-				required: true,
-			},
-		],
+		credentials: picsartCredentials,
 		properties: [
+			picsartAuthenticationProperty,
 			{
 				displayName: 'Resource',
 				name: 'resource',

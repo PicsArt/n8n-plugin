@@ -1,3 +1,4 @@
+import { modelOptions } from '../modelOptions';
 import type { INodeProperties } from 'n8n-workflow';
 
 // https://docs.picsart.io/reference/genai-text2image-1
@@ -69,6 +70,8 @@ export const text2ImageProperties: INodeProperties[] = [
 		displayName: 'Model',
 		name: 'model',
 		type: 'options',
+		// Generated options include this preserved default; the lint rule cannot evaluate modelOptions().
+		// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
 		default: 'urn:air:sdxl:model:fluxai:flux_kontext_max@1',
 		description:
 			'Optionally choose a specific AI model to use. If not specified, a default model will be applied. For consistent behavior or to evaluate different models, set this parameter explicitly.',
@@ -77,7 +80,7 @@ export const text2ImageProperties: INodeProperties[] = [
 				operation: ['Generate Images from Prompt', 'text2Image'],
 			},
 		},
-		options: [
+		options: modelOptions('genai-text2image', [
 			{ name: 'urn:air:fluxai:model:fluxai:flux-2-flex@1', value: 'urn:air:fluxai:model:fluxai:flux-2-flex@1' },
 			{ name: 'urn:air:fluxai:model:fluxai:flux-2-max@1', value: 'urn:air:fluxai:model:fluxai:flux-2-max@1' },
 			{ name: 'urn:air:fluxai:model:fluxai:flux-2-pro@1', value: 'urn:air:fluxai:model:fluxai:flux-2-pro@1' },
@@ -106,7 +109,7 @@ export const text2ImageProperties: INodeProperties[] = [
 			{ name: 'urn:air:sdxl:model:fluxai:flux_kontext_pro@1', value: 'urn:air:sdxl:model:fluxai:flux_kontext_pro@1' },
 			{ name: 'urn:air:seedream:model:seedream:seedream@4.0', value: 'urn:air:seedream:model:seedream:seedream@4.0' },
 			{ name: 'urn:air:seedream:model:seedream:seedream@4.5', value: 'urn:air:seedream:model:seedream:seedream@4.5' },
-		],
+		]),
 	},
 ];
 

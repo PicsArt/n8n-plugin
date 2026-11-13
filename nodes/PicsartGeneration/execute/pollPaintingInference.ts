@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
@@ -37,7 +38,7 @@ export async function pollUntilPaintingImagesReady(
 
 	while (pollAttempts < maxPaintingPollAttempts) {
 		try {
-			result = await context.helpers.httpRequestWithAuthentication.call(context, 'picsartApi', {
+			result = await context.helpers.httpRequestWithAuthentication.call(context, picsartCredentialType(context), {
 				method: 'GET',
 				url: paintingInferenceUrl(inferenceId),
 				headers: { Accept: 'application/json' },

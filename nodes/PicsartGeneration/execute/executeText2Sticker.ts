@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -63,7 +64,7 @@ export async function executeText2Sticker(
 			// POST https://genai-api.picsart.io/v1/text2sticker
 			const submitResponse = await context.helpers.httpRequestWithAuthentication.call(
 				context,
-				'picsartApi',
+				picsartCredentialType(context),
 				{
 					method: 'POST',
 					url: 'https://genai-api.picsart.io/v1/text2sticker',
@@ -101,7 +102,7 @@ export async function executeText2Sticker(
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `https://genai-api.picsart.io/v1/text2sticker/inferences/${transactionId}`,
