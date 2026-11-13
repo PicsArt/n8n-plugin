@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { buildMultipartFormData } from './utils';
@@ -81,7 +82,7 @@ export async function executeImage2Video(
 	const { body, contentType } = buildMultipartFormData(formFields);
 
 	try {
-		const submitResponse = await context.helpers.httpRequestWithAuthentication.call(context, 'picsartApi', {
+		const submitResponse = await context.helpers.httpRequestWithAuthentication.call(context, picsartCredentialType(context), {
 			method: 'POST',
 			url: IMAGE2VIDEO_SUBMIT_URL,
 			headers: {

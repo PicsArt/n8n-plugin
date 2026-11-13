@@ -1,3 +1,4 @@
+import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
@@ -45,14 +46,10 @@ export class PicsartVideo implements INodeType {
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],
 		usableAsTool: true,
-		credentials: [
-			{
-				name: 'picsartApi',
-				required: true,
-			},
-		],
+		credentials: picsartCredentials,
 		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
 		properties: [
+			picsartAuthenticationProperty,
 			{
 				displayName: 'Resource',
 				name: 'resource',

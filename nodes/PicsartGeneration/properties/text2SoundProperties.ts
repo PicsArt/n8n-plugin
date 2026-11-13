@@ -1,3 +1,4 @@
+import { modelOptions } from '../modelOptions';
 import type { INodeProperties } from 'n8n-workflow';
 
 export const text2SoundProperties: INodeProperties[] = [
@@ -48,6 +49,8 @@ export const text2SoundProperties: INodeProperties[] = [
 		displayName: 'Model',
 		name: 'text2SoundModel',
 		type: 'options',
+		// Generated options include this preserved default; the lint rule cannot evaluate modelOptions().
+		// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
 		default: 'urn:air:elevenlabs:model:elevenlabs:elevenlabs-sound-effects-v2@1',
 		description:
 			'AI model for text-to-sound. Set explicitly for consistent behavior. Capabilities and duration limits vary by provider.',
@@ -56,9 +59,9 @@ export const text2SoundProperties: INodeProperties[] = [
 				operation: ['Generate Music/Sound from Prompt'],
 			},
 		},
-		options: [
+		options: modelOptions('genai-text2sound', [
 			{ name: 'urn:air:elevenlabs:model:elevenlabs:elevenlabs-sound-effects-v2@1', value: 'urn:air:elevenlabs:model:elevenlabs:elevenlabs-sound-effects-v2@1' },
 			{ name: 'urn:air:kling:model:kling:kling-text-to-audio@1', value: 'urn:air:kling:model:kling:kling-text-to-audio@1' },
-		],
+		]),
 	},
 ];

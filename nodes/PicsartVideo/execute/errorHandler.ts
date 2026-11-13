@@ -28,7 +28,7 @@ export function handleApiError(context: IExecuteFunctions, error: unknown, itemI
 	} else if (statusCode === 401 || statusCode === 403) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`Authentication failed. Please check your API key is valid. ${errorMessage || ''}`,
+			`Authentication or authorization failed. Check the selected Picsart connection and its permissions. ${errorMessage || ''}`,
 			{ itemIndex }
 		);
 	} else if (statusCode !== undefined && statusCode >= 400 && statusCode < 500) {

@@ -58,13 +58,15 @@
   "n8n": {
     "n8nNodesApiVersion": 1,
     "credentials": [
-      "dist/credentials/PicsartApi.credentials.js"
+      "dist/credentials/PicsartApi.credentials.js",
+      "dist/credentials/PicsartOAuth2Api.credentials.js"
     ],
     "nodes": [
       "dist/nodes/PicsartImage/PicsartImage.node.js",
       "dist/nodes/PicsartGeneration/PicsartGeneration.node.js",
       "dist/nodes/PicsartVideo/PicsartVideo.node.js",
-      "dist/nodes/ExtractImageColors/ExtractImageColors.node.js"
+      "dist/nodes/ExtractImageColors/ExtractImageColors.node.js",
+      "dist/nodes/PicsartAudio/PicsartAudio.node.js"
     ]
   },
   "devDependencies": {

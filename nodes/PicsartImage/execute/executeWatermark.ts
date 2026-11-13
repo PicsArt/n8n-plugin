@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { buildMultipartFormData } from './utils';
@@ -151,7 +152,7 @@ export async function executeWatermark(
 		// Call Picsart API to add watermark
 		result = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: 'https://api.picsart.io/tools/1.0/watermark',

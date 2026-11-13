@@ -1,3 +1,4 @@
+import { modelOptions } from '../modelOptions';
 import type { INodeProperties } from 'n8n-workflow';
 
 export const text2SpeechProperties: INodeProperties[] = [
@@ -34,6 +35,8 @@ export const text2SpeechProperties: INodeProperties[] = [
 		displayName: 'Model',
 		name: 'text2SpeechModel',
 		type: 'options',
+		// Generated options include this preserved default; the lint rule cannot evaluate modelOptions().
+		// eslint-disable-next-line n8n-nodes-base/node-param-default-wrong-for-options
 		default: 'urn:air:openai:model:openai:tts-1@1',
 		description:
 			'AI model for text-to-speech. For consistent behavior, set this explicitly. Voice availability depends on the provider.',
@@ -42,11 +45,11 @@ export const text2SpeechProperties: INodeProperties[] = [
 				operation: ['Generate Speech from Prompt'],
 			},
 		},
-		options: [
+		options: modelOptions('genai-text2speech', [
 			{ name: 'urn:air:async:model:async:async-flash-v1.0@1', value: 'urn:air:async:model:async:async-flash-v1.0@1' },
 			{ name: 'urn:air:elevenlabs:model:elevenlabs:eleven-v3@1', value: 'urn:air:elevenlabs:model:elevenlabs:eleven-v3@1' },
 			{ name: 'urn:air:openai:model:openai:tts-1@1', value: 'urn:air:openai:model:openai:tts-1@1' },
-		],
+		]),
 	},
 	{
 		displayName: 'Voice',

@@ -141,7 +141,7 @@ export const image2VideoProperties: INodeProperties[] = [
 		displayName: 'Model',
 		name: 'image2VideoModel',
 		type: 'options',
-		default: 'urn:air:google:model:google:veo-3.1-fast-text-to-video@1',
+		default: 'urn:air:google:model:google:veo-3.1-fast-image-to-video@1',
 		description:
 			'AI model for image-to-video. For consistent behavior or to evaluate different models, set this explicitly. Output resolution and audio behavior may vary by model.',
 		displayOptions: {

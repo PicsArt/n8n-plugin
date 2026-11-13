@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -75,7 +76,7 @@ export async function executeCrop(
 
 		const response = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: CROP_API_URL,
@@ -133,7 +134,7 @@ export async function executeCrop(
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
-					'picsartApi',
+					picsartCredentialType(context),
 					{
 						method: 'GET',
 						url: `${VIDEO_RESULT_URL}/${transactionId}`,

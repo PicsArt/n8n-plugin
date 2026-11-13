@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -41,7 +42,7 @@ export async function executeVideoEffects(
 
 		const response = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: EFFECTS_API_URL,
@@ -79,7 +80,7 @@ export async function executeVideoEffects(
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `${VIDEO_RESULT_URL}/${transactionId}`,

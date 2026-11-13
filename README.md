@@ -1,5 +1,48 @@
 # @picsart/n8n-nodes-picsart-creative-apis
 
+## Model catalog snapshot
+
+Image/sticker generation and speech/sound model options include the operation-specific
+shared catalog captured on 28 October 2026. Existing IDs and defaults are preserved,
+including legacy image choices absent from that snapshot; absence does not establish
+retirement. Regenerate with `python3 scripts/sync-model-catalog.py /path/to/catalog.json`.
+The generated provider is bundled into the package and does not fetch models at runtime.
+Tests exercise each captured ID through the relevant request builder with mocked services.
+Catalog membership is advertised compatibility, not proof of account access or live output.
+
+Video and image-edit model lists are unchanged pending explicit alias verification:
+their existing mode-qualified IDs differ from every captured request enum ID. No suffix
+stripping, provider-name conversion or unified-gateway ID substitution is performed.
+
+## Authentication
+
+API Key remains the default for all nodes. Existing workflows without an Authentication
+parameter keep using their saved Picsart API credential. No credential migration is required.
+
+OAuth2 (Beta) is an optional implementation for testing on compatible n8n instances.
+Select it on the node, create a Picsart OAuth2 API credential and use Connect my account.
+n8n core performs dynamic client registration, PKCE and token refresh; no client secret
+or manual client ID is requested. Dynamic registration requires n8n 1.119 or newer;
+current n8n 2.x is recommended for discovery compatibility.
+
+Scope behavior is discovery-controlled: inspected n8n 2.36.9 core overwrites the
+credential scope with protected-resource metadata scopes, or otherwise the issuer's
+entire advertised scope list. The empty fallback does not mean no scopes and does not
+restrict consent. Current issuer scopes are drive, profile, credits.balance, openid,
+storage and workflows.execute. Review consent before connecting. A narrower default
+in this credential cannot override that core behavior; least-privilege resource
+metadata/service scope agreement is a release requirement.
+
+Live OAuth interoperability has not yet been verified across the image, generation and
+video services. The authorization server must accept stock n8n registration metadata,
+and tokens must authorize each selected service. The historical `client_uri` registration
+rejection and service-specific scopes remain release checks. No Docker hook is installed
+by this package, and OAuth is not the default. API Key remains available if OAuth setup fails.
+
+Run `pnpm run build`, `pnpm test` and `pnpm run lint` before release. The tests exercise
+credential routing and submit/poll/download boundaries using mocked services; they do
+not replace live login, refresh, revocation and service-entitlement validation.
+
 [![npm version](https://img.shields.io/npm/v/@picsart/n8n-nodes-picsart-creative-apis.svg)](https://www.npmjs.com/package/@picsart/n8n-nodes-picsart-creative-apis)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

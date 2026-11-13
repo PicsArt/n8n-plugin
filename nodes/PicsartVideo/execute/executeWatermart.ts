@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -135,7 +136,7 @@ export async function executeWatermark(
 		const { body, contentType } = buildMultipartFormData(formFields);
 		const response = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: WATERMARK_API_URL,
@@ -171,7 +172,7 @@ export async function executeWatermark(
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `https://video-api.picsart.io/v1/video/${transactionId}`,
