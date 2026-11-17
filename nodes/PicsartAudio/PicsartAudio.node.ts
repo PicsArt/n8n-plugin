@@ -568,6 +568,7 @@ export class PicsartAudio implements INodeType {
 						);
 					if (
 						![
+							'ACCEPTED',
 							'SUBMITTED',
 							'PENDING',
 							'QUEUED',

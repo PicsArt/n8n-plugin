@@ -108,3 +108,9 @@ for(const status of ['PROCESSING','COMPLETED'])test('reject response belonging t
  const ctx=context([{operation:'get_audio_result',taskId:'requested'}],[{status:'success',response:{id:'other',status,result:{url:'https://example.com/wrong.wav'}}}]);
  await assert.rejects(node.execute.call(ctx),/task ID does not match/);assert.equal(ctx.calls.length,1);
 });
+
+for(const status of ['ACCEPTED','IN_PROGRESS'])test('gateway queued audio is pending without exposing media '+status,async()=>{
+ const ctx=context([{operation:'get_audio_result',taskId:'saved'}],[{status:'success',response:{id:'saved',status,result:{url:'https://example.com/stale.wav'}}}]);
+ const out=(await node.execute.call(ctx))[0][0];
+ assert.equal(ctx.calls.length,1);assert.equal(ctx.calls[0].options.method,'GET');assert.equal(out.json.completed,false);assert.equal(out.json.status,status);assert.equal(out.json.task_id,'saved');assert.equal(Object.hasOwn(out.json,'url'),false);
+});
