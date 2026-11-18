@@ -1,3 +1,4 @@
+import { waitBeforeGenerationPoll } from './pollDelay';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -6,7 +7,7 @@ export const maxAudioPollAttempts = 600;
 
 /** GET https://genai-api.picsart.io/v1/audio/{inference_id} */
 export function audioInferenceUrl(inferenceId: string): string {
-	return `https://genai-api.picsart.io/v1/audio/${inferenceId}`;
+	return `https://genai-api.picsart.io/v1/audio/${encodeURIComponent(inferenceId)}`;
 }
 
 /**
@@ -22,6 +23,7 @@ export async function pollUntilAudioReady(
 	let audioUrl: string | null = null;
 
 	while (pollAttempts < maxAudioPollAttempts) {
+		await waitBeforeGenerationPoll(pollAttempts);
 		try {
 			result = await context.helpers.httpRequestWithAuthentication.call(context, picsartCredentialType(context), {
 				method: 'GET',
@@ -58,6 +60,9 @@ export async function pollUntilAudioReady(
 				pollAttempts++;
 				continue;
 			}
+			if (error instanceof Error) {
+				error.message += ` Accepted inference ID: ${inferenceId}. Retrieve this existing task; do not resubmit automatically.`;
+			}
 			throw error;
 		}
 	}
@@ -65,7 +70,7 @@ export async function pollUntilAudioReady(
 	if (!audioUrl) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`Audio generation timed out after ${maxAudioPollAttempts} polling attempts. Inference ID: ${inferenceId}. Last response: ${JSON.stringify(result)}. The audio may still be processing — try again shortly or contact support if the issue persists.`,
+			`Audio generation timed out after ${maxAudioPollAttempts} polling attempts. Inference ID: ${inferenceId}. Last response: ${JSON.stringify(result)}. The audio may still be processing — retrieve this existing task later; do not resubmit generation automatically.`,
 			{ itemIndex },
 		);
 	}
