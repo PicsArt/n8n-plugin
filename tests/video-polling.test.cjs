@@ -72,3 +72,18 @@ test('trim exposes each time boundary once in the built editor schema',()=>{
  const end=trimProperties.find(p=>p.name==='end');assert.equal(end.type,'number');assert.equal(end.typeOptions.minValue,1);
  assert.deepEqual(end.displayOptions.show.operation,['Clip a Video']);
 });
+
+for (const [start,end] of [[NaN,3000],[0,NaN],[Infinity,3000],[0,Infinity],['1000',3000],[0,'3000'],[-1,3000],[0,0],[3000,3000],[3001,3000]]) {
+ test(`trim rejects invalid timing before HTTP: ${String(start)} to ${String(end)}`,async()=>{
+  const c=context([]),original=c.getNodeParameter;
+  c.getNodeParameter=(key,i,d)=>key==='start'?start:key==='end'?end:original(key,i,d);
+  await assert.rejects(executeTrim(c,0,[]),/finite numbers|Start must|End must/);
+  assert.equal(c.calls.length,0);
+ });
+}
+test('trim sends exact valid millisecond boundaries without coercion',async()=>{
+ const c=context([{transaction_id:'timing-job'},{status:'success',data:{url:'https://example.com/result.mp4'}}]),original=c.getNodeParameter;
+ c.getNodeParameter=(key,i,d)=>key==='start'?1000:key==='end'?3000:original(key,i,d);
+ await executeTrim(c,0,[]);
+ assert.equal(c.calls[0].options.body.start,1000);assert.equal(c.calls[0].options.body.end,3000);
+});

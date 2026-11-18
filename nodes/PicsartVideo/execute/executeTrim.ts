@@ -37,7 +37,15 @@ export async function executeTrim(
 			);
 		}
 
-		if (startMs < 0) {
+	if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Start and end must be finite numbers in milliseconds',
+			{ itemIndex },
+		);
+	}
+
+	if (startMs < 0) {
 		throw new NodeOperationError(
 			context.getNode(),
 			'Start must be >= 0 (milliseconds)',
