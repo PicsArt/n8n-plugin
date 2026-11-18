@@ -1,3 +1,4 @@
+import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -133,14 +134,13 @@ export async function executeVideoEffects(
 			encoding: 'arraybuffer',
 		});
 
-		const mimeType = format === 'WEBM' ? 'video/webm' : format === 'MOV' ? 'video/quicktime' : 'video/mp4';
-		const ext = format.toLowerCase();
+		const { fileName, mimeType } = videoOutputMetadata('effect-video', format);
 
 		returnData.push({
 			binary: {
 				data: await context.helpers.prepareBinaryData(
 					videoBuffer,
-					`effect-video.${ext}`,
+					fileName,
 					mimeType,
 				),
 			},

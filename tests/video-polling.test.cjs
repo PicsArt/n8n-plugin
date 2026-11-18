@@ -136,8 +136,8 @@ for(const value of [0.15,0,-1,NaN,Infinity,'2']) test('compression rejects inval
  await assert.rejects(executeCompressVideo(c,0,[]),/positive whole number/);assert.equal(c.calls.length,0);
 });
 
-for (const [name,execute] of videoExecutors.filter(([n])=>['trim','Crop','compression','VideoHighlights'].includes(n))) {
- for (const [format,mime] of [['MP4','video/mp4'],['MOV','video/quicktime'],['WEBM','video/webm'],...(name==='VideoHighlights'?[['GIF','image/gif']]:[])]) {
+for (const [name,execute] of videoExecutors.filter(([n])=>['trim','Crop','compression','VideoHighlights','VideoEffects'].includes(n))) {
+ for (const [format,mime] of [['MP4','video/mp4'],['MOV','video/quicktime'],['WEBM','video/webm'],...(['VideoHighlights','VideoEffects'].includes(name)?[['GIF','image/gif']]:[])]) {
   for (const polled of [false,true]) test(name+' export metadata '+format+' polled='+polled,async t=>{
    t.mock.method(polling,'waitBeforeVideoPoll',async()=>{});
    const c=context(polled?[{transaction_id:'job'},{status:'success',data:{url:'https://example.com/output'}}]:[{url:'https://example.com/output'}]);
@@ -170,4 +170,10 @@ for(const anchor of ['left-top','right-bottom','pattern']) test('watermark seria
  await require('../dist/nodes/PicsartVideo/execute/executeWatermart').executeWatermark(c,0,[]);
  const body=Buffer.from(c.calls[0].options.body).toString();
  assert(body.includes('name="watermark_anchor_point"\r\n\r\n'+anchor));assert(!body.includes('name="anchor_point"'));
+});
+
+test('effects choices match independently captured current API contract',()=>{
+ const contract=require('./fixtures/video-effects-contract.json');const {videoEffectsProperties}=require('../dist/nodes/PicsartVideo/properties/videoEffectsProperties');
+ const values=videoEffectsProperties.find(p=>p.name==='effectName').options.map(o=>o.value);assert.equal(new Set(values).size,values.length);assert.deepEqual([...values].sort(),[...contract.effects].sort());
+ assert.deepEqual(videoEffectsProperties.find(p=>p.name==='format').options.map(o=>o.value).sort(),[...contract.formats].sort());
 });
