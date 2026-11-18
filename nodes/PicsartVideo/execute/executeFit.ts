@@ -90,6 +90,17 @@ export async function executeFit(
 		);
 	}
 
+	const hasRatio = ratio != null;
+	const hasWidth = width != null;
+	const hasHeight = height != null;
+	if ((hasRatio && (hasWidth || hasHeight)) || (!hasRatio && !(hasWidth && hasHeight))) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Choose either Ratio or both Width and Height, not both sizing methods.',
+			{ itemIndex },
+		);
+	}
+
 	// Only one of bg_color, bg_image_url, bg_video_url allowed
 	const hasBgColor = bgColor != null && String(bgColor).trim().length > 0;
 	const hasBgImage = bgImageUrl != null && String(bgImageUrl).trim().length > 0;

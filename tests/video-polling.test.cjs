@@ -88,7 +88,7 @@ test('trim sends exact valid millisecond boundaries without coercion',async()=>{
  assert.equal(c.calls[0].options.body.start,1000);assert.equal(c.calls[0].options.body.end,3000);
 });
 
-for (const mode of ['simple','advanced']) test(`fit permits omitted optional dimensions in ${mode} mode`,async()=>{
+for (const mode of ['simple','advanced']) test(`fit rejects missing sizing in ${mode} mode`,async()=>{
  const {executeFit}=require('../dist/nodes/PicsartVideo/execute/executeFit');
  const c=context([{transaction_id:'fit-job'},{status:'success',data:{url:'https://example.com/result.mp4'}}]);
  const original=c.getNodeParameter;
@@ -100,8 +100,8 @@ for (const mode of ['simple','advanced']) test(`fit permits omitted optional dim
   }
   return original(key,i,fallback);
  };
- await executeFit(c,0,[]);
- for(const key of ['ratio','width','height'])assert.equal(c.calls[0].options.body[key],undefined);
+ await assert.rejects(executeFit(c,0,[]),/Choose either Ratio/);
+ assert.equal(c.calls.length,0);
 });
 
 for(const bitrate of [undefined,1500])test('highlights advanced optional bitrate '+String(bitrate),async()=>{
@@ -161,7 +161,7 @@ for(const [key,value] of [['fitWidth',15],['fitHeight',15],['fitWidth',NaN],['fi
  await assert.rejects(require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]),/Width|Height|Ratio|Background blur/);assert.equal(c.calls.length,0);
 });
 test('fit accepts documented 16px boundary and maps values unchanged',async()=>{
- const c=context([{url:'https://example.com/result.mp4'}]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':['fitWidth','fitHeight'].includes(k)?16:get(k,i,d);
+ const c=context([{url:'https://example.com/result.mp4'}]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':k==='fitRatio'?null:['fitWidth','fitHeight'].includes(k)?16:get(k,i,d);
  await require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]);assert.equal(c.calls[0].options.body.width,16);assert.equal(c.calls[0].options.body.height,16);
 });
 
@@ -202,4 +202,11 @@ test('crop preserves exact valid bounds and output format', async () => {
  const out=[];await executeCrop(c,0,out);
  assert.deepEqual(c.calls[0].options.body,{video_url:'https://example.com/test.mp4',width:64,height:96,start_x:0,start_y:16,export:{format:'MOV'}});
  assert.equal(out[0].json.transactionId,'crop-bounds');
+});
+
+for(const sizes of [{fitRatio:0.5625,fitWidth:1080,fitHeight:1920},{fitRatio:0.5625,fitWidth:1080},{fitRatio:null,fitWidth:1080},{fitRatio:null,fitHeight:1920}])test('fit rejects conflicting or incomplete sizing '+JSON.stringify(sizes),async()=>{
+ const c=context([]),get=c.getNodeParameter;
+ c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':Object.hasOwn(sizes,k)?sizes[k]:get(k,i,d);
+ await assert.rejects(require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]),/Choose either Ratio/);
+ assert.equal(c.calls.length,0);
 });
