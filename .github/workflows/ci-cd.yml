@@ -37,18 +37,23 @@ jobs:
           pnpm --version
 
       - name: Install dependencies
+        id: install
         run: pnpm install --frozen-lockfile
 
       - name: Audit dependencies
         run: pnpm audit --audit-level moderate
 
       - name: Run linter
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run lint
 
       - name: Build package
+        id: build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run build
 
-      - name: Test video polling
+      - name: Test package regressions
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: npm test
 
   publish:
