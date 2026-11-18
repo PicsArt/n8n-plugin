@@ -103,3 +103,17 @@ for (const mode of ['simple','advanced']) test(`fit permits omitted optional dim
  await executeFit(c,0,[]);
  for(const key of ['ratio','width','height'])assert.equal(c.calls[0].options.body[key],undefined);
 });
+
+for(const bitrate of [undefined,1500])test('highlights advanced optional bitrate '+String(bitrate),async()=>{
+ const {executeVideoHighlights}=require('../dist/nodes/PicsartVideo/execute/executeVideoHighlights');
+ const c=context([{transaction_id:'highlights-job'},{status:'success',data:{url:'https://example.com/result.mp4'}}]),original=c.getNodeParameter;
+ c.getNodeParameter=(key,i,fallback)=>{if(key==='mode')return 'advanced';if(key==='exportBitrate'){if(bitrate===undefined&&fallback===undefined)throw new Error('Could not get parameter exportBitrate');return bitrate??fallback;}return original(key,i,fallback);};
+ await executeVideoHighlights(c,0,[]);assert.equal(c.calls[0].options.body.export.bitrate,bitrate);
+ assert.deepEqual(c.calls[0].options.body.trim_segments,[{start:0,end:1000},{start:2000,end:3000}]);
+});
+for(const segment of [null,{start:0},{start:'0',end:500},{start:NaN,end:500},{start:0,end:Infinity}])test('highlights rejects malformed segment instead of dropping it: '+JSON.stringify(segment),async()=>{
+ const {executeVideoHighlights}=require('../dist/nodes/PicsartVideo/execute/executeVideoHighlights');
+ const c=context([]),original=c.getNodeParameter;
+ c.getNodeParameter=(key,i,d)=>key==='trimSegments'?{segment:[{start:0,end:1000},segment,{start:2000,end:3000}]}:original(key,i,d);
+ await assert.rejects(executeVideoHighlights(c,0,[]),/Every trim segment must have finite numeric/);assert.equal(c.calls.length,0);
+});

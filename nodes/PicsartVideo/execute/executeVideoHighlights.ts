@@ -25,7 +25,7 @@ export async function executeVideoHighlights(
 	if (mode === 'advanced') {
 		format = context.getNodeParameter('exportFormat', itemIndex, 'MP4') as string;
 		frameRate = context.getNodeParameter('exportFrameRate', itemIndex, 30) as number;
-		bitrate = context.getNodeParameter('exportBitrate', itemIndex, undefined) as number | undefined;
+		bitrate = (context.getNodeParameter('exportBitrate', itemIndex, null) ?? undefined) as number | undefined;
 	} else {
 		format = 'MP4';
 		frameRate = 30;
@@ -33,9 +33,15 @@ export async function executeVideoHighlights(
 	}
 
 	const segments = trimSegmentsParam?.segment ?? [];
-	const trim_segments = segments
-		.filter((s) => s != null && typeof s.start === 'number' && typeof s.end === 'number')
-		.map((s) => ({ start: Number(s.start), end: Number(s.end) }));
+	if (!Array.isArray(segments) || segments.some((segment) =>
+		!segment || !Number.isFinite(segment.start) || !Number.isFinite(segment.end))) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Every trim segment must have finite numeric start and end values in milliseconds',
+			{ itemIndex },
+		);
+	}
+	const trim_segments = segments.map((segment) => ({ start: segment.start!, end: segment.end! }));
 
 	if (trim_segments.length < 2 || trim_segments.length > 10) {
 		throw new NodeOperationError(
