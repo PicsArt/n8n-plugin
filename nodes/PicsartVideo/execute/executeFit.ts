@@ -17,7 +17,7 @@ export async function executeFit(
 	const mode = context.getNodeParameter('mode', itemIndex, 'simple') as string;
 
 	// Ratio is always available for Fit Video
-	const ratio = context.getNodeParameter('fitRatio', itemIndex, undefined) as number | undefined;
+	const ratio = (context.getNodeParameter('fitRatio', itemIndex, null) ?? undefined) as number | undefined;
 
 	let width: number | undefined;
 	let height: number | undefined;
@@ -27,8 +27,8 @@ export async function executeFit(
 	let bgVideoUrl: string | undefined;
 
 	if (mode === 'advanced') {
-		width = context.getNodeParameter('fitWidth', itemIndex, undefined) as number | undefined;
-		height = context.getNodeParameter('fitHeight', itemIndex, undefined) as number | undefined;
+		width = (context.getNodeParameter('fitWidth', itemIndex, null) ?? undefined) as number | undefined;
+		height = (context.getNodeParameter('fitHeight', itemIndex, null) ?? undefined) as number | undefined;
 		bgColor = context.getNodeParameter('fitBgColor', itemIndex, '') as string;
 		bgBlur = context.getNodeParameter('fitBgBlur', itemIndex, 0) as number;
 		bgImageUrl = context.getNodeParameter('fitBgImageUrl', itemIndex, '') as string;

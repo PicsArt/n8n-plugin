@@ -87,3 +87,19 @@ test('trim sends exact valid millisecond boundaries without coercion',async()=>{
  await executeTrim(c,0,[]);
  assert.equal(c.calls[0].options.body.start,1000);assert.equal(c.calls[0].options.body.end,3000);
 });
+
+for (const mode of ['simple','advanced']) test(`fit permits omitted optional dimensions in ${mode} mode`,async()=>{
+ const {executeFit}=require('../dist/nodes/PicsartVideo/execute/executeFit');
+ const c=context([{transaction_id:'fit-job'},{status:'success',data:{url:'https://example.com/result.mp4'}}]);
+ const original=c.getNodeParameter;
+ c.getNodeParameter=(key,i,fallback)=>{
+  if(key==='mode')return mode;
+  if(['fitRatio','fitWidth','fitHeight'].includes(key)){
+   if(fallback===undefined)throw new Error('Could not get parameter '+key);
+   return fallback;
+  }
+  return original(key,i,fallback);
+ };
+ await executeFit(c,0,[]);
+ for(const key of ['ratio','width','height'])assert.equal(c.calls[0].options.body[key],undefined);
+});
