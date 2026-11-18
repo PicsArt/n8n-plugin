@@ -182,3 +182,24 @@ for(const [label,code] of Object.entries({'Focal Zoom':'focalzoom','Lens Blur':'
  const c=context([{url:'https://example.com/result.mp4'}]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='effectName'?label:get(k,i,d);
  await require('../dist/nodes/PicsartVideo/execute/executeVideoEffects').executeVideoEffects(c,0,[]);assert.deepEqual(c.calls[0].options.body.effects,[code]);
 });
+
+for (const field of ['width','height','startX','startY']) {
+ for (const value of [NaN, Infinity, -Infinity, '32', null]) {
+  test(`crop rejects ${field}=${String(value)} before HTTP`, async () => {
+   const c=context([]), original=c.getNodeParameter;
+   c.getNodeParameter=(key,i,d)=>key===field?value:original(key,i,d);
+   const {executeCrop}=require('../dist/nodes/PicsartVideo/execute/executeCrop');
+   await assert.rejects(executeCrop(c,0,[]), /finite/);
+   assert.equal(c.calls.length,0);
+  });
+ }
+}
+test('crop preserves exact valid bounds and output format', async () => {
+ const c=context([{transaction_id:'crop-bounds'},{status:'success',data:{url:'https://example.com/crop.mov'}}]), original=c.getNodeParameter;
+ const values={width:64,height:96,startX:0,startY:16,mode:'advanced',cropExportFormat:'MOV'};
+ c.getNodeParameter=(key,i,d)=>Object.hasOwn(values,key)?values[key]:original(key,i,d);
+ const {executeCrop}=require('../dist/nodes/PicsartVideo/execute/executeCrop');
+ const out=[];await executeCrop(c,0,out);
+ assert.deepEqual(c.calls[0].options.body,{video_url:'https://example.com/test.mp4',width:64,height:96,start_x:0,start_y:16,export:{format:'MOV'}});
+ assert.equal(out[0].json.transactionId,'crop-bounds');
+});

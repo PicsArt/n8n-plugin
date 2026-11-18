@@ -41,26 +41,26 @@ export async function executeCrop(
 		);
 	}
 
-	if (width < 16) {
+	if (!Number.isFinite(width) || width < 16) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Width must be at least 16 px',
+			'Width must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (height < 16) {
+	if (!Number.isFinite(height) || height < 16) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Height must be at least 16 px',
+			'Height must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (startX < 0 || startY < 0) {
+	if (!Number.isFinite(startX) || !Number.isFinite(startY) || startX < 0 || startY < 0) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Start X and Start Y must be >= 0',
+			'Start X and Start Y must be finite numbers >= 0',
 			{ itemIndex },
 		);
 	}
