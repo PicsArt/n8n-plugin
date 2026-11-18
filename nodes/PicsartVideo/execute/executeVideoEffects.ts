@@ -6,6 +6,11 @@ import { handleApiError } from './errorHandler';
 import type { VideoApiResult, HttpError } from './types';
 
 const EFFECTS_API_URL = 'https://video-api.picsart.io/v1/effects';
+const EFFECT_CODES: Record<string, string> = {
+ 'Focal Zoom': 'focalzoom', 'Lens Blur': 'lensblur', 'Motion Blur': 'motionblur',
+ 'Radial Blur': 'radialblur', 'Smart Blur': 'smartblur', Blur: 'gblur', 'Black And White': 'bw',
+};
+
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
 import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
@@ -38,7 +43,7 @@ export async function executeVideoEffects(
 	try {
 		const body = {
 			video_url: videoUrl,
-			effects: [effectName],
+			effects: [EFFECT_CODES[effectName] ?? effectName],
 			export: { format },
 		};
 

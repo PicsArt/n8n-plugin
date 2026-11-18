@@ -177,3 +177,8 @@ test('effects choices match independently captured current API contract',()=>{
  const values=videoEffectsProperties.find(p=>p.name==='effectName').options.map(o=>o.value);assert.equal(new Set(values).size,values.length);assert.deepEqual([...values].sort(),[...contract.effects].sort());
  assert.deepEqual(videoEffectsProperties.find(p=>p.name==='format').options.map(o=>o.value).sort(),[...contract.formats].sort());
 });
+
+for(const [label,code] of Object.entries({'Focal Zoom':'focalzoom','Lens Blur':'lensblur','Motion Blur':'motionblur','Radial Blur':'radialblur','Smart Blur':'smartblur','Blur':'gblur','Black And White':'bw'})) test('effects maps documented label '+label+' to live API code',async()=>{
+ const c=context([{url:'https://example.com/result.mp4'}]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='effectName'?label:get(k,i,d);
+ await require('../dist/nodes/PicsartVideo/execute/executeVideoEffects').executeVideoEffects(c,0,[]);assert.deepEqual(c.calls[0].options.body.effects,[code]);
+});
