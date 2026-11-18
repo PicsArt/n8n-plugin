@@ -4,13 +4,16 @@ This branch is stacked on security PR #8. It adds optional core-managed OAuth to
 
 ## Verified November 18, 2026
 
-- Build, lint and all 176 package regressions pass locally at cb1d59c1. Tests cover authentication, model schemas, audio response identity, dependency compatibility and video behavior; mocks are not live proof.
+- Build, lint and all 199 package regressions pass locally at 772c46dc. Tests cover authentication, model schemas, audio response identity, dependency compatibility and video behavior; mocks are not live proof.
 - Isolated n8n 2.45.6 native OAuth sign-in and authorized image/video operations succeeded. Evidence includes color extraction, image crop, mute, trim, fit, highlights, compression and Effects. This does not prove token refresh or every operation/model.
 - Native compression reduced an existing 1,685,282-byte video to 836 kB (rounded native UI size), under a 1 MB target, with decoded 480×854 output.
 - Corrected trim MOV output was independently identified by HTTP video/quicktime and ftyp major brand qt. Effects MOV output also has a verified QuickTime header; visual effect fidelity remains unverified.
-- Latest Fit boundary validation is local/mock tested; native installation and boundary checks remain pending.
+- Latest Fit validation is installed in isolated n8n. Native negative tests rejected width=15, height=15 and blur=101 before HTTP; valid minimum-boundary processing remains untested.
+- Watermark URL and binary inputs succeeded natively; URL output visibly placed the logo upper-right. Multipart header injection guards pass local regressions.
+- Effects now offers 48 captured choices and GIF output; seven human labels map to live API codes. Black And White/GIF succeeded natively with OAuth; independent GIF89a header and 480×854 dimensions plus grayscale rendering were verified. This does not verify all effects.
+- CI run 44272761013 at 772c46dc passed lint, build and regressions. Audit failed on the advisory below; publishing was skipped.
 
-Detailed receipts are maintained in the owner's automation-platform-upgrades/evidence directory, including n8n-followup-2026-11-18.md, n8n-compress-large-validation-2026-11-18.json, n8n-trim-mov-validated-2026-11-18.json and n8n-effects-live-validation-2026-11-18.json. These private workspace receipts are not bundled with the package.
+Detailed receipts are maintained in the owner's automation-platform-upgrades/evidence directory, including n8n-followup-2026-11-18.md, n8n-compress-large-validation-2026-11-18.json, n8n-trim-mov-validated-2026-11-18.json and n8n-effects-live-validation-2026-11-18.json, n8n-effects-gif-validation-2026-11-18.json and n8n-fit-bounds-native-2026-11-18.json. These private workspace receipts are not bundled with the package.
 
 ## Blocking or incomplete
 
