@@ -155,3 +155,12 @@ test('trim sends format inside export per API contract',async()=>{
 test('effects maps existing single selection to effects array and export format',async()=>{
  const c=context([{url:'https://example.com/result.mov'}]);const get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='effectName'?'mnch1':k==='format'?'MOV':get(k,i,d);const output=[];await require('../dist/nodes/PicsartVideo/execute/executeVideoEffects').executeVideoEffects(c,0,output);assert.deepEqual(c.calls[0].options.body,{video_url:'https://example.com/test.mp4',effects:['mnch1'],export:{format:'MOV'}});assert.equal(output.length,1);
 });
+
+for(const [key,value] of [['fitWidth',15],['fitHeight',15],['fitWidth',NaN],['fitHeight',Infinity],['fitRatio',NaN],['fitRatio','1'],['fitBgBlur',0.5],['fitBgBlur',NaN]]) test('fit rejects invalid '+key+' '+String(value)+' before HTTP',async()=>{
+ const c=context([]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k===key?value:k==='mode'?'advanced':get(k,i,d);
+ await assert.rejects(require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]),/Width|Height|Ratio|Background blur/);assert.equal(c.calls.length,0);
+});
+test('fit accepts documented 16px boundary and maps values unchanged',async()=>{
+ const c=context([{url:'https://example.com/result.mp4'}]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':['fitWidth','fitHeight'].includes(k)?16:get(k,i,d);
+ await require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]);assert.equal(c.calls[0].options.body.width,16);assert.equal(c.calls[0].options.body.height,16);
+});

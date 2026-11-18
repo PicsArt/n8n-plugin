@@ -37,8 +37,8 @@ export const fitProperties: INodeProperties[] = [
 		name: 'fitWidth',
 		type: 'number',
 		default: undefined,
-		description: 'Target width in px (≥ 1). Leave empty to use ratio or original.',
-		typeOptions: { minValue: 1 },
+		description: 'Target width in px (≥ 16). Leave empty to use ratio or original.',
+		typeOptions: { minValue: 16 },
 		displayOptions: {
 			show: {
 				operation: ['Fit Video'],
@@ -51,8 +51,8 @@ export const fitProperties: INodeProperties[] = [
 		name: 'fitHeight',
 		type: 'number',
 		default: undefined,
-		description: 'Target height in px (≥ 1). Leave empty to use ratio or original.',
-		typeOptions: { minValue: 1 },
+		description: 'Target height in px (≥ 16). Leave empty to use ratio or original.',
+		typeOptions: { minValue: 16 },
 		displayOptions: {
 			show: {
 				operation: ['Fit Video'],

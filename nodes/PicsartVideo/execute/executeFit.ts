@@ -58,7 +58,7 @@ export async function executeFit(
 		);
 	}
 
-	if (ratio != null && (ratio < 0.1 || ratio > 10)) {
+	if (ratio != null && (!Number.isFinite(ratio) || ratio < 0.1 || ratio > 10)) {
 		throw new NodeOperationError(
 			context.getNode(),
 			'Ratio must be between 0.1 and 10 (width/height)',
@@ -66,26 +66,26 @@ export async function executeFit(
 		);
 	}
 
-	if (width != null && width < 1) {
+	if (width != null && (!Number.isFinite(width) || width < 16)) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Width must be >= 1',
+			'Width must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (height != null && height < 1) {
+	if (height != null && (!Number.isFinite(height) || height < 16)) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Height must be >= 1',
+			'Height must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (bgBlur != null && (bgBlur < 0 || bgBlur > 100)) {
+	if (bgBlur != null && (!Number.isInteger(bgBlur) || bgBlur < 0 || bgBlur > 100)) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Background blur must be between 0 and 100',
+			'Background blur must be an integer between 0 and 100',
 			{ itemIndex },
 		);
 	}
