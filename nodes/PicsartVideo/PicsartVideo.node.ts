@@ -38,7 +38,7 @@ export class PicsartVideo implements INodeType {
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Generate images and stickers with Picsart API: generate from prompt',
+		description: 'Edit videos with Picsart: trim, crop, fit, compress, watermark, mute, apply effects, and convert to GIF',
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		defaults: {
 			name: 'Picsart Video AI',
@@ -90,7 +90,7 @@ export class PicsartVideo implements INodeType {
 						name: 'Compress Video to Size',
 						value: 'Compress video to size',
 						action: 'Compress video to size',
-						description: 'Reduce your video file to a specific size in MB without losing quality',
+						description: 'Compress a video to a target file size in MB',
 					},
 					{
 						name: 'Crop Video',
