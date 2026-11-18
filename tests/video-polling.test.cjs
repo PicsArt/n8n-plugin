@@ -130,3 +130,8 @@ test('compression sends target size inside export per API contract', async () =>
  assert.equal(Object.hasOwn(c.calls[0].options.body,'max_size_mb'),false);
  assert.equal(out[0].json.max_size_mb,8);
 });
+
+for(const value of [0.15,0,-1,NaN,Infinity,'2']) test('compression rejects invalid size '+String(value),async()=>{
+ const c=context([]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='max_size_mb'?value:get(k,i,d);
+ await assert.rejects(executeCompressVideo(c,0,[]),/positive whole number/);assert.equal(c.calls.length,0);
+});

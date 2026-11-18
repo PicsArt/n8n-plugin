@@ -16,6 +16,10 @@ export async function executeCompressVideo(
 	const videoUrl = context.getNodeParameter('videoUrl', itemIndex) as string;
 	const max_size_mb = context.getNodeParameter('max_size_mb', itemIndex) as number;
 
+	if (!Number.isInteger(max_size_mb) || max_size_mb < 1) {
+		throw new NodeOperationError(context.getNode(), 'Maximum size must be a positive whole number of megabytes', { itemIndex });
+	}
+
 	const mode = context.getNodeParameter('mode', itemIndex, 'simple') as string;
 	let codec: string;
 	let format: string;
