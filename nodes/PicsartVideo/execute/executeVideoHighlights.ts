@@ -1,3 +1,4 @@
+import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -136,8 +137,8 @@ export async function executeVideoHighlights(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'highlights-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('highlights-video', format).fileName,
+							videoOutputMetadata('highlights-video', format).mimeType,
 						),
 					},
 					json: {
@@ -191,8 +192,8 @@ export async function executeVideoHighlights(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'highlights-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('highlights-video', format).fileName,
+							videoOutputMetadata('highlights-video', format).mimeType,
 						),
 					},
 					json: {

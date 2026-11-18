@@ -1,3 +1,4 @@
+import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -174,8 +175,8 @@ export async function executeTrim(
 			binary: {
 				data: await context.helpers.prepareBinaryData(
 					videoBuffer,
-					'trimmed-video.mp4',
-					'video/mp4',
+					videoOutputMetadata('trimmed-video', format).fileName,
+					videoOutputMetadata('trimmed-video', format).mimeType,
 				),
 			},
 			json: {

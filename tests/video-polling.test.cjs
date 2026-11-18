@@ -135,3 +135,15 @@ for(const value of [0.15,0,-1,NaN,Infinity,'2']) test('compression rejects inval
  const c=context([]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='max_size_mb'?value:get(k,i,d);
  await assert.rejects(executeCompressVideo(c,0,[]),/positive whole number/);assert.equal(c.calls.length,0);
 });
+
+for (const [name,execute] of videoExecutors.filter(([n])=>['trim','Crop','compression','VideoHighlights'].includes(n))) {
+ for (const [format,mime] of [['MP4','video/mp4'],['MOV','video/quicktime'],['WEBM','video/webm'],...(name==='VideoHighlights'?[['GIF','image/gif']]:[])]) {
+  for (const polled of [false,true]) test(name+' export metadata '+format+' polled='+polled,async t=>{
+   t.mock.method(polling,'waitBeforeVideoPoll',async()=>{});
+   const c=context(polled?[{transaction_id:'job'},{status:'success',data:{url:'https://example.com/output'}}]:[{url:'https://example.com/output'}]);
+   const get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':['format','exportFormat','cropExportFormat'].includes(k)?format:get(k,i,d);
+   const prepared=[];c.helpers.prepareBinaryData=async (data,fileName,mimeType)=>{prepared.push({fileName,mimeType});return {data:'test',fileName,mimeType};};
+   await execute(c,0,[]);assert.equal(prepared.length,1);assert.equal(prepared[0].mimeType,mime);assert(prepared[0].fileName.endsWith('.'+format.toLowerCase()));
+  });
+ }
+}

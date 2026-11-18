@@ -1,3 +1,4 @@
+import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -104,8 +105,8 @@ export async function executeCrop(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'cropped-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('cropped-video', format).fileName,
+							videoOutputMetadata('cropped-video', format).mimeType,
 						),
 					},
 					json: {
@@ -162,8 +163,8 @@ export async function executeCrop(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'cropped-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('cropped-video', format).fileName,
+							videoOutputMetadata('cropped-video', format).mimeType,
 						),
 					},
 					json: {

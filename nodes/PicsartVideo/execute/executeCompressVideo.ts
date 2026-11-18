@@ -1,3 +1,4 @@
+import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -103,8 +104,8 @@ export async function executeCompressVideo(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'edited-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('edited-video', format).fileName,
+							videoOutputMetadata('edited-video', format).mimeType,
 						),
 					},
 					json: { videoUrl: resultUrl, video_url: videoUrl, max_size_mb, export: exportParams },
@@ -153,8 +154,8 @@ export async function executeCompressVideo(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'edited-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('edited-video', format).fileName,
+							videoOutputMetadata('edited-video', format).mimeType,
 						),
 					},
 					json: {
