@@ -147,3 +147,7 @@ for (const [name,execute] of videoExecutors.filter(([n])=>['trim','Crop','compre
   });
  }
 }
+
+test('trim sends format inside export per API contract',async()=>{
+ const c=context([{url:'https://example.com/result.mov'}]);const get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':k==='cropExportFormat'?'MOV':get(k,i,d);await executeTrim(c,0,[]);assert.deepEqual(c.calls[0].options.body.export,{format:'MOV'});assert.equal(Object.hasOwn(c.calls[0].options.body,'format'),false);
+});

@@ -76,7 +76,7 @@ export async function executeTrim(
 			video_url: videoUrl,
 			start: startMs,
 			end: endMs,
-			format
+			export: { format },
 		};
 
 		const response = await context.helpers.httpRequestWithAuthentication.call(
