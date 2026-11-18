@@ -122,3 +122,11 @@ test('highlights exposes repeatable native trim segments', () => {
  const { videoHighlightsProperties } = require('../dist/nodes/PicsartVideo/properties/videoHighlightsProperties.js');
  assert.equal(videoHighlightsProperties.find(p => p.name === 'trimSegments').typeOptions.multipleValues, true);
 });
+
+test('compression sends target size inside export per API contract', async () => {
+ const c=context([{url:'https://example.com/output.mp4'}]); const out=[];
+ await executeCompressVideo(c,0,out);
+ assert.equal(c.calls[0].options.body.export.max_size_mb,8);
+ assert.equal(Object.hasOwn(c.calls[0].options.body,'max_size_mb'),false);
+ assert.equal(out[0].json.max_size_mb,8);
+});

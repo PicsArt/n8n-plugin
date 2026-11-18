@@ -55,6 +55,7 @@ export async function executeCompressVideo(
 	let transactionId: string | null = null;
 	try {
 		const exportParams: Record<string, string | number> = {
+			max_size_mb,
 			codec,
 			format,
 			audio_codec: audioCodec,
@@ -66,7 +67,6 @@ export async function executeCompressVideo(
 
 		const body: Record<string, unknown> = {
 			video_url: videoUrl,
-			max_size_mb,
 			export: exportParams,
 		};
 
