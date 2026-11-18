@@ -37,8 +37,8 @@ export async function executeVideoEffects(
 	try {
 		const body = {
 			video_url: videoUrl,
-			effect_name: effectName,
-			format,
+			effects: [effectName],
+			export: { format },
 		};
 
 		const response = await context.helpers.httpRequestWithAuthentication.call(

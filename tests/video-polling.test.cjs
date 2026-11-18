@@ -151,3 +151,7 @@ for (const [name,execute] of videoExecutors.filter(([n])=>['trim','Crop','compre
 test('trim sends format inside export per API contract',async()=>{
  const c=context([{url:'https://example.com/result.mov'}]);const get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':k==='cropExportFormat'?'MOV':get(k,i,d);await executeTrim(c,0,[]);assert.deepEqual(c.calls[0].options.body.export,{format:'MOV'});assert.equal(Object.hasOwn(c.calls[0].options.body,'format'),false);
 });
+
+test('effects maps existing single selection to effects array and export format',async()=>{
+ const c=context([{url:'https://example.com/result.mov'}]);const get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='effectName'?'mnch1':k==='format'?'MOV':get(k,i,d);const output=[];await require('../dist/nodes/PicsartVideo/execute/executeVideoEffects').executeVideoEffects(c,0,output);assert.deepEqual(c.calls[0].options.body,{video_url:'https://example.com/test.mp4',effects:['mnch1'],export:{format:'MOV'}});assert.equal(output.length,1);
+});
