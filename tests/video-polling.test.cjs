@@ -3,6 +3,11 @@ const assert=require('node:assert/strict');
 const polling=require('../dist/nodes/PicsartVideo/execute/polling');
 const {executeTrim}=require('../dist/nodes/PicsartVideo/execute/executeTrim');
 const {executeCompressVideo}=require('../dist/nodes/PicsartVideo/execute/executeCompressVideo');
+const videoExecutors = [
+ ['trim', executeTrim], ['compression', executeCompressVideo],
+ ...['Crop', 'CtvEncode', 'Fit', 'FpsUpscale', 'MuteVideo', 'VideoEffects', 'VideoHighlights', 'VideoToGif'].map(name => [name, require('../dist/nodes/PicsartVideo/execute/execute' + name)['execute' + name]]),
+ ['Watermark', require('../dist/nodes/PicsartVideo/execute/executeWatermart').executeWatermark],
+];
 test('video retry delay is two seconds; initial poll is immediate',async t=>{
  t.mock.timers.enable({apis:['setTimeout']});
  await polling.waitBeforeVideoPoll(0);
@@ -11,7 +16,7 @@ test('video retry delay is two seconds; initial poll is immediate',async t=>{
  t.mock.timers.tick(1);await wait;assert.equal(done,true);
 });
 function context(responses){
- const calls=[];const p={authentication:'oAuth2',videoUrl:'https://example.com/test.mp4',start:0,end:4000,cropExportFormat:'MP4',mode:'simple',max_size_mb:8};
+ const calls=[];const p={authentication:'oAuth2',videoUrl:'https://example.com/test.mp4',start:0,end:4000,cropExportFormat:'MP4',mode:'simple',max_size_mb:8,width:64,height:96,fitRatio:0.5625,effectName:'black_and_white',format:'MP4',watermarkSource:'url',watermarkUrl:'https://example.com/logo.png',trimSegments:{segment:[{start:0,end:1000},{start:2000,end:3000}]}};
  return {calls,getNode:()=>({name:'Video',type:'test',typeVersion:1,parameters:{}}),getNodeParameter:(k,i,d)=>p[k]??d,helpers:{
  httpRequestWithAuthentication:async (credential,options)=>{calls.push({credential,options});const response=responses.length?responses.shift():{status:'processing'};if(response instanceof Error)throw response;return response;},
  httpRequest:async()=>Buffer.from('test video'),prepareBinaryData:async()=>({data:'dGVzdA==',mimeType:'video/mp4'})}};
@@ -34,7 +39,7 @@ for(const [name,execute]of [['trim',executeTrim],['compression',executeCompressV
  });
 }
 
-for (const [name, execute] of [['trim', executeTrim], ['compression', executeCompressVideo]]) {
+for (const [name, execute] of videoExecutors) {
  for (const statusCode of [403, 500]) {
   test(`${name}: polling HTTP ${statusCode} preserves accepted job and never resubmits`, async t => {
    t.mock.method(polling, 'waitBeforeVideoPoll', async () => {});
