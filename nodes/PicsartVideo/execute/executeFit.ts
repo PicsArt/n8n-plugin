@@ -102,6 +102,7 @@ export async function executeFit(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body: Record<string, unknown> = {
 			video_url: videoUrl,
@@ -129,7 +130,7 @@ export async function executeFit(
 			},
 		);
 
-		const transactionId =
+		transactionId =
 			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
 
 		if (!transactionId) {
@@ -225,6 +226,6 @@ export async function executeFit(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

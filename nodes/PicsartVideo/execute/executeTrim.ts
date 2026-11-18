@@ -61,6 +61,7 @@ export async function executeTrim(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body = {
 			video_url: videoUrl,
@@ -84,7 +85,6 @@ export async function executeTrim(
 		);
 
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -179,6 +179,6 @@ export async function executeTrim(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

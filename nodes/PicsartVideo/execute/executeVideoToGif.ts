@@ -31,6 +31,7 @@ export async function executeVideoToGif(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body = {
 			video_url: videoUrl,
@@ -54,7 +55,7 @@ export async function executeVideoToGif(
 			},
 		);
 
-		const transactionId =
+		transactionId =
 			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
 
 		if (!transactionId) {
@@ -150,6 +151,6 @@ export async function executeVideoToGif(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

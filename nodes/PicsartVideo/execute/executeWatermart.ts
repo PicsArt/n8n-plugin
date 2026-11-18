@@ -103,6 +103,7 @@ export async function executeWatermark(
 			{ itemIndex },
 		);
 	}
+	let transactionId: string | null = null;
 	try {
 		const formFields: Record<string, string | { data: unknown; filename?: string; contentType?: string }> = {
 			video_url: videoUrl,
@@ -148,7 +149,6 @@ export async function executeWatermark(
 			},
 		);
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -244,6 +244,6 @@ export async function executeWatermark(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

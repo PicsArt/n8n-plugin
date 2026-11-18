@@ -35,6 +35,7 @@ export async function executeMuteVideo(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body: { video_url: string; video_volume: number } = {
 			video_url: videoUrl,
@@ -56,7 +57,6 @@ export async function executeMuteVideo(
 		);
 
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -150,6 +150,6 @@ export async function executeMuteVideo(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

@@ -33,3 +33,30 @@ for(const [name,execute]of [['trim',executeTrim],['compression',executeCompressV
  assert.equal(c.calls.length,301);assert.equal(c.calls.filter(x=>x.options.method==='POST').length,1);
  });
 }
+
+for (const [name, execute] of [['trim', executeTrim], ['compression', executeCompressVideo]]) {
+ for (const statusCode of [403, 500]) {
+  test(`${name}: polling HTTP ${statusCode} preserves accepted job and never resubmits`, async t => {
+   t.mock.method(polling, 'waitBeforeVideoPoll', async () => {});
+   const c = context([{transaction_id: 'accepted-job'}, Object.assign(new Error('poll failed'), {statusCode})]);
+   await assert.rejects(execute(c, 0, []), /Accepted transaction ID: accepted-job.*Retrieve this existing transaction/);
+   assert.equal(c.calls.filter(x => x.options.method === 'POST').length, 1);
+  });
+ }
+ test(`${name}: download failure preserves accepted job`, async t => {
+  t.mock.method(polling, 'waitBeforeVideoPoll', async () => {});
+  const c = context([{transaction_id: 'download-job'}, {status: 'success', data: {url: 'https://example.com/result.mp4'}}]);
+  c.helpers.httpRequest = async () => { throw new Error('download unavailable'); };
+  await assert.rejects(execute(c, 0, []), /Accepted transaction ID: download-job/);
+  assert.equal(c.calls.filter(x => x.options.method === 'POST').length, 1);
+ });
+ test(`${name}: submission failure does not invent an accepted job`, async () => {
+  const c = context([Object.assign(new Error('submission denied'), {statusCode: 403})]);
+  await assert.rejects(execute(c, 0, []), error => {
+   assert.match(error.message, /submission denied/);
+   assert.doesNotMatch(error.message, /Accepted transaction ID/);
+   return true;
+  });
+  assert.equal(c.calls.length, 1);
+ });
+}

@@ -64,6 +64,7 @@ export async function executeCrop(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body: Record<string, unknown> = {
 			video_url: videoUrl,
@@ -88,7 +89,7 @@ export async function executeCrop(
 			},
 		);
 
-		const transactionId =
+		transactionId =
 			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
 
 		if (!transactionId) {
@@ -196,6 +197,6 @@ export async function executeCrop(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

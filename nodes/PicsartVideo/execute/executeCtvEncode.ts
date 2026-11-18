@@ -31,6 +31,7 @@ export async function executeCtvEncode(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body = { video_url: videoUrl };
 
@@ -48,7 +49,7 @@ export async function executeCtvEncode(
 			},
 		);
 
-		const transactionId =
+		transactionId =
 			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
 
 		if (!transactionId) {
@@ -143,6 +144,6 @@ export async function executeCtvEncode(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

@@ -85,6 +85,7 @@ export async function executeVideoHighlights(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const exportParams: Record<string, string | number> = {
 			format,
@@ -114,7 +115,7 @@ export async function executeVideoHighlights(
 			},
 		);
 
-		const transactionId =
+		transactionId =
 			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
 
 		if (!transactionId) {
@@ -216,7 +217,7 @@ export async function executeVideoHighlights(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }
 

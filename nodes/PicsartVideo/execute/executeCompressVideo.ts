@@ -52,6 +52,7 @@ export async function executeCompressVideo(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const exportParams: Record<string, string | number> = {
 			codec,
@@ -83,7 +84,7 @@ export async function executeCompressVideo(
 			},
 		);
 
-		const transactionId =
+		transactionId =
 			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
 
 		if (!transactionId) {
@@ -180,6 +181,6 @@ export async function executeCompressVideo(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }
