@@ -117,3 +117,8 @@ for(const segment of [null,{start:0},{start:'0',end:500},{start:NaN,end:500},{st
  c.getNodeParameter=(key,i,d)=>key==='trimSegments'?{segment:[{start:0,end:1000},segment,{start:2000,end:3000}]}:original(key,i,d);
  await assert.rejects(executeVideoHighlights(c,0,[]),/Every trim segment must have finite numeric/);assert.equal(c.calls.length,0);
 });
+
+test('highlights exposes repeatable native trim segments', () => {
+ const { videoHighlightsProperties } = require('../dist/nodes/PicsartVideo/properties/videoHighlightsProperties.js');
+ assert.equal(videoHighlightsProperties.find(p => p.name === 'trimSegments').typeOptions.multipleValues, true);
+});
