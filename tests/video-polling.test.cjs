@@ -65,3 +65,10 @@ for (const [name, execute] of videoExecutors) {
   assert.equal(c.calls.length, 1);
  });
 }
+
+test('trim exposes each time boundary once in the built editor schema',()=>{
+ const {trimProperties}=require('../dist/nodes/PicsartVideo/properties/trimProperties');
+ for(const name of ['videoUrl','start','end','cropExportFormat'])assert.equal(trimProperties.filter(p=>p.name===name).length,1,name+' must appear once');
+ const end=trimProperties.find(p=>p.name==='end');assert.equal(end.type,'number');assert.equal(end.typeOptions.minValue,1);
+ assert.deepEqual(end.displayOptions.show.operation,['Clip a Video']);
+});
