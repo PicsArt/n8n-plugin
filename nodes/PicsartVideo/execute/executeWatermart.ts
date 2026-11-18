@@ -107,7 +107,7 @@ export async function executeWatermark(
 	try {
 		const formFields: Record<string, string | { data: unknown; filename?: string; contentType?: string }> = {
 			video_url: videoUrl,
-			anchor_point: anchorPoint,
+			watermark_anchor_point: anchorPoint,
 			watermark_opacity: String(watermarkOpacity),
 			watermark_padding_x: String(watermarkPaddingX),
 			watermark_padding_y: String(watermarkPaddingY),

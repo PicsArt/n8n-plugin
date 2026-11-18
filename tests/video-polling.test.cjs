@@ -164,3 +164,10 @@ test('fit accepts documented 16px boundary and maps values unchanged',async()=>{
  const c=context([{url:'https://example.com/result.mp4'}]),get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='mode'?'advanced':['fitWidth','fitHeight'].includes(k)?16:get(k,i,d);
  await require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]);assert.equal(c.calls[0].options.body.width,16);assert.equal(c.calls[0].options.body.height,16);
 });
+
+for(const anchor of ['left-top','right-bottom','pattern']) test('watermark serializes documented anchor '+anchor,async()=>{
+ const c=context([{url:'https://example.com/result.mp4'}]);const get=c.getNodeParameter;c.getNodeParameter=(k,i,d)=>k==='anchorPoint'?anchor:get(k,i,d);
+ await require('../dist/nodes/PicsartVideo/execute/executeWatermart').executeWatermark(c,0,[]);
+ const body=Buffer.from(c.calls[0].options.body).toString();
+ assert(body.includes('name="watermark_anchor_point"\r\n\r\n'+anchor));assert(!body.includes('name="anchor_point"'));
+});
