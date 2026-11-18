@@ -554,7 +554,7 @@ export class PicsartAudio implements INodeType {
 						{
 							method: 'GET',
 							url: baseUrl + '/' + encodeURIComponent(id) + '/result',
-							headers: { Accept: 'application/json' },
+							headers: { Accept: 'application/json', platform: 'api', 'X-Touchpoint': 'sdk' },
 						},
 					);
 					const r = envelope?.response;
@@ -645,7 +645,7 @@ export class PicsartAudio implements INodeType {
 					{
 						method: 'POST',
 						url: baseUrl + '/submit',
-						headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+						headers: { Accept: 'application/json', 'Content-Type': 'application/json', platform: 'api', 'X-Touchpoint': 'sdk' },
 						body: { params: { model, params } },
 					},
 				);

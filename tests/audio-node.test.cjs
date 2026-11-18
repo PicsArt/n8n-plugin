@@ -114,3 +114,9 @@ for(const status of ['ACCEPTED','IN_PROGRESS'])test('gateway queued audio is pen
  const out=(await node.execute.call(ctx))[0][0];
  assert.equal(ctx.calls.length,1);assert.equal(ctx.calls[0].options.method,'GET');assert.equal(out.json.completed,false);assert.equal(out.json.status,status);assert.equal(out.json.task_id,'saved');assert.equal(Object.hasOwn(out.json,'url'),false);
 });
+
+test('gateway transport includes SDK platform and touchpoint on submit and result',async()=>{
+ const ctx=context([{operation:'generate_sound_effects',model:'elevenlabs-sfx',prompt:'Mug on table',advanced:{duration:2}}],[accepted]);await node.execute.call(ctx);
+ const get=context([{operation:'get_audio_result',taskId:'task-1'}],[{status:'success',response:{id:'task-1',status:'ACCEPTED'}}]);await node.execute.call(get);
+ for(const call of [...ctx.calls,...get.calls]){assert.equal(call.options.headers.platform,'api');assert.equal(call.options.headers['X-Touchpoint'],'sdk');assert.equal(call.credential,'picsartOAuth2Api');}
+});
