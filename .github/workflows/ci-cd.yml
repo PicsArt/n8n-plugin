@@ -126,4 +126,8 @@ jobs:
         run: sleep 30
 
       - name: Scan published package from NPM
-        run: npx @n8n/scan-community-package @picsart/n8n-nodes-picsart-creative-apis
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          npx --yes @n8n/scan-community-package@0.44.0 "@picsart/n8n-nodes-picsart-creative-apis@${RELEASE_VERSION}"
