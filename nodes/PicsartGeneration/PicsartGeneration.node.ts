@@ -38,38 +38,38 @@ const generationOperation: INodeProperties = {
 					description: 'Edit or transform a source image with an AI model using a text prompt',
 				},
 				{
-					name: 'Generate Images from Prompt',
+					name: 'Generate Images From Prompt',
 					value: 'text2Image',
 					action: 'Generate an image from text prompt',
 					description: 'Generate an image from a text prompt using AI',
 				},
 				{
-					name: 'Generate Music/Sound from Prompt',
+					name: 'Generate Music/Sound From Prompt',
 					value: 'Generate Music/Sound from Prompt',
 					action: 'Generate music or sound from a text prompt',
 					description: 'Generate music or sound effects from a text prompt using AI',
 				},
 				{
-					name: 'Generate Speech from Prompt',
+					name: 'Generate Speech From Prompt',
 					value: 'Generate Speech from Prompt',
 					action: 'Generate speech audio from text',
 					description: 'Generate spoken audio from input text using AI text-to-speech',
 				},
 				{
-					name: 'Generate Stickers from Prompt',
+					name: 'Generate Stickers From Prompt',
 					value: 'text2Sticker',
 					action: 'Generate a sticker from text prompt',
 					description: 'Generate a sticker from a text prompt using AI',
 				},
 				{
-					name: 'Generate Video from Prompt',
+					name: 'Generate Video From Prompt',
 					value: 'Generate Video from Prompt',
 					action: 'Generate a video from a text prompt',
 					description:
 						'Generate one video per request from a text prompt only. Output duration, resolution, and audio depend on the selected model.',
 				},
 				{
-					name: 'Generate Video from Prompt and Image',
+					name: 'Generate Video From Prompt and Image',
 					value: 'Generate Video from Prompt and Image',
 					action: 'Generate a video from an image and text prompt',
 					description:

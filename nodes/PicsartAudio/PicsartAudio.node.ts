@@ -52,70 +52,70 @@ const properties: INodeProperties[] = [
 		default: 'generate_music',
 		options: [
 			{
-				name: 'Change a voice',
+				name: 'Change a Voice',
 				value: 'change_voice',
 				description:
 					'Submit a voice change task with Picsart. Use the returned task ID to check progress and retrieve the audio.',
 				action: 'Change a voice',
 			},
 			{
-				name: 'Convert text to speech',
+				name: 'Convert Text to Speech',
 				value: 'text_to_speech',
 				description:
 					'Convert text to speech with Picsart. Use the returned task ID to check progress and retrieve the audio.',
 				action: 'Convert text to speech',
 			},
 			{
-				name: 'Design a voice',
+				name: 'Design a Voice',
 				value: 'design_voice',
 				description:
 					'Create a voice from a description with Picsart. Use the returned task ID to check progress and retrieve the result.',
 				action: 'Design a voice',
 			},
 			{
-				name: 'Dub audio',
+				name: 'Dub Audio',
 				value: 'dub_audio',
 				description:
 					'Submit an audio dubbing task with Picsart. Use the returned task ID to check progress and retrieve the result.',
 				action: 'Dub audio',
 			},
 			{
-				name: 'Generate audio from video',
+				name: 'Generate Audio From Video',
 				value: 'generate_audio_from_video',
 				description:
 					'Generate audio for a video with Picsart. Use the returned task ID to check progress and retrieve the result.',
 				action: 'Generate audio from video',
 			},
 			{
-				name: 'Generate music',
+				name: 'Generate Music',
 				value: 'generate_music',
 				description:
 					'Generate music from a prompt with Picsart. Use the returned task ID to check progress and retrieve the audio.',
 				action: 'Generate music',
 			},
 			{
-				name: 'Generate sound effects',
+				name: 'Generate Sound Effects',
 				value: 'generate_sound_effects',
 				description:
 					'Generate sound effects from a text description with Picsart. Use the returned task ID to retrieve the audio.',
 				action: 'Generate sound effects',
 			},
 			{
-				name: 'Generate voiceover',
+				name: 'Generate Voiceover',
 				value: 'generate_voiceover',
 				description:
 					'Generate a voiceover from a script with Picsart. Use the returned task ID to check progress and retrieve the audio.',
 				action: 'Generate voiceover',
 			},
 			{
-				name: 'Get audio result',
+				name: 'Get Audio Result',
 				value: 'get_audio_result',
 				description:
 					'Check an audio task and retrieve its available outputs when processing is complete.',
 				action: 'Get an audio result',
 			},
 			{
-				name: 'Isolate audio',
+				name: 'Isolate Audio',
 				value: 'isolate_audio',
 				description:
 					'Submit an audio isolation task with Picsart. Use the returned task ID to check progress and retrieve the result.',
@@ -142,7 +142,7 @@ properties.push(
 		default: 'lyria-3-pro',
 		options: [
 			{
-				name: 'ElevenLabs Music v2',
+				name: 'ElevenLabs Music V2',
 				value: 'elevenlabs-music-v2',
 				description:
 					'Generate vocal or instrumental music from a text prompt for soundtracks and audio projects.',
@@ -163,12 +163,12 @@ properties.push(
 				description: 'Generate songs with vocals from text and image prompts for music projects.',
 			},
 			{
-				name: 'MiniMax Music v2',
+				name: 'MiniMax Music V2',
 				value: 'minimax-music-v2',
 				description: 'Generate vocal or instrumental music from style and lyric prompts.',
 			},
 			{
-				name: 'MiniMax Music v3',
+				name: 'MiniMax Music V3',
 				value: 'minimax-music-v3',
 				description:
 					'Generate music from a style prompt and optional lyrics with configurable audio encoding.',
@@ -193,18 +193,18 @@ properties.push(
 					'Convert text to speech with the Async Flash voice engine for narration and voiceovers.',
 			},
 			{
-				name: 'Eleven v3',
+				name: 'Eleven V3',
 				value: 'eleven-v3',
 				description:
 					'Convert a script to speech with tone and pacing controls for narration and voiceovers.',
 			},
 			{
-				name: 'Eleven v4',
+				name: 'Eleven V4',
 				value: 'eleven-v4',
 				description: 'Convert a script to speech with audio tags to direct voiceover delivery.',
 			},
 			{
-				name: 'Eleven v4 Turbo',
+				name: 'Eleven V4 Turbo',
 				value: 'eleven-v4-turbo',
 				description:
 					'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery.',
@@ -269,18 +269,18 @@ properties.push(
 					'Convert text to speech with the Async Flash voice engine for narration and voiceovers.',
 			},
 			{
-				name: 'Eleven v3',
+				name: 'Eleven V3',
 				value: 'eleven-v3',
 				description:
 					'Convert a script to speech with tone and pacing controls for narration and voiceovers.',
 			},
 			{
-				name: 'Eleven v4',
+				name: 'Eleven V4',
 				value: 'eleven-v4',
 				description: 'Convert a script to speech with audio tags to direct voiceover delivery.',
 			},
 			{
-				name: 'Eleven v4 Turbo',
+				name: 'Eleven V4 Turbo',
 				value: 'eleven-v4-turbo',
 				description:
 					'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery.',
@@ -339,7 +339,7 @@ properties.push(
 		default: 'elevenlabs-sfx',
 		options: [
 			{
-				name: 'ElevenLabs SFX v2',
+				name: 'ElevenLabs SFX V2',
 				value: 'elevenlabs-sfx',
 				description:
 					'Generate sound effects from a text description for videos and other audio projects.',
@@ -397,13 +397,13 @@ properties.push(
 		default: 'eleven-sts-v2',
 		options: [
 			{
-				name: 'Eleven Multilingual STS v2',
+				name: 'Eleven Multilingual STS V2',
 				value: 'eleven-multilingual-sts-v2',
 				description:
 					'Change the speaker in multilingual audio while retaining timing and vocal expression.',
 			},
 			{
-				name: 'Eleven STS v2',
+				name: 'Eleven STS V2',
 				value: 'eleven-sts-v2',
 				description:
 					'Change the speaker in an audio recording while retaining timing and vocal expression.',
@@ -464,12 +464,12 @@ properties.push(
 					'Generate voice previews from a description to compare delivery before selecting a voice.',
 			},
 			{
-				name: 'Eleven Voice Design Multilingual v2',
+				name: 'Eleven Voice Design Multilingual V2',
 				value: 'eleven-voice-design-v2',
 				description: 'Design a multilingual voice from a text description for voiceover previews.',
 			},
 			{
-				name: 'Eleven Voice Design v3',
+				name: 'Eleven Voice Design V3',
 				value: 'eleven-voice-design-v3',
 				description:
 					'Design a voice from a text description for narration and character voice previews.',
