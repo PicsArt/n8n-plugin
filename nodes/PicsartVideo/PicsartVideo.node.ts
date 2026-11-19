@@ -85,7 +85,7 @@ export class PicsartVideo implements INodeType {
 						name: 'Clip a Video',
 						value: 'Clip a Video',
 						action: 'Clip a video',
-						description: 'Trim the video to a specific segment (start/end in milliseconds)',
+						description: 'Trim a video to your chosen start and end times to create a shorter clip',
 					},
 					{
 						name: 'Compress Video to Size',
@@ -103,7 +103,7 @@ export class PicsartVideo implements INodeType {
 						name: 'Fit Video',
 						value: 'Fit Video',
 						action: 'Fit video to ratio or dimensions',
-						description: 'Fit video to different ratios or width/height; optional background',
+						description: 'Resize a video to your chosen aspect ratio or dimensions for social posts and other layouts',
 					},
                     { name: 'Get Video Processing Result', value: 'getVideoProcessingResult', action: 'Get a video processing result', description: 'Check a saved video processing transaction and retrieve the edited video when processing is complete' },
 					{
