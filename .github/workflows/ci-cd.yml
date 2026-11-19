@@ -89,6 +89,11 @@ jobs:
       - name: Build package
         run: npm run build
 
+      - name: Verify release tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/verify-release-tag.cjs
+
       - name: Configure npm registry
         run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
         env:
@@ -122,4 +127,3 @@ jobs:
 
       - name: Scan published package from NPM
         run: npx @n8n/scan-community-package @picsart/n8n-nodes-picsart-creative-apis
-        continue-on-error: true
