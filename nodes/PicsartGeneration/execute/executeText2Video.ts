@@ -22,13 +22,13 @@ export async function executeText2Video(
 	if (!prompt?.trim()) {
 		throw new NodeOperationError(context.getNode(), 'Prompt is required and cannot be empty', { itemIndex });
 	}
-	if (width < 64 || width > 1024) {
+	if (typeof width !== 'number' || !Number.isFinite(width) || width < 64 || width > 1024) {
 		throw new NodeOperationError(context.getNode(), 'Width must be between 64 and 1024 pixels', { itemIndex });
 	}
-	if (height < 64 || height > 1024) {
+	if (typeof height !== 'number' || !Number.isFinite(height) || height < 64 || height > 1024) {
 		throw new NodeOperationError(context.getNode(), 'Height must be between 64 and 1024 pixels', { itemIndex });
 	}
-	if (videoLength < 1 || videoLength > 20) {
+	if (typeof videoLength !== 'number' || !Number.isFinite(videoLength) || videoLength < 1 || videoLength > 20) {
 		throw new NodeOperationError(context.getNode(), 'Video length must be between 1 and 20 seconds', { itemIndex });
 	}
 
