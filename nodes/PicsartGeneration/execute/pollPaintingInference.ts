@@ -1,12 +1,13 @@
+import { waitBeforeGenerationPoll } from './pollDelay';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError, type JsonObject } from 'n8n-workflow';
 
 export const maxPaintingPollAttempts = 600;
 
 /** GET https://genai-api.picsart.io/v1/painting/{inference_id} */
 export function paintingInferenceUrl(inferenceId: string): string {
-	return `https://genai-api.picsart.io/v1/painting/${inferenceId}`;
+	return `https://genai-api.picsart.io/v1/painting/${encodeURIComponent(inferenceId)}`;
 }
 
 /** Image URLs from a painting GET response or a synchronous POST body when `data[].url` is present. */
@@ -37,6 +38,7 @@ export async function pollUntilPaintingImagesReady(
 	let imageUrls: string[] = [];
 
 	while (pollAttempts < maxPaintingPollAttempts) {
+		await waitBeforeGenerationPoll(pollAttempts);
 		try {
 			result = await context.helpers.httpRequestWithAuthentication.call(context, picsartCredentialType(context), {
 				method: 'GET',
@@ -64,14 +66,21 @@ export async function pollUntilPaintingImagesReady(
 				pollAttempts++;
 				continue;
 			}
-			throw error;
+			const recovery = ` Accepted inference ID: ${inferenceId}. Retrieve this existing task; do not resubmit automatically.`;
+			if (error instanceof NodeOperationError) {
+				throw new NodeOperationError(context.getNode(), error.message + recovery, { itemIndex });
+			}
+			throw new NodeApiError(context.getNode(), error as JsonObject, {
+				itemIndex,
+				message: `${error?.message || 'Painting result retrieval failed.'}${recovery}`,
+			});
 		}
 	}
 
 	if (imageUrls.length === 0) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`Painting edit timed out after ${maxPaintingPollAttempts} polling attempts. Inference ID: ${inferenceId}. Last response: ${JSON.stringify(result)}. The image may still be processing — try again shortly or contact support if the issue persists.`,
+			`Painting edit timed out after ${maxPaintingPollAttempts} polling attempts. Inference ID: ${inferenceId}. Last response: ${JSON.stringify(result)}. The image may still be processing — retrieve this existing task later; do not resubmit generation automatically.`,
 			{ itemIndex },
 		);
 	}
