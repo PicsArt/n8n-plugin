@@ -29,3 +29,7 @@ CI retains the unsuppressed audit gate and runs lint/build/tests after a success
 ## November 19 verification
 
 Local build/lint and all 233 package regressions pass. CI rerun 44305654804 attempt 2 passed at unchanged head 4d6fe3f4; publication and published-package scan were skipped. npm remains 5.4.8. PR #8 is still open and review-required; PR #11 remains draft and review-required. Native refresh remains unproven: the credential delegates to n8n core, and unit tests verify delegation and failure propagation, not a real refresh exchange.
+
+## Official scanner follow-up — November 19
+
+Pinned @n8n/scan-community-package 0.44.0 ran in isolated Linux Node 24. The initial compiled-code check rejected direct setTimeout in both polling helpers. Replaced these with n8n-workflow sleep; build, lint and all 234 regressions pass, including timing bounds. The scanner then advanced to source checks and reported 114 errors and 9 warnings (123 total), including raw error rethrows and naming rules. This remains a release blocker; no scanner rules are suppressed. Local scans omit provenance and attested-source checks, which still require an exact-version published-package scan. CI now explicitly selects Node 24 for the scanner, whose dependency requires Node >=22.

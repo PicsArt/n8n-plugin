@@ -113,14 +113,10 @@ jobs:
       contents: read
 
     steps:
-      - name: Setup Node.js
-        run: |
-          node --version
-          NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
-          if [ "$NODE_MAJOR" -lt 20 ]; then
-            echo "Node.js 20+ is required. Found: $(node -v)"
-            exit 1
-          fi
+      - name: Setup scanner Node.js runtime
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
 
       - name: Wait for NPM to propagate
         run: sleep 30
