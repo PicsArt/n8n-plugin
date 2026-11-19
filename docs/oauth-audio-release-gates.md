@@ -1,5 +1,22 @@
 # OAuth, audio and video parity release gates
 
+## Current release decision — November 19, 2026
+
+Keep this PR in draft. The latest implementation head is `4326daec1e0b1bd43ffed0fb9c32e8cd36aced0f`; quality CI [44498387836](https://github.com/PicsArt/n8n-plugin/actions/runs/44498387836) passed. Publication and published-package scanning were skipped. Historical test counts and scanner failures below describe earlier revisions, not the current candidate.
+
+| Gate | Current evidence | Remaining action |
+| --- | --- | --- |
+| Candidate build, lint and regression suite | 304 tests pass at the implementation head; exact-head CI succeeds | Recheck after implementation changes |
+| Package contents | Dry-run pack verifies 285 files and nine required entry points; CI checks before publication | Inspect the actual released artifact and provenance after authorized release |
+| Video submission safety | All eleven executors reject failed/unknown submissions and discard pending URLs; preserve accepted task IDs for recovery | Install this candidate and verify native workflow execution; mocked HTTP is not live validation |
+| Host compatibility | 181 executor regressions pass with native n8n dependencies in a network-disabled container; 173 portfolio checks select the current candidate | Native editor/import validation of generation v2 and complete recipes |
+| Security review | PR #8 has passing checks but no submitted approving review; PR #11 remains review-required | Independent maintainer review of #8 first, then this stacked PR; do not bypass protection |
+| Separate GitLab project | Pipeline 3078719120 passes at 42bf742e, but four dependency findings remain Needs Triage | Resolve or independently adjudicate findings; do not infer clearance from this GitHub CI |
+| OAuth and service access | Existing completed video task retrieval succeeds through saved OAuth; current balance is readable | Prove a native refresh exchange; investigate accepted audio task returning 402 despite readable balance |
+| Template delivery | One Zapier video was manually retrieved, filtered and saved to Drive | Durable recovery/approval storage, complete native runs, destinations and publication for all recipes |
+
+No new generation is needed to inspect an already accepted task. Preserve accepted IDs and do not resubmit after an ambiguous result.
+
 This branch is stacked on security PR #8. It adds optional core-managed OAuth to existing nodes, preserves saved API-key workflows, adds the OAuth-only Audio node, and aligns captured model choices and descriptions. Video fixes cover bounded polling and task recovery, optional fields, segment validation, compression and trim export mapping, Effects request mapping, output file metadata and Fit bounds.
 
 ## Verified November 18, 2026
