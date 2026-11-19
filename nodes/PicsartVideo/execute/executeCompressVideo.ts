@@ -1,3 +1,4 @@
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
 import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
@@ -140,7 +141,7 @@ export async function executeCompressVideo(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {

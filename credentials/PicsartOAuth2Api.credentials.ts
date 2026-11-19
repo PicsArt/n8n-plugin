@@ -8,6 +8,8 @@ export class PicsartOAuth2Api implements ICredentialType {
 
 	extends = ['oAuth2Api'];
 
+	icon = 'file:../nodes/icons/picsart.svg' as const;
+
 	displayName = 'Picsart OAuth2 API';
 
 	documentationUrl = 'https://github.com/PicsArt/n8n-plugin#authentication';
@@ -77,6 +79,7 @@ export class PicsartOAuth2Api implements ICredentialType {
 			displayName: 'Client Secret',
 			name: 'clientSecret',
 			type: 'hidden',
+			typeOptions: { password: true },
 			default: '',
 		},
 	];

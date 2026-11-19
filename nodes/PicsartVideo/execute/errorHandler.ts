@@ -11,7 +11,8 @@ interface ApiError {
 
 export function handleApiError(context: IExecuteFunctions, error: unknown, itemIndex: number, transactionId?: string | null): void {
 	const err = error as ApiError;
-	const statusCode = err.response?.status || err.statusCode || err.httpCode;
+	const rawStatus = err.response?.status ?? err.statusCode ?? err.httpCode;
+	const statusCode = rawStatus === undefined ? undefined : Number(rawStatus);
 	const originalMessage =
 		err.context?.data?.detail ||
 		err.response?.data?.detail ||

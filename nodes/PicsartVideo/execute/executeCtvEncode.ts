@@ -1,3 +1,4 @@
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -100,7 +101,7 @@ export async function executeCtvEncode(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {
