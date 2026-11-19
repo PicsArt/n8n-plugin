@@ -1,3 +1,4 @@
+import { submissionResult } from './submissionResult';
 import { NodeApiError, type JsonObject } from 'n8n-workflow';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
@@ -128,7 +129,7 @@ export async function executeFit(
 		else if (hasBgVideo) body.bg_video_url = String(bgVideoUrl).trim();
 		if (bgBlur != null && bgBlur > 0) body.bg_blur = bgBlur;
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
 			picsartCredentialType(context),
 			{
@@ -141,9 +142,11 @@ export async function executeFit(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;

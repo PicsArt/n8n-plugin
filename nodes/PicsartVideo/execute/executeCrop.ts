@@ -1,3 +1,4 @@
+import { submissionResult } from './submissionResult';
 import { NodeApiError, type JsonObject } from 'n8n-workflow';
 import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
@@ -77,7 +78,7 @@ export async function executeCrop(
 			export: { format },
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
 			picsartCredentialType(context),
 			{
@@ -90,9 +91,11 @@ export async function executeCrop(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;

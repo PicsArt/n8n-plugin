@@ -1,3 +1,4 @@
+import { submissionResult } from './submissionResult';
 import { NodeApiError, type JsonObject } from 'n8n-workflow';
 import { videoOutputMetadata } from './outputMetadata';
 import { picsartCredentialType } from '../../authentication';
@@ -48,7 +49,7 @@ export async function executeVideoEffects(
 			export: { format },
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
 			picsartCredentialType(context),
 			{
@@ -61,6 +62,8 @@ export async function executeVideoEffects(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		let resultVideoUrl: string | null = null;
 
@@ -75,7 +78,7 @@ export async function executeVideoEffects(
 				response.inference_id ||
 				response.id ||
 				response.job_id ||
-				response.transaction_id;
+				response.transaction_id || null;
 		}
 
 		if (transactionId && !resultVideoUrl) {

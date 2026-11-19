@@ -1,3 +1,4 @@
+import { submissionResult } from './submissionResult';
 import { NodeApiError, type JsonObject } from 'n8n-workflow';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
@@ -36,7 +37,7 @@ export async function executeCtvEncode(
 	try {
 		const body = { video_url: videoUrl };
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
 			picsartCredentialType(context),
 			{
@@ -49,9 +50,11 @@ export async function executeCtvEncode(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;

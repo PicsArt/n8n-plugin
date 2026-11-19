@@ -210,3 +210,21 @@ for(const sizes of [{fitRatio:0.5625,fitWidth:1080,fitHeight:1920},{fitRatio:0.5
  await assert.rejects(require('../dist/nodes/PicsartVideo/execute/executeFit').executeFit(c,0,[]),/Choose either Ratio/);
  assert.equal(c.calls.length,0);
 });
+
+for(const [name,execute] of videoExecutors){
+ test(name+': pending submission URL cannot bypass saved-task polling',async t=>{
+  t.mock.method(polling,'waitBeforeVideoPoll',async()=>{});
+  const c=context([{status:'processing',transaction_id:'accepted-job',url:'https://example.com/stale.mp4',data:{url:'https://example.com/stale.mp4'},result:{url:'https://example.com/stale.mp4'}},{status:'success',data:{url:'https://example.com/current.mp4'}}]);
+  const downloads=[];c.helpers.httpRequest=async o=>{downloads.push(o.url);return Buffer.from('video');};
+  await execute(c,0,[]);
+  assert.deepEqual(downloads,['https://example.com/current.mp4']);
+  assert.equal(c.calls.filter(x=>x.options.method==='POST').length,1);
+  assert.equal(c.calls.filter(x=>x.options.method==='GET').length,1);
+ });
+ test(name+': failed submission preserves task and never downloads its URL',async()=>{
+  const c=context([{status:'failed',transaction_id:'failed-job',url:'https://example.com/stale.mp4'}]);
+  let downloads=0;c.helpers.httpRequest=async()=>{downloads++;return Buffer.from('video');};
+  await assert.rejects(execute(c,0,[]),/Accepted transaction ID: failed-job/);
+  assert.equal(downloads,0);assert.equal(c.calls.length,1);
+ });
+}
