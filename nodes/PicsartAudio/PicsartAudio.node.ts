@@ -1,4 +1,3 @@
-/* eslint-disable n8n-nodes-base/node-param-description-excess-final-period -- Preserve owner-required identical full-sentence descriptions across Make, Zapier, and n8n. This is a punctuation-only exception. */
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
@@ -110,8 +109,7 @@ const properties: INodeProperties[] = [
 			{
 				name: 'Get Audio Result',
 				value: 'get_audio_result',
-				description:
-					'Check an audio task and retrieve its available outputs when processing is complete.',
+				description: 'Check an audio task and retrieve its available outputs when processing is complete',
 				action: 'Get an audio result',
 			},
 			{
@@ -144,34 +142,32 @@ properties.push(
 			{
 				name: 'ElevenLabs Music V2',
 				value: 'elevenlabs-music-v2',
-				description:
-					'Generate vocal or instrumental music from a text prompt for soundtracks and audio projects.',
+				description: 'Generate vocal or instrumental music from a text prompt for soundtracks and audio projects',
 			},
 			{
 				name: 'Lyria 3 Clip',
 				value: 'lyria-3-clip',
-				description: 'Generate a music clip from text and image prompts for soundtrack concepts.',
+				description: 'Generate a music clip from text and image prompts for soundtrack concepts',
 			},
 			{
 				name: 'Lyria 3 Pro',
 				value: 'lyria-3-pro',
-				description: 'Generate music with vocals for longer soundtracks and song concepts.',
+				description: 'Generate music with vocals for longer soundtracks and song concepts',
 			},
 			{
 				name: 'Lyria 3.5',
 				value: 'lyria-3.5',
-				description: 'Generate songs with vocals from text and image prompts for music projects.',
+				description: 'Generate songs with vocals from text and image prompts for music projects',
 			},
 			{
 				name: 'MiniMax Music V2',
 				value: 'minimax-music-v2',
-				description: 'Generate vocal or instrumental music from style and lyric prompts.',
+				description: 'Generate vocal or instrumental music from style and lyric prompts',
 			},
 			{
 				name: 'MiniMax Music V3',
 				value: 'minimax-music-v3',
-				description:
-					'Generate music from a style prompt and optional lyrics with configurable audio encoding.',
+				description: 'Generate music from a style prompt and optional lyrics with configurable audio encoding',
 			},
 		],
 		displayOptions: {
@@ -189,65 +185,57 @@ properties.push(
 			{
 				name: 'Async Flash v1.0',
 				value: 'async-flash-v1',
-				description:
-					'Convert text to speech with the Async Flash voice engine for narration and voiceovers.',
+				description: 'Convert text to speech with the Async Flash voice engine for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V3',
 				value: 'eleven-v3',
-				description:
-					'Convert a script to speech with tone and pacing controls for narration and voiceovers.',
+				description: 'Convert a script to speech with tone and pacing controls for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V4',
 				value: 'eleven-v4',
-				description: 'Convert a script to speech with audio tags to direct voiceover delivery.',
+				description: 'Convert a script to speech with audio tags to direct voiceover delivery',
 			},
 			{
 				name: 'Eleven V4 Turbo',
 				value: 'eleven-v4-turbo',
-				description:
-					'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery.',
+				description: 'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery',
 			},
 			{
 				name: 'Gemini 2.5 Flash TTS',
 				value: 'gemini-2.5-flash-tts',
-				description:
-					'Convert text to speech with multilingual voices for narration and voiceovers.',
+				description: 'Convert text to speech with multilingual voices for narration and voiceovers',
 			},
 			{
 				name: 'Gemini 2.5 Pro TTS',
 				value: 'gemini-2.5-pro-tts',
-				description: 'Convert text to speech for narration and dialogue with speaker settings.',
+				description: 'Convert text to speech for narration and dialogue with speaker settings',
 			},
 			{
 				name: 'Gemini 3.8 Flash Lite TTS',
 				value: 'gemini-3.8-flash-lite-tts',
-				description:
-					'Convert text to speech with delivery instructions using the Flash Lite voice model.',
+				description: 'Convert text to speech with delivery instructions using the Flash Lite voice model',
 			},
 			{
 				name: 'Gemini 3.8 Flash TTS',
 				value: 'gemini-3.8-flash-tts',
-				description:
-					'Convert text to speech with delivery instructions and vocal events for expressive narration.',
+				description: 'Convert text to speech with delivery instructions and vocal events for expressive narration',
 			},
 			{
 				name: 'Grok TTS',
 				value: 'grok-tts',
-				description: 'Convert text to multilingual speech for narration and voiceovers.',
+				description: 'Convert text to multilingual speech for narration and voiceovers',
 			},
 			{
 				name: 'Seed Audio',
 				value: 'seed-audio-1.0',
-				description:
-					'Convert English or Chinese text to speech using a named voice or a permitted audio reference.',
+				description: 'Convert English or Chinese text to speech using a named voice or a permitted audio reference',
 			},
 			{
 				name: 'Seed Audio Multilingual',
 				value: 'seed-audio-1.0-multilingual',
-				description:
-					'Convert multilingual text to speech using a named voice or a permitted audio reference.',
+				description: 'Convert multilingual text to speech using a named voice or a permitted audio reference',
 			},
 		],
 		displayOptions: {
@@ -265,65 +253,57 @@ properties.push(
 			{
 				name: 'Async Flash v1.0',
 				value: 'async-flash-v1',
-				description:
-					'Convert text to speech with the Async Flash voice engine for narration and voiceovers.',
+				description: 'Convert text to speech with the Async Flash voice engine for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V3',
 				value: 'eleven-v3',
-				description:
-					'Convert a script to speech with tone and pacing controls for narration and voiceovers.',
+				description: 'Convert a script to speech with tone and pacing controls for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V4',
 				value: 'eleven-v4',
-				description: 'Convert a script to speech with audio tags to direct voiceover delivery.',
+				description: 'Convert a script to speech with audio tags to direct voiceover delivery',
 			},
 			{
 				name: 'Eleven V4 Turbo',
 				value: 'eleven-v4-turbo',
-				description:
-					'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery.',
+				description: 'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery',
 			},
 			{
 				name: 'Gemini 2.5 Flash TTS',
 				value: 'gemini-2.5-flash-tts',
-				description:
-					'Convert text to speech with multilingual voices for narration and voiceovers.',
+				description: 'Convert text to speech with multilingual voices for narration and voiceovers',
 			},
 			{
 				name: 'Gemini 2.5 Pro TTS',
 				value: 'gemini-2.5-pro-tts',
-				description: 'Convert text to speech for narration and dialogue with speaker settings.',
+				description: 'Convert text to speech for narration and dialogue with speaker settings',
 			},
 			{
 				name: 'Gemini 3.8 Flash Lite TTS',
 				value: 'gemini-3.8-flash-lite-tts',
-				description:
-					'Convert text to speech with delivery instructions using the Flash Lite voice model.',
+				description: 'Convert text to speech with delivery instructions using the Flash Lite voice model',
 			},
 			{
 				name: 'Gemini 3.8 Flash TTS',
 				value: 'gemini-3.8-flash-tts',
-				description:
-					'Convert text to speech with delivery instructions and vocal events for expressive narration.',
+				description: 'Convert text to speech with delivery instructions and vocal events for expressive narration',
 			},
 			{
 				name: 'Grok TTS',
 				value: 'grok-tts',
-				description: 'Convert text to multilingual speech for narration and voiceovers.',
+				description: 'Convert text to multilingual speech for narration and voiceovers',
 			},
 			{
 				name: 'Seed Audio',
 				value: 'seed-audio-1.0',
-				description:
-					'Convert English or Chinese text to speech using a named voice or a permitted audio reference.',
+				description: 'Convert English or Chinese text to speech using a named voice or a permitted audio reference',
 			},
 			{
 				name: 'Seed Audio Multilingual',
 				value: 'seed-audio-1.0-multilingual',
-				description:
-					'Convert multilingual text to speech using a named voice or a permitted audio reference.',
+				description: 'Convert multilingual text to speech using a named voice or a permitted audio reference',
 			},
 		],
 		displayOptions: {
@@ -341,18 +321,17 @@ properties.push(
 			{
 				name: 'ElevenLabs SFX V2',
 				value: 'elevenlabs-sfx',
-				description:
-					'Generate sound effects from a text description for videos and other audio projects.',
+				description: 'Generate sound effects from a text description for videos and other audio projects',
 			},
 			{
 				name: 'Kling T2A',
 				value: 'kling-t2a',
-				description: 'Generate an audio clip from a text description for sound design.',
+				description: 'Generate an audio clip from a text description for sound design',
 			},
 			{
 				name: 'Mirelo SFX 2.0 (Text to Audio)',
 				value: 'mirelo-sfx-2.0-text-to-audio',
-				description: 'Generate sound effects and soundscapes from a text prompt.',
+				description: 'Generate sound effects and soundscapes from a text prompt',
 			},
 		],
 		displayOptions: {
@@ -370,18 +349,17 @@ properties.push(
 			{
 				name: 'Eleven Video to Music',
 				value: 'eleven-video-to-music',
-				description: 'Generate a music soundtrack that follows the action in a source video.',
+				description: 'Generate a music soundtrack that follows the action in a source video',
 			},
 			{
 				name: 'Kling V2A',
 				value: 'kling-v2a',
-				description: 'Create an audio track from a source video for video sound design.',
+				description: 'Create an audio track from a source video for video sound design',
 			},
 			{
 				name: 'Mirelo SFX 2.0 (Video to Audio)',
 				value: 'mirelo-sfx-2.0-video-to-audio',
-				description:
-					'Generate an audio track synchronized to a source video for soundtrack editing.',
+				description: 'Generate an audio track synchronized to a source video for soundtrack editing',
 			},
 		],
 		displayOptions: {
@@ -399,14 +377,12 @@ properties.push(
 			{
 				name: 'Eleven Multilingual STS V2',
 				value: 'eleven-multilingual-sts-v2',
-				description:
-					'Change the speaker in multilingual audio while retaining timing and vocal expression.',
+				description: 'Change the speaker in multilingual audio while retaining timing and vocal expression',
 			},
 			{
 				name: 'Eleven STS V2',
 				value: 'eleven-sts-v2',
-				description:
-					'Change the speaker in an audio recording while retaining timing and vocal expression.',
+				description: 'Change the speaker in an audio recording while retaining timing and vocal expression',
 			},
 		],
 		displayOptions: {
@@ -424,7 +400,7 @@ properties.push(
 			{
 				name: 'Eleven Audio Isolation',
 				value: 'eleven-audio-isolation',
-				description: 'Isolate vocals and reduce background noise in an audio recording.',
+				description: 'Isolate vocals and reduce background noise in an audio recording',
 			},
 		],
 		displayOptions: {
@@ -442,7 +418,7 @@ properties.push(
 			{
 				name: 'Eleven Dubbing',
 				value: 'eleven-dubbing',
-				description: 'Dub audio or video into another language with automatic voice matching.',
+				description: 'Dub audio or video into another language with automatic voice matching',
 			},
 		],
 		displayOptions: {
@@ -460,19 +436,17 @@ properties.push(
 			{
 				name: 'Eleven Voice Previews',
 				value: 'eleven-voice-create',
-				description:
-					'Generate voice previews from a description to compare delivery before selecting a voice.',
+				description: 'Generate voice previews from a description to compare delivery before selecting a voice',
 			},
 			{
 				name: 'Eleven Voice Design Multilingual V2',
 				value: 'eleven-voice-design-v2',
-				description: 'Design a multilingual voice from a text description for voiceover previews.',
+				description: 'Design a multilingual voice from a text description for voiceover previews',
 			},
 			{
 				name: 'Eleven Voice Design V3',
 				value: 'eleven-voice-design-v3',
-				description:
-					'Design a voice from a text description for narration and character voice previews.',
+				description: 'Design a voice from a text description for narration and character voice previews',
 			},
 		],
 		displayOptions: {
