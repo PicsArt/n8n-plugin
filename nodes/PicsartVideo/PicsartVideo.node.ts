@@ -1,3 +1,4 @@
+import { executeGetVideoResult } from './execute/executeGetVideoResult';
 import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
@@ -104,6 +105,7 @@ export class PicsartVideo implements INodeType {
 						action: 'Fit video to ratio or dimensions',
 						description: 'Fit video to different ratios or width/height; optional background',
 					},
+                    { name: 'Get Video Processing Result', value: 'getVideoProcessingResult', action: 'Get a video processing result', description: 'Retrieve the status and output of a saved Picsart video processing transaction' },
 					{
 						name: 'Make Video CTV-Compatible',
 						value: 'Make Video CTV-Compatible',
@@ -144,6 +146,7 @@ export class PicsartVideo implements INodeType {
 				default: 'Add Watermark',
 			},
 
+        { displayName: 'Transaction ID', name: 'transactionId', type: 'string', default: '', required: true, displayOptions: { show: { operation: ['getVideoProcessingResult'] } }, description: 'Map the transaction ID returned by a Picsart video editing action. Check this saved transaction again if it is still processing; do not submit the edit again.' },
 		// Watermark Operation Parameters
 		...watermarkProperties,
 		// Trim Video Operation Parameters
@@ -187,7 +190,9 @@ export class PicsartVideo implements INodeType {
 
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
-                if (operation === 'Add Watermark') {
+                if (operation === 'getVideoProcessingResult') {
+                    await executeGetVideoResult(this, itemIndex, returnData);
+                } else if (operation === 'Add Watermark') {
                     await executeWatermark(this, itemIndex, returnData);
                 } else if (operation === 'Clip a Video') {
                     await executeTrim(this, itemIndex, returnData);
