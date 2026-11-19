@@ -4,6 +4,8 @@ import type {
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	INodeProperties,
+	INodePropertyOptions,
 	NodeConnectionType,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -23,27 +25,7 @@ import { executeText2Sound } from './execute/executeText2Sound';
 import { executeImage2Video } from './execute/executeImage2Video';
 import { executePaintingEdit } from './execute/executePaintingEdit';
 
-export class PicsartGeneration implements INodeType {
-	description: INodeTypeDescription = {
-		displayName: 'Picsart Generative AI-Hub',
-		name: 'picsartGeneration',
-		icon: 'file:../icons/picsart.svg',
-		group: ['transform'],
-		version: 1,
-		description:
-			'Generate and edit media with Picsart GenAI API: images, stickers, speech, sound, video, and prompt-based image editing.',
-		subtitle: '={{ $parameter["operation"] }}',
-		defaults: {
-			name: 'Picsart Generative AI-Hub',
-		},
-		inputs: ['main' as NodeConnectionType],
-		outputs: ['main' as NodeConnectionType],
-		usableAsTool: true,
-		credentials: picsartCredentials,
-		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
-		properties: [
-			picsartAuthenticationProperty,
-			{
+const generationOperation: INodeProperties = {
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
@@ -95,7 +77,55 @@ export class PicsartGeneration implements INodeType {
 				},
 			],
 				default: 'text2Image',
-			},
+			};
+
+const mediaOperations: Record<string, string[]> = {
+ image: ['Edit Image with Prompt', 'text2Image', 'text2Sticker'],
+ audio: ['Generate Music/Sound from Prompt', 'Generate Speech from Prompt'],
+ video: ['Generate Video from Prompt', 'Generate Video from Prompt and Image'],
+};
+const groupedOperations: INodeProperties[] = Object.entries(mediaOperations).map(([resource, values]) => ({
+ ...generationOperation,
+ options: (generationOperation.options as INodePropertyOptions[]).filter(option => values.includes(String(option.value))),
+ default: values[resource === 'image' ? 1 : 0],
+ displayOptions: { show: { resource: [resource], '@version': [2] } },
+}));
+
+export class PicsartGeneration implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'Picsart Generative AI-Hub',
+		name: 'picsartGeneration',
+		icon: 'file:../icons/picsart.svg',
+		group: ['transform'],
+		version: [1, 2],
+		description:
+			'Generate and edit media with Picsart GenAI API: images, stickers, speech, sound, video, and prompt-based image editing.',
+		subtitle: '={{ $parameter["operation"] }}',
+		defaults: {
+			name: 'Picsart Generative AI-Hub',
+		},
+		inputs: ['main' as NodeConnectionType],
+		outputs: ['main' as NodeConnectionType],
+		usableAsTool: true,
+		credentials: picsartCredentials,
+		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
+		properties: [
+			picsartAuthenticationProperty,
+            {
+                displayName: 'Resource',
+                name: 'resource',
+                type: 'options',
+                noDataExpression: true,
+                options: [
+                    { name: 'Audio', value: 'audio' },
+                    { name: 'Image', value: 'image' },
+                    { name: 'Video', value: 'video' },
+                ],
+                default: 'image',
+                displayOptions: { show: { '@version': [2] } },
+            },
+            { ...generationOperation, displayOptions: { show: { '@version': [1] } } },
+            ...groupedOperations,
 		// Text2Image Operation Parameters
 		...text2ImageProperties,
 		// Text2Sticker Operation Parameters
