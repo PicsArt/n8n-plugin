@@ -17,7 +17,7 @@ Detailed receipts are maintained in the owner's automation-platform-upgrades/evi
 
 ## Blocking or incomplete
 
-- Dependency audit currently fails on high-severity GHSA-fc5q-39xc-vjpf (picomatch <=4.0.7); the current advisory lists no patched release. Do not suppress this finding. The prior zero-audit result is historical, not current.
+- Creative candidate dependency gate cleared November 19: GHSA-fc5q-39xc-vjpf was withdrawn November 18 at 15:38:56Z. Pinned pnpm 9.15.9 audit has zero findings without suppressions; CI run 44305654804 attempt 2 passes audit, lint, build and regressions at 4d6fe3f4. This does not clear default-branch alerts or separate GitLab findings.
 - Independent review/merge of security PR #8 and this draft, and default-branch rescan.
 - Native OAuth refresh, complete service authorization and catalog-wide live image/video/audio output.
 - Current catalog reconciliation beyond captured evidence.
@@ -25,3 +25,7 @@ Detailed receipts are maintained in the owner's automation-platform-upgrades/evi
 - Package release and installed published-package verification. Source version 5.4.8 does not mean these changes are in the published 5.4.8 artifact.
 
 CI retains the unsuppressed audit gate and runs lint/build/tests after a successful dependency install even if the audit fails. A failed quality job still prevents publishing. Workflows remain inactive. OAuth failures never fall back to API keys. No live parity or publication claim follows from local test counts.
+
+## November 19 verification
+
+Local build/lint and all 233 package regressions pass. CI rerun 44305654804 attempt 2 passed at unchanged head 4d6fe3f4; publication and published-package scan were skipped. npm remains 5.4.8. PR #8 is still open and review-required; PR #11 remains draft and review-required. Native refresh remains unproven: the credential delegates to n8n core, and unit tests verify delegation and failure propagation, not a real refresh exchange.
