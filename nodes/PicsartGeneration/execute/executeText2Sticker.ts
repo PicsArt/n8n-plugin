@@ -1,6 +1,7 @@
+import { waitBeforeGenerationPoll } from './pollDelay';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError, type JsonObject } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
 
 export async function executeText2Sticker(
@@ -16,9 +17,8 @@ export async function executeText2Sticker(
 	const model: string = context.getNodeParameter('model', itemIndex, 'urn:air:sdxl:model:fluxai:flux_kontext_max@1') as string;
 	
 	// Polling configuration (hardcoded, not exposed to user)
-	// Note: We use many attempts as n8n doesn't allow setTimeout in community nodes
-	// The API will naturally rate-limit if we poll too fast
-	const maxPollAttempts: number = 600; // maximum attempts (API rate limiting will slow this down)
+	// The first read is immediate; subsequent reads use the shared polling delay.
+	const maxPollAttempts: number = 600;
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
@@ -55,6 +55,7 @@ export async function executeText2Sticker(
 		);
 	}
 
+	const acceptedTransactionIds: string[] = [];
 	try {
 		// Make separate API calls for each sticker based on count
 		for (let stickerIndex = 0; stickerIndex < count; stickerIndex++) {
@@ -91,21 +92,22 @@ export async function executeText2Sticker(
 				);
 			}
 
+			acceptedTransactionIds.push(transactionId);
+
 			// Step 2: Poll for the result
 			// GET https://genai-api.picsart.io/v1/text2sticker/inferences/{transaction_id}
 			let pollAttempts = 0;
 			let imageUrl: string | null = null;
 
 			while (pollAttempts < maxPollAttempts) {
-				// Note: n8n community nodes cannot use setTimeout
-				// The API's rate limiting will naturally slow down rapid polling
+				await waitBeforeGenerationPoll(pollAttempts);
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
 						picsartCredentialType(context),
 						{
 							method: 'GET',
-							url: `https://genai-api.picsart.io/v1/text2sticker/inferences/${transactionId}`,
+							url: `https://genai-api.picsart.io/v1/text2sticker/inferences/${encodeURIComponent(transactionId)}`,
 							headers: {
 								'Accept': 'application/json',
 							},
@@ -155,14 +157,14 @@ export async function executeText2Sticker(
 						continue;
 					}
 					// Otherwise, re-throw the error
-					throw error;
+					throw new NodeApiError(context.getNode(), error as JsonObject, { itemIndex, message: error.message });
 				}
 			}
 
 			if (!imageUrl) {
 				throw new NodeOperationError(
 					context.getNode(),
-					`Sticker generation timed out after ${maxPollAttempts} polling attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. The sticker may still be processing - please try again in a few moments or contact support if the issue persists.`,
+					`Sticker generation timed out after ${maxPollAttempts} polling attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. The sticker may still be processing - retrieve the existing task later; do not resubmit generation automatically.`,
 					{ itemIndex }
 				);
 			}
@@ -192,6 +194,6 @@ export async function executeText2Sticker(
 			});
 		}
 	} catch (error: any) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, acceptedTransactionIds);
 	}
 }

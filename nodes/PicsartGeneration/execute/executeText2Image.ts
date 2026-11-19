@@ -1,6 +1,7 @@
+import { waitBeforeGenerationPoll } from './pollDelay';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError, type JsonObject } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
 
 export async function executeText2Image(
@@ -15,9 +16,8 @@ export async function executeText2Image(
 	const count: number = context.getNodeParameter('count', itemIndex, 1) as number;
 	const model: string = context.getNodeParameter('model', itemIndex, 'urn:air:sdxl:model:fluxai:flux_kontext_max@1') as string;
 	// Polling configuration (hardcoded, not exposed to user)
-	// Note: We use many attempts as n8n doesn't allow setTimeout in community nodes
-	// The API will naturally rate-limit if we poll too fast
-	const maxPollAttempts: number = 600; // maximum attempts (API rate limiting will slow this down)
+	// The first read is immediate; subsequent reads use the shared polling delay.
+	const maxPollAttempts: number = 600;
 
 	// Validate prompt
 	if (!prompt || prompt.trim().length === 0) {
@@ -54,7 +54,7 @@ export async function executeText2Image(
 		);
 	}
 
-	let transactionId: string;
+	let transactionId = '';
 	let result: any;
 
 	try {
@@ -96,15 +96,14 @@ export async function executeText2Image(
 		let imageUrls: string[] = [];
 
 		while (pollAttempts < maxPollAttempts) {
-			// Note: n8n community nodes cannot use setTimeout
-			// The API's rate limiting will naturally slow down rapid polling
+			await waitBeforeGenerationPoll(pollAttempts);
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
 					picsartCredentialType(context),
 					{
 						method: 'GET',
-						url: `https://genai-api.picsart.io/v1/text2image/inferences/${transactionId}`,
+						url: `https://genai-api.picsart.io/v1/text2image/inferences/${encodeURIComponent(transactionId)}`,
 						headers: {
 							'Accept': 'application/json',
 						},
@@ -158,14 +157,14 @@ export async function executeText2Image(
 					continue;
 				}
 				// Otherwise, re-throw the error
-				throw error;
+				throw new NodeApiError(context.getNode(), error as JsonObject, { itemIndex, message: error.message });
 			}
 		}
 
 		if (imageUrls.length === 0) {
 			throw new NodeOperationError(
 				context.getNode(),
-				`Image generation timed out after ${maxPollAttempts} polling attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. The image may still be processing - please try again in a few moments or contact support if the issue persists.`,
+				`Image generation timed out after ${maxPollAttempts} polling attempts. Transaction ID: ${transactionId}. Last response: ${JSON.stringify(result)}. The image may still be processing - retrieve the existing task later; do not resubmit generation automatically.`,
 				{ itemIndex }
 			);
 		}
@@ -198,6 +197,6 @@ export async function executeText2Image(
 			});
 		}
 	} catch (error: any) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId ? [transactionId] : []);
 	}
 }
