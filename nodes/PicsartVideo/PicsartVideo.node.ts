@@ -105,7 +105,7 @@ export class PicsartVideo implements INodeType {
 						action: 'Fit video to ratio or dimensions',
 						description: 'Fit video to different ratios or width/height; optional background',
 					},
-                    { name: 'Get Video Processing Result', value: 'getVideoProcessingResult', action: 'Get a video processing result', description: 'Retrieve the status and output of a saved Picsart video processing transaction' },
+                    { name: 'Get Video Processing Result', value: 'getVideoProcessingResult', action: 'Get a video processing result', description: 'Check a saved video processing transaction and retrieve the edited video when processing is complete' },
 					{
 						name: 'Make Video CTV-Compatible',
 						value: 'Make Video CTV-Compatible',
