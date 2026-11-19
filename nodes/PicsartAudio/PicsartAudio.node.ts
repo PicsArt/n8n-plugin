@@ -528,6 +528,8 @@ export class PicsartAudio implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Picsart Audio',
 		name: 'picsartAudio',
+		subtitle: '={{ $parameter["operation"] }}',
+		usableAsTool: true,
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
