@@ -1,3 +1,4 @@
+import { executeConcat } from './execute/executeConcat';
 import { executeGetVideoResult } from './execute/executeGetVideoResult';
 import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
@@ -87,6 +88,7 @@ export class PicsartVideo implements INodeType {
 						action: 'Clip a video',
 						description: 'Trim a video to your chosen start and end times to create a shorter clip',
 					},
+                    { name: 'Combine Videos', value: 'combineVideos', action: 'Combine videos', description: 'Combine 2 or more videos in your chosen order to create a single video' },
 					{
 						name: 'Compress Video to Size',
 						value: 'Compress video to size',
@@ -146,6 +148,7 @@ export class PicsartVideo implements INodeType {
 				default: 'Add Watermark',
 			},
 
+        { displayName: 'Video URLs', name: 'videoUrls', type: 'string', typeOptions: { rows: 5 }, default: '', required: true, displayOptions: { show: { operation: ['combineVideos'] } }, description: 'Enter 2 to 10 HTTPS video URLs, one per line, in playback order. Submits once with no transitions and returns a transaction ID. Save it and use Get Video Processing Result to retrieve the output.' },
         { displayName: 'Transaction ID', name: 'transactionId', type: 'string', default: '', required: true, displayOptions: { show: { operation: ['getVideoProcessingResult'] } }, description: 'Map the transaction ID returned by a Picsart video editing action. Check this saved transaction again if it is still processing; do not submit the edit again.' },
 		// Watermark Operation Parameters
 		...watermarkProperties,
@@ -190,7 +193,9 @@ export class PicsartVideo implements INodeType {
 
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
-                if (operation === 'getVideoProcessingResult') {
+                if (operation === 'combineVideos') {
+                    await executeConcat(this, itemIndex, returnData);
+                } else if (operation === 'getVideoProcessingResult') {
                     await executeGetVideoResult(this, itemIndex, returnData);
                 } else if (operation === 'Add Watermark') {
                     await executeWatermark(this, itemIndex, returnData);
