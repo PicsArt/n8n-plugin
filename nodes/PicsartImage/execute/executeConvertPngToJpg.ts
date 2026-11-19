@@ -50,7 +50,7 @@ export async function executeConvertPngToJpg(
 			}
 		} catch (error) {
 			if (error instanceof NodeOperationError) {
-				throw error;
+				throw new NodeOperationError(context.getNode(), error, { itemIndex });
 			}
 			throw new NodeOperationError(
 				context.getNode(),

@@ -1,7 +1,7 @@
 import { waitBeforeGenerationPoll } from './pollDelay';
 import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError, type JsonObject } from 'n8n-workflow';
 
 export const maxVideoPollAttempts = 600;
 
@@ -63,7 +63,10 @@ export async function pollUntilVideoReady(
 			if (error instanceof Error) {
 				error.message += ` Accepted inference ID: ${inferenceId}. Retrieve this existing task; do not resubmit automatically.`;
 			}
-			throw error;
+			if (error instanceof NodeOperationError) {
+				throw new NodeOperationError(context.getNode(), error, { itemIndex });
+			}
+			throw new NodeApiError(context.getNode(), error as JsonObject, { itemIndex, message: error.message });
 		}
 	}
 

@@ -56,7 +56,7 @@ export class ExtractImageColors implements INodeType {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					if (error instanceof NodeOperationError) throw error;
+					if (error instanceof NodeOperationError) throw new NodeOperationError(this.getNode(), error, { itemIndex });
 					throw new NodeOperationError(this.getNode(), (error as Error).message, { itemIndex });
 				}
 			}

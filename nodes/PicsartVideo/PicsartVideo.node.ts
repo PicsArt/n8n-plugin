@@ -221,9 +221,9 @@ export class PicsartVideo implements INodeType {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					// Re-throw if it's already a NodeOperationError, otherwise wrap it
+					// n8n preserves existing NodeOperationError instances when wrapping them
 					if (error instanceof NodeOperationError) {
-						throw error;
+						throw new NodeOperationError(this.getNode(), error, { itemIndex });
 					}
 					throw new NodeOperationError(this.getNode(), error.message, { itemIndex });
 				}
