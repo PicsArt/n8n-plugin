@@ -2,14 +2,14 @@
 
 ## Current release decision — November 19, 2026
 
-Keep this PR in draft. The latest implementation head is `4326daec1e0b1bd43ffed0fb9c32e8cd36aced0f`; quality CI [44498387836](https://github.com/PicsArt/n8n-plugin/actions/runs/44498387836) passed. Publication and published-package scanning were skipped. Historical test counts and scanner failures below describe earlier revisions, not the current candidate.
+Keep this PR in draft. The latest implementation head is `cc1fbc9b9ef328c7a638105709b665a3c29a40c2`; quality CI [44505090031](https://github.com/PicsArt/n8n-plugin/actions/runs/44505090031) passed. Publication and published-package scanning were skipped. Historical test counts and scanner failures below describe earlier revisions, not the current candidate.
 
 | Gate | Current evidence | Remaining action |
 | --- | --- | --- |
-| Candidate build, lint and regression suite | 304 tests pass at the implementation head; exact-head CI succeeds | Recheck after implementation changes |
+| Candidate build, lint and regression suite | 325 tests pass at functional head 735a569d; description alignment is included in the latest implementation head; exact-head CI succeeds | Recheck after implementation changes |
 | Package contents | Dry-run pack verifies 285 files and nine required entry points; CI checks before publication | Inspect the actual released artifact and provenance after authorized release |
-| Video submission safety | All eleven executors reject failed/unknown submissions and discard pending URLs; preserve accepted task IDs for recovery | Install this candidate and verify native workflow execution; mocked HTTP is not live validation |
-| Host compatibility | 181 executor regressions pass with native n8n dependencies in a network-disabled container; 173 portfolio checks select the current candidate | Native editor/import validation of generation v2 and complete recipes |
+| Video submission safety | All eleven executors reject failed/unknown submissions and discard pending URLs; preserve accepted task IDs for recovery | Native saved-transaction recovery and model/edit recovery downloads pass; remaining executor/service paths still need native/live coverage |
+| Host compatibility | 181 executor regressions pass with native n8n dependencies in a network-disabled container; 173 portfolio checks select the current candidate | Generation v2 import/editor verified at 1f8b5c0c; three native numeric rejection cases pass with current executor hash. Complete successful service executions and recipes remain |
 | Security review | PR #8 has passing checks but no submitted approving review; PR #11 remains review-required | Independent maintainer review of #8 first, then this stacked PR; do not bypass protection |
 | Separate GitLab project | Pipeline 3078719120 passes at 42bf742e, but four dependency findings remain Needs Triage | Resolve or independently adjudicate findings; do not infer clearance from this GitHub CI |
 | OAuth and service access | Existing completed video task retrieval succeeds through saved OAuth; current balance is readable | Prove a native refresh exchange; investigate accepted audio task returning 402 despite readable balance |
@@ -70,3 +70,7 @@ Official local scanner gate cleared: coordinated trailing-period normalization r
 ## Native saved-video recovery operation — November 19
 
 Added Get Video Processing Result to the existing Video node. It performs one authenticated GET, preserves the saved transaction ID, returns explicit not_found for404, withholds pending URLs, and rejects mismatched IDs/unsafe or missing completed URLs. No processing submission or implicit polling occurs. Build/lint and325 regressions pass. Installed in isolated n8n2.45.6: the native operation recovered an existing completed trim transaction through the preserved OAuth credential and returned its expected MOV URL in588ms. This proves one native/live recovery path, not all service models, full destination delivery, publication or a forced refresh.
+
+## Generation v2 native negative execution — November 19
+
+Imported inactive PicsartV2BoundsNative19 into isolated n8n 2.45.6 and executed three parallel native generation-v2 nodes with invalid width63, height1025 and duration0. Each returned the expected NodeOperationError and pairedItem0 via continue-on-fail. Installed executor SHA256 b25d1bc805a516063d8719fd61e978eb26b59cc07901dd0a91ff378951aaac89 matches the current build. Source places these guards before HTTP; no generation is expected and no task ID returned. There is no independent network/billing trace. This closes these three native negative checks, not successful legacy generation, forced refresh, all field rendering, or publication. Native model/edit recovery templates also download existing MP4/MOV outputs; Drive delivery remains unverified. Private receipts: n8n-generation-v2-native-bounds-2026-11-19.json and n8n-native-recovery-template-2026-11-19.json.
