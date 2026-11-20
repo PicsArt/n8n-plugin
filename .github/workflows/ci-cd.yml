@@ -60,6 +60,19 @@ jobs:
         if: ${{ !cancelled() && steps.build.outcome == 'success' }}
         run: npm test
 
+
+      - name: Setup prepublication scanner runtime
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+
+      - name: Scan local package before publication
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/picsart-scanner" --no-save pnpm@10.34.9
+          node "$RUNNER_TEMP/picsart-scanner/node_modules/pnpm/bin/pnpm.cjs" --allow-build=isolated-vm --package=@n8n/scan-community-package@0.44.0 dlx scan-community-package "$GITHUB_WORKSPACE"
+
   publish:
     name: Publish to NPM
     needs: quality-checks
@@ -133,4 +146,5 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           RELEASE_VERSION="${RELEASE_TAG#v}"
-          npx --yes @n8n/scan-community-package@0.44.0 "@picsart/n8n-nodes-picsart-creative-apis@${RELEASE_VERSION}"
+          npm install --prefix "$RUNNER_TEMP/picsart-scanner" --no-save pnpm@10.34.9
+          node "$RUNNER_TEMP/picsart-scanner/node_modules/pnpm/bin/pnpm.cjs" --allow-build=isolated-vm --package=@n8n/scan-community-package@0.44.0 dlx scan-community-package "@picsart/n8n-nodes-picsart-creative-apis@${RELEASE_VERSION}"
