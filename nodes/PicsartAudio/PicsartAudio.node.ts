@@ -518,12 +518,14 @@ export class PicsartAudio implements INodeType {
 	async execute(this: IExecuteFunctions): Promise<INodeExecutionData[][]> {
 		const outputs: INodeExecutionData[] = [];
 		for (let i = 0; i < this.getInputData().length; i++) {
+			let savedTaskId: string | undefined;
 			try {
 				const operation = this.getNodeParameter('operation', i) as string;
 				if (operation === 'get_audio_result') {
 					const id = this.getNodeParameter('taskId', i) as string;
 					if (typeof id !== 'string' || !id.trim() || id.length > 512)
 						throw new ApplicationError('A saved task ID is required.');
+					savedTaskId = id;
 					const envelope = await this.helpers.httpRequestWithAuthentication.call(
 						this,
 						'picsartOAuth2Api',
@@ -648,10 +650,19 @@ export class PicsartAudio implements INodeType {
 			} catch (error) {
 				if (this.continueOnFail())
 					outputs.push({
-						json: { error: error instanceof Error ? error.message : 'Audio operation failed' },
+						json: {
+						error: error instanceof Error ? error.message : 'Audio operation failed',
+						...(savedTaskId ? { task_id: savedTaskId, completed: false, recovery: 'Retrieve this saved task again after resolving the error. Do not automatically resubmit generation.' } : {}),
+					},
 						pairedItem: { item: i },
 					});
-				else throw new NodeOperationError(this.getNode(), error as Error, { itemIndex: i });
+				else {
+					const providerDescription = error && typeof error === 'object' && 'description' in error && typeof error.description === 'string' ? error.description : '';
+					throw new NodeOperationError(this.getNode(), error as Error, {
+						itemIndex: i,
+						...(savedTaskId ? { description: [providerDescription, `Saved task ID: ${savedTaskId}. Retrieve this task again after resolving the error. Do not automatically resubmit generation.`].filter(Boolean).join(' ') } : {}),
+					});
+				}
 			}
 		}
 		return [outputs];

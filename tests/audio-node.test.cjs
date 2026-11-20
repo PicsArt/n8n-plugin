@@ -120,3 +120,17 @@ test('gateway transport includes SDK platform and touchpoint on submit and resul
  const get=context([{operation:'get_audio_result',taskId:'task-1'}],[{status:'success',response:{id:'task-1',status:'ACCEPTED'}}]);await node.execute.call(get);
  for(const call of [...ctx.calls,...get.calls]){assert.equal(call.options.headers.platform,'api');assert.equal(call.options.headers['X-Touchpoint'],'sdk');assert.equal(call.credential,'picsartOAuth2Api');}
 });
+
+test('retrieval HTTP failure retains saved task and provider detail without resubmitting',async()=>{
+ for(const keepGoing of [false,true]){
+  const ctx=context([{operation:'get_audio_result',taskId:'saved-audio-job'}],[],keepGoing);
+  ctx.helpers.httpRequestWithAuthentication=async(credential,options)=>{ctx.calls.push({credential,options});throw Object.assign(new Error('Payment required'),{description:'Not enough available credits'});};
+  if(keepGoing){const [[out]]=await node.execute.call(ctx);assert.equal(out.json.task_id,'saved-audio-job');assert.equal(out.json.completed,false);assert.match(out.json.recovery,/Do not automatically resubmit/);assert.equal(out.json.error,'Payment required');}
+  else await assert.rejects(node.execute.call(ctx),e=>e.message.includes('Payment required')&&e.description.includes('saved-audio-job')&&e.description.includes('Not enough available credits')&&e.description.includes('Do not automatically resubmit'));
+  assert.equal(ctx.calls.length,1);assert.equal(ctx.calls[0].options.method,'GET');
+ }
+});
+test('retrieval parser failure retains the requested task in continue-on-fail output',async()=>{
+ const ctx=context([{operation:'get_audio_result',taskId:'requested-audio-job'}],[{status:'success',response:{id:'different',status:'COMPLETED'}}],true);
+ const [[out]]=await node.execute.call(ctx);assert.equal(out.json.task_id,'requested-audio-job');assert.equal(out.json.completed,false);assert.match(out.json.error,/does not match/);assert.equal(ctx.calls.length,1);
+});
