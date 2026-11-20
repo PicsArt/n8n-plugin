@@ -61,7 +61,8 @@ export const compressVideoProperties: INodeProperties[] = [
 		type: 'number',
 		required: true,
 		default: 80,
-		description: 'The maximum target size in megabytes (not strict)',
+		description: 'Target size in whole megabytes (minimum 1 MB, not strict)',
+		typeOptions: { minValue: 1, numberPrecision: 0 },
 		displayOptions: {
 			show: {
 				operation: ['Compress video to size'],

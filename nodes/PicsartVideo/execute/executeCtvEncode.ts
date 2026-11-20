@@ -1,3 +1,6 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -5,7 +8,7 @@ import type { VideoApiResult, HttpError } from './types';
 
 const CTV_ENCODE_API_URL = 'https://video-api.picsart.io/v1/encode/ctv';
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 export async function executeCtvEncode(
 	context: IExecuteFunctions,
@@ -30,12 +33,13 @@ export async function executeCtvEncode(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body = { video_url: videoUrl };
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: CTV_ENCODE_API_URL,
@@ -46,9 +50,11 @@ export async function executeCtvEncode(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
-		const transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+		transactionId =
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;
@@ -81,10 +87,11 @@ export async function executeCtvEncode(
 		let result: VideoApiResult = response as VideoApiResult;
 
 		while (pollAttempts < maxPollAttempts) {
+			await waitBeforeVideoPoll(pollAttempts);
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
-					'picsartApi',
+					picsartCredentialType(context),
 					{
 						method: 'GET',
 						url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -97,7 +104,7 @@ export async function executeCtvEncode(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {
@@ -141,6 +148,6 @@ export async function executeCtvEncode(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

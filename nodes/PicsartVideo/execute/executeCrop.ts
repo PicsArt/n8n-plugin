@@ -1,3 +1,7 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { videoOutputMetadata } from './outputMetadata';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -5,7 +9,7 @@ import type { VideoApiResult, HttpError } from './types';
 
 const CROP_API_URL = 'https://video-api.picsart.io/v1/crop';
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 export async function executeCrop(
 	context: IExecuteFunctions,
@@ -39,30 +43,31 @@ export async function executeCrop(
 		);
 	}
 
-	if (width < 16) {
+	if (!Number.isFinite(width) || width < 16) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Width must be at least 16 px',
+			'Width must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (height < 16) {
+	if (!Number.isFinite(height) || height < 16) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Height must be at least 16 px',
+			'Height must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (startX < 0 || startY < 0) {
+	if (!Number.isFinite(startX) || !Number.isFinite(startY) || startX < 0 || startY < 0) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Start X and Start Y must be >= 0',
+			'Start X and Start Y must be finite numbers >= 0',
 			{ itemIndex },
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body: Record<string, unknown> = {
 			video_url: videoUrl,
@@ -73,9 +78,9 @@ export async function executeCrop(
 			export: { format },
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: CROP_API_URL,
@@ -86,9 +91,11 @@ export async function executeCrop(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
-		const transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+		transactionId =
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;
@@ -102,8 +109,8 @@ export async function executeCrop(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'cropped-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('cropped-video', format).fileName,
+							videoOutputMetadata('cropped-video', format).mimeType,
 						),
 					},
 					json: {
@@ -129,10 +136,11 @@ export async function executeCrop(
 		let result: VideoApiResult = response as VideoApiResult;
 
 		while (pollAttempts < maxPollAttempts) {
+			await waitBeforeVideoPoll(pollAttempts);
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
-					'picsartApi',
+					picsartCredentialType(context),
 					{
 						method: 'GET',
 						url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -145,7 +153,7 @@ export async function executeCrop(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {
@@ -159,8 +167,8 @@ export async function executeCrop(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'cropped-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('cropped-video', format).fileName,
+							videoOutputMetadata('cropped-video', format).mimeType,
 						),
 					},
 					json: {
@@ -194,6 +202,6 @@ export async function executeCrop(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

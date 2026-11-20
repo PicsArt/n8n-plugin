@@ -1,11 +1,13 @@
+import { waitBeforeGenerationPoll } from './pollDelay';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions } from 'n8n-workflow';
-import { NodeOperationError } from 'n8n-workflow';
+import { NodeApiError, NodeOperationError, type JsonObject } from 'n8n-workflow';
 
 export const maxVideoPollAttempts = 600;
 
 /** GET https://genai-api.picsart.io/v1/video/{inference_id} */
 export function videoInferenceUrl(inferenceId: string): string {
-	return `https://genai-api.picsart.io/v1/video/${inferenceId}`;
+	return `https://genai-api.picsart.io/v1/video/${encodeURIComponent(inferenceId)}`;
 }
 
 /**
@@ -21,8 +23,9 @@ export async function pollUntilVideoReady(
 	let videoUrl: string | null = null;
 
 	while (pollAttempts < maxVideoPollAttempts) {
+		await waitBeforeGenerationPoll(pollAttempts);
 		try {
-			result = await context.helpers.httpRequestWithAuthentication.call(context, 'picsartApi', {
+			result = await context.helpers.httpRequestWithAuthentication.call(context, picsartCredentialType(context), {
 				method: 'GET',
 				url: videoInferenceUrl(inferenceId),
 				headers: { Accept: 'application/json' },
@@ -57,14 +60,20 @@ export async function pollUntilVideoReady(
 				pollAttempts++;
 				continue;
 			}
-			throw error;
+			if (error instanceof Error) {
+				error.message += ` Accepted inference ID: ${inferenceId}. Retrieve this existing task; do not resubmit automatically.`;
+			}
+			if (error instanceof NodeOperationError) {
+				throw new NodeOperationError(context.getNode(), error, { itemIndex });
+			}
+			throw new NodeApiError(context.getNode(), error as JsonObject, { itemIndex, message: error.message });
 		}
 	}
 
 	if (!videoUrl) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`Video generation timed out after ${maxVideoPollAttempts} polling attempts. Inference ID: ${inferenceId}. Last response: ${JSON.stringify(result)}. The video may still be processing — try again shortly or contact support if the issue persists.`,
+			`Video generation timed out after ${maxVideoPollAttempts} polling attempts. Inference ID: ${inferenceId}. Last response: ${JSON.stringify(result)}. The video may still be processing — retrieve this existing task later; do not resubmit generation automatically.`,
 			{ itemIndex },
 		);
 	}

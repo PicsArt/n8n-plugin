@@ -52,21 +52,6 @@ export const trimProperties: INodeProperties[] = [
 		},
 	},
 	{
-		displayName: 'End of the Clip in Milliseconds',
-		name: 'end',
-		type: 'number',
-		default: 1,
-		description: 'End time of the trim in milliseconds (≥ 1, must be greater than Start)',
-		typeOptions: {
-			minValue: 1,
-		},
-		displayOptions: {
-			show: {
-				operation: ['Clip a Video'],
-			},
-		},
-	},
-	{
 		displayName: 'Export Format',
 		name: 'cropExportFormat',
 		type: 'options',

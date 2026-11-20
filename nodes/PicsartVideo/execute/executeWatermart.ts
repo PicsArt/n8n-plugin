@@ -1,3 +1,6 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -5,7 +8,7 @@ import type { VideoApiResult, HttpError } from './types';
 import { buildMultipartFormData } from './utils';
 
 const WATERMARK_API_URL = 'https://video-api.picsart.io/v1/watermark';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 export async function executeWatermark(
 	context: IExecuteFunctions,
@@ -102,10 +105,11 @@ export async function executeWatermark(
 			{ itemIndex },
 		);
 	}
+	let transactionId: string | null = null;
 	try {
 		const formFields: Record<string, string | { data: unknown; filename?: string; contentType?: string }> = {
 			video_url: videoUrl,
-			anchor_point: anchorPoint,
+			watermark_anchor_point: anchorPoint,
 			watermark_opacity: String(watermarkOpacity),
 			watermark_padding_x: String(watermarkPaddingX),
 			watermark_padding_y: String(watermarkPaddingY),
@@ -133,9 +137,9 @@ export async function executeWatermark(
 			formFields.watermark = { data, filename, contentType: mimeType };
 		}
 		const { body, contentType } = buildMultipartFormData(formFields);
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: WATERMARK_API_URL,
@@ -146,8 +150,9 @@ export async function executeWatermark(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -160,17 +165,18 @@ export async function executeWatermark(
 				response.inference_id ||
 				response.id ||
 				response.job_id ||
-				response.transaction_id;
+				response.transaction_id || null;
 		}
 		if (transactionId && !resultVideoUrl) {
 			let pollAttempts = 0;
 			let result: VideoApiResult = response as VideoApiResult;
 
 			while (pollAttempts < maxPollAttempts) {
+				await waitBeforeVideoPoll(pollAttempts);
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `https://video-api.picsart.io/v1/video/${transactionId}`,
@@ -183,7 +189,7 @@ export async function executeWatermark(
 						pollAttempts++;
 						continue;
 					}
-					throw err;
+					throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 				}
 
 				if (result.status === 'completed' || result.status === 'success') {
@@ -242,6 +248,6 @@ export async function executeWatermark(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

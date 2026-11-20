@@ -20,18 +20,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        run: |
-          if [ ! -f package.json ]; then
-            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-            git init .
-            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-            git fetch --depth=1 origin "${GITHUB_SHA}"
-            git checkout FETCH_HEAD
-          fi
-          ls -la
-          test -f package.json
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js and pnpm
         run: |
@@ -42,17 +33,46 @@ jobs:
             exit 1
           fi
           corepack enable
-          corepack prepare pnpm@9 --activate
+          corepack prepare pnpm@9.15.9 --activate
           pnpm --version
 
       - name: Install dependencies
+        id: install
         run: pnpm install --frozen-lockfile
 
+      - name: Audit dependencies
+        run: pnpm audit --audit-level moderate
+
       - name: Run linter
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run lint
 
       - name: Build package
+        id: build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
         run: npm run build
+
+      - name: Verify package contents
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: node scripts/verify-package-contents.cjs
+
+      - name: Test package regressions
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: npm test
+
+
+      - name: Setup prepublication scanner runtime
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Scan local package before publication
+        if: ${{ !cancelled() && steps.build.outcome == 'success' }}
+        run: |
+          npm install --prefix "$RUNNER_TEMP/picsart-scanner" --no-save pnpm@10.34.9
+          node "$RUNNER_TEMP/picsart-scanner/node_modules/pnpm/bin/pnpm.cjs" --allow-build=isolated-vm --package=@n8n/scan-community-package@0.44.0 dlx scan-community-package "$GITHUB_WORKSPACE"
 
   publish:
     name: Publish to NPM
@@ -65,18 +85,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        run: |
-          if [ ! -f package.json ]; then
-            find . -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-            git init .
-            git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-            git fetch --depth=1 origin "${GITHUB_SHA}"
-            git checkout FETCH_HEAD
-          fi
-          ls -la
-          test -f package.json
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js and pnpm
         run: |
@@ -87,7 +98,7 @@ jobs:
             exit 1
           fi
           corepack enable
-          corepack prepare pnpm@9 --activate
+          corepack prepare pnpm@9.15.9 --activate
           pnpm --version
 
       - name: Install dependencies
@@ -95,6 +106,14 @@ jobs:
 
       - name: Build package
         run: npm run build
+
+      - name: Verify package contents before publishing
+        run: node scripts/verify-package-contents.cjs
+
+      - name: Verify release tag matches package version
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: node scripts/verify-release-tag.cjs
 
       - name: Configure npm registry
         run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
@@ -115,18 +134,19 @@ jobs:
       contents: read
 
     steps:
-      - name: Setup Node.js
-        run: |
-          node --version
-          NODE_MAJOR=$(node -p "process.versions.node.split('.')[0]")
-          if [ "$NODE_MAJOR" -lt 20 ]; then
-            echo "Node.js 20+ is required. Found: $(node -v)"
-            exit 1
-          fi
+      - name: Setup scanner Node.js runtime
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
 
       - name: Wait for NPM to propagate
         run: sleep 30
 
       - name: Scan published package from NPM
-        run: npx @n8n/scan-community-package @picsart/n8n-nodes-picsart-creative-apis
-        continue-on-error: true
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          RELEASE_VERSION="${RELEASE_TAG#v}"
+          npm install --prefix "$RUNNER_TEMP/picsart-scanner" --no-save pnpm@10.34.9
+          node "$RUNNER_TEMP/picsart-scanner/node_modules/pnpm/bin/pnpm.cjs" --allow-build=isolated-vm --package=@n8n/scan-community-package@0.44.0 dlx scan-community-package "@picsart/n8n-nodes-picsart-creative-apis@${RELEASE_VERSION}"

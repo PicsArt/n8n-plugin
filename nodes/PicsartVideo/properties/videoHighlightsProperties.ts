@@ -27,6 +27,7 @@ export const videoHighlightsProperties: INodeProperties[] = [
 		name: 'trimSegments',
 		type: 'fixedCollection',
 		typeOptions: {
+			multipleValues: true,
 			multipleValueButtonText: 'Add Segment',
 		},
 		default: {},

@@ -1,3 +1,4 @@
+import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
@@ -26,13 +27,9 @@ export class ExtractImageColors implements INodeType {
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],
 		usableAsTool: true,
-		credentials: [
-			{
-				name: 'picsartApi',
-				required: true,
-			},
-		],
+		credentials: picsartCredentials,
 		properties: [
+			picsartAuthenticationProperty,
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -59,7 +56,7 @@ export class ExtractImageColors implements INodeType {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					if (error instanceof NodeOperationError) throw error;
+					if (error instanceof NodeOperationError) throw new NodeOperationError(this.getNode(), error, { itemIndex });
 					throw new NodeOperationError(this.getNode(), (error as Error).message, { itemIndex });
 				}
 			}

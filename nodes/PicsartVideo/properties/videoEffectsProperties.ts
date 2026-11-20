@@ -32,12 +32,30 @@ const effectOptions = [
 	{ name: 'TL 2', value: 'tl2' },
 	{ name: 'Sharpen', value: 'sharpen' },
 	{ name: 'Vignette', value: 'vignette' },
+	{ name: 'Focal Zoom', value: 'Focal Zoom' },
+	{ name: 'Lens Blur', value: 'Lens Blur' },
+	{ name: 'Motion Blur', value: 'Motion Blur' },
+	{ name: 'Radial Blur', value: 'Radial Blur' },
+	{ name: 'Smart Blur', value: 'Smart Blur' },
+	{ name: 'Blur', value: 'Blur' },
+	{ name: 'Black And White', value: 'Black And White' },
+	{ name: 'Stenciler1', value: 'stenciler1' },
+	{ name: 'Stenciler3', value: 'stenciler3' },
+	{ name: 'Stenciler4', value: 'stenciler4' },
+	{ name: 'Stenciler6', value: 'stenciler6' },
+	{ name: 'Stenciler7', value: 'stenciler7' },
+	{ name: 'DTN1', value: 'DTN1' },
+	{ name: 'DTN2', value: 'DTN2' },
+	{ name: 'DTN3', value: 'DTN3' },
+	{ name: 'DTN4', value: 'DTN4' },
+	{ name: 'DTN5', value: 'DTN5' },
 ];
 
 const formatOptions = [
 	{ name: 'MP4', value: 'MP4' },
 	{ name: 'MOV', value: 'MOV' },
 	{ name: 'WEBM', value: 'WEBM' },
+	{ name: 'GIF', value: 'GIF' },
 ];
 
 export const videoEffectsProperties: INodeProperties[] = [

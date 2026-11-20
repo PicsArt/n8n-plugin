@@ -1,3 +1,7 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { videoOutputMetadata } from './outputMetadata';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -5,7 +9,7 @@ import type { VideoApiResult, HttpError } from './types';
 
 const HIGHLIGHTS_API_URL = 'https://video-api.picsart.io/v1/concat/highlights';
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 
 export async function executeVideoHighlights(
@@ -24,7 +28,7 @@ export async function executeVideoHighlights(
 	if (mode === 'advanced') {
 		format = context.getNodeParameter('exportFormat', itemIndex, 'MP4') as string;
 		frameRate = context.getNodeParameter('exportFrameRate', itemIndex, 30) as number;
-		bitrate = context.getNodeParameter('exportBitrate', itemIndex, undefined) as number | undefined;
+		bitrate = (context.getNodeParameter('exportBitrate', itemIndex, null) ?? undefined) as number | undefined;
 	} else {
 		format = 'MP4';
 		frameRate = 30;
@@ -32,9 +36,15 @@ export async function executeVideoHighlights(
 	}
 
 	const segments = trimSegmentsParam?.segment ?? [];
-	const trim_segments = segments
-		.filter((s) => s != null && typeof s.start === 'number' && typeof s.end === 'number')
-		.map((s) => ({ start: Number(s.start), end: Number(s.end) }));
+	if (!Array.isArray(segments) || segments.some((segment) =>
+		!segment || !Number.isFinite(segment.start) || !Number.isFinite(segment.end))) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Every trim segment must have finite numeric start and end values in milliseconds',
+			{ itemIndex },
+		);
+	}
+	const trim_segments = segments.map((segment) => ({ start: segment.start!, end: segment.end! }));
 
 	if (trim_segments.length < 2 || trim_segments.length > 10) {
 		throw new NodeOperationError(
@@ -84,6 +94,7 @@ export async function executeVideoHighlights(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const exportParams: Record<string, string | number> = {
 			format,
@@ -99,9 +110,9 @@ export async function executeVideoHighlights(
 			export: exportParams,
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: HIGHLIGHTS_API_URL,
@@ -112,9 +123,11 @@ export async function executeVideoHighlights(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
-		const transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+		transactionId =
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;
@@ -128,8 +141,8 @@ export async function executeVideoHighlights(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'highlights-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('highlights-video', format).fileName,
+							videoOutputMetadata('highlights-video', format).mimeType,
 						),
 					},
 					json: {
@@ -152,10 +165,11 @@ export async function executeVideoHighlights(
 		let result: VideoApiResult = response as VideoApiResult;
 
 		while (pollAttempts < maxPollAttempts) {
+			await waitBeforeVideoPoll(pollAttempts);
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
-					'picsartApi',
+					picsartCredentialType(context),
 					{
 						method: 'GET',
 						url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -168,7 +182,7 @@ export async function executeVideoHighlights(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {
@@ -182,8 +196,8 @@ export async function executeVideoHighlights(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'highlights-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('highlights-video', format).fileName,
+							videoOutputMetadata('highlights-video', format).mimeType,
 						),
 					},
 					json: {
@@ -214,7 +228,7 @@ export async function executeVideoHighlights(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }
 

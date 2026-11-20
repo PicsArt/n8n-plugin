@@ -1,3 +1,6 @@
+import { executeConcat } from './execute/executeConcat';
+import { executeGetVideoResult } from './execute/executeGetVideoResult';
+import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
@@ -37,7 +40,7 @@ export class PicsartVideo implements INodeType {
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
-		description: 'Generate images and stickers with Picsart API: generate from prompt',
+		description: 'Edit videos with Picsart: trim, crop, fit, compress, watermark, mute, apply effects, and convert to GIF',
 		subtitle: '={{$parameter["resource"] + ": " + $parameter["operation"]}}',
 		defaults: {
 			name: 'Picsart Video AI',
@@ -45,14 +48,10 @@ export class PicsartVideo implements INodeType {
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],
 		usableAsTool: true,
-		credentials: [
-			{
-				name: 'picsartApi',
-				required: true,
-			},
-		],
+		credentials: picsartCredentials,
 		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
 		properties: [
+			picsartAuthenticationProperty,
 			{
 				displayName: 'Resource',
 				name: 'resource',
@@ -87,13 +86,14 @@ export class PicsartVideo implements INodeType {
 						name: 'Clip a Video',
 						value: 'Clip a Video',
 						action: 'Clip a video',
-						description: 'Trim the video to a specific segment (start/end in milliseconds)',
+						description: 'Trim a video to your chosen start and end times to create a shorter clip',
 					},
+                    { name: 'Combine Videos', value: 'combineVideos', action: 'Combine videos', description: 'Combine 2 or more videos in your chosen order to create a single video' },
 					{
 						name: 'Compress Video to Size',
 						value: 'Compress video to size',
 						action: 'Compress video to size',
-						description: 'Reduce your video file to a specific size in MB without losing quality',
+						description: 'Compress a video to a target file size in MB',
 					},
 					{
 						name: 'Crop Video',
@@ -105,8 +105,9 @@ export class PicsartVideo implements INodeType {
 						name: 'Fit Video',
 						value: 'Fit Video',
 						action: 'Fit video to ratio or dimensions',
-						description: 'Fit video to different ratios or width/height; optional background',
+						description: 'Resize a video to your chosen aspect ratio or dimensions for social posts and other layouts',
 					},
+                    { name: 'Get Video Processing Result', value: 'getVideoProcessingResult', action: 'Get a video processing result', description: 'Check a saved video processing transaction and retrieve the edited video when processing is complete' },
 					{
 						name: 'Make Video CTV-Compatible',
 						value: 'Make Video CTV-Compatible',
@@ -147,6 +148,8 @@ export class PicsartVideo implements INodeType {
 				default: 'Add Watermark',
 			},
 
+        { displayName: 'Video URLs', name: 'videoUrls', type: 'string', typeOptions: { rows: 5 }, default: '', required: true, displayOptions: { show: { operation: ['combineVideos'] } }, description: 'Enter 2 to 10 HTTPS video URLs, one per line, in playback order. Submits once with no transitions and returns a transaction ID. Save it and use Get Video Processing Result to retrieve the output.' },
+        { displayName: 'Transaction ID', name: 'transactionId', type: 'string', default: '', required: true, displayOptions: { show: { operation: ['getVideoProcessingResult'] } }, description: 'Map the transaction ID returned by a Picsart video editing action. Check this saved transaction again if it is still processing; do not submit the edit again.' },
 		// Watermark Operation Parameters
 		...watermarkProperties,
 		// Trim Video Operation Parameters
@@ -190,7 +193,11 @@ export class PicsartVideo implements INodeType {
 
 				// Get operation
 				const operation: string = this.getNodeParameter('operation', itemIndex) as string;
-                if (operation === 'Add Watermark') {
+                if (operation === 'combineVideos') {
+                    await executeConcat(this, itemIndex, returnData);
+                } else if (operation === 'getVideoProcessingResult') {
+                    await executeGetVideoResult(this, itemIndex, returnData);
+                } else if (operation === 'Add Watermark') {
                     await executeWatermark(this, itemIndex, returnData);
                 } else if (operation === 'Clip a Video') {
                     await executeTrim(this, itemIndex, returnData);
@@ -224,9 +231,9 @@ export class PicsartVideo implements INodeType {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					// Re-throw if it's already a NodeOperationError, otherwise wrap it
+					// n8n preserves existing NodeOperationError instances when wrapping them
 					if (error instanceof NodeOperationError) {
-						throw error;
+						throw new NodeOperationError(this.getNode(), error, { itemIndex });
 					}
 					throw new NodeOperationError(this.getNode(), error.message, { itemIndex });
 				}

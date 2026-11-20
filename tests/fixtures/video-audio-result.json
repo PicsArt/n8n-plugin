@@ -1,0 +1,23 @@
+{
+  "url": "https://example.com/soundtrack.mp4",
+  "urls": [
+    "https://example.com/soundtrack.mp4"
+  ],
+  "items": [
+    {
+      "url": "https://example.com/soundtrack.mp4"
+    }
+  ],
+  "result": {
+    "url": "https://example.com/soundtrack.mp4",
+    "items": [
+      {
+        "url": "https://example.com/soundtrack.mp4"
+      }
+    ],
+    "model": "kling-v2a"
+  },
+  "status": "COMPLETED",
+  "task_id": "fixture-video-audio",
+  "completed": true
+}

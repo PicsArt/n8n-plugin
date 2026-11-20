@@ -9,15 +9,21 @@ interface ApiError {
 	message?: string;
 }
 
-export function handleApiError(context: IExecuteFunctions, error: unknown, itemIndex: number): void {
+export function handleApiError(context: IExecuteFunctions, error: unknown, itemIndex: number, transactionId?: string | null): void {
 	const err = error as ApiError;
-	const statusCode = err.response?.status || err.statusCode || err.httpCode;
-	const errorMessage =
+	const rawStatus = err.response?.status ?? err.statusCode ?? err.httpCode;
+	const statusCode = rawStatus === undefined ? undefined : Number(rawStatus);
+	const originalMessage =
 		err.context?.data?.detail ||
 		err.response?.data?.detail ||
 		err.response?.data?.message ||
 		err.context?.data?.message ||
 		err.message;
+
+	const recovery = typeof transactionId === 'string' && transactionId.trim()
+		? ` Accepted transaction ID: ${transactionId}. Retrieve this existing transaction before considering another submission.`
+		: '';
+	const errorMessage = `${originalMessage || 'Unknown video processing error.'}${recovery}`;
 
 	if (statusCode === 429) {
 		throw new NodeOperationError(
@@ -28,7 +34,7 @@ export function handleApiError(context: IExecuteFunctions, error: unknown, itemI
 	} else if (statusCode === 401 || statusCode === 403) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`Authentication failed. Please check your API key is valid. ${errorMessage || ''}`,
+			`Authentication or authorization failed. Check the selected Picsart connection and its permissions. ${errorMessage || ''}`,
 			{ itemIndex }
 		);
 	} else if (statusCode !== undefined && statusCode >= 400 && statusCode < 500) {
@@ -40,7 +46,7 @@ export function handleApiError(context: IExecuteFunctions, error: unknown, itemI
 	} else if (statusCode !== undefined && statusCode >= 500) {
 		throw new NodeOperationError(
 			context.getNode(),
-			`Picsart API server error (${statusCode}). Please try again later. ${errorMessage || ''}`,
+			`Picsart API server error (${statusCode}). ${recovery ? 'Check the existing transaction later.' : 'Please try again later.'} ${errorMessage || ''}`,
 			{ itemIndex }
 		);
 	} else {

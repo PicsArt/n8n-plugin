@@ -1,3 +1,6 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -5,7 +8,7 @@ import type { VideoApiResult, HttpError } from './types';
 
 const AUDIO_ADJUST_API_URL = 'https://video-api.picsart.io/v1/audio/adjust';
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 export async function executeMuteVideo(
 	context: IExecuteFunctions,
@@ -34,15 +37,16 @@ export async function executeMuteVideo(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body: { video_url: string; video_volume: number } = {
 			video_url: videoUrl,
 			video_volume: mute ? 0 : 100,
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: AUDIO_ADJUST_API_URL,
@@ -53,9 +57,10 @@ export async function executeMuteVideo(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -68,7 +73,7 @@ export async function executeMuteVideo(
 				response.inference_id ||
 				response.id ||
 				response.job_id ||
-				response.transaction_id;
+				response.transaction_id || null;
 		}
 
 		if (transactionId && !resultVideoUrl) {
@@ -76,10 +81,11 @@ export async function executeMuteVideo(
 			let result: VideoApiResult = response as VideoApiResult;
 
 			while (pollAttempts < maxPollAttempts) {
+				await waitBeforeVideoPoll(pollAttempts);
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -92,7 +98,7 @@ export async function executeMuteVideo(
 						pollAttempts++;
 						continue;
 					}
-					throw err;
+					throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 				}
 
 				if (result.status === 'completed' || result.status === 'success') {
@@ -148,6 +154,6 @@ export async function executeMuteVideo(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }
