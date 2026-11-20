@@ -1,19 +1,25 @@
 # OAuth, audio and video parity release gates
 
-## Current release decision — November 19, 2026
+## Current release decision — November 20, 2026
 
-Keep this PR in draft. The latest implementation head is `cc1fbc9b9ef328c7a638105709b665a3c29a40c2`; quality CI [44505090031](https://github.com/PicsArt/n8n-plugin/actions/runs/44505090031) passed. Publication and published-package scanning were skipped. Historical test counts and scanner failures below describe earlier revisions, not the current candidate.
+Keep this PR in draft. Functional changes through `fd745ae3` and CI runtime maintenance at `b5290c11` passed [CI 44691597021](https://github.com/PicsArt/n8n-plugin/actions/runs/44691597021). Publication and published-package scanning were skipped. This table supersedes historical counts and scanner failures below; it does not certify untested operations.
 
 | Gate | Current evidence | Remaining action |
 | --- | --- | --- |
-| Candidate build, lint and regression suite | 325 tests pass at functional head 735a569d; description alignment is included in the latest implementation head; exact-head CI succeeds | Recheck after implementation changes |
-| Package contents | Dry-run pack verifies 285 files and nine required entry points; CI checks before publication | Inspect the actual released artifact and provenance after authorized release |
-| Video submission safety | All eleven executors reject failed/unknown submissions and discard pending URLs; preserve accepted task IDs for recovery | Native saved-transaction recovery and model/edit recovery downloads pass; remaining executor/service paths still need native/live coverage |
-| Host compatibility | 181 executor regressions pass with native n8n dependencies in a network-disabled container; 173 portfolio checks select the current candidate | Generation v2 import/editor verified at 1f8b5c0c; three native numeric rejection cases pass with current executor hash. Complete successful service executions and recipes remain |
-| Security review | PR #8 has passing checks but no submitted approving review; PR #11 remains review-required | Independent maintainer review of #8 first, then this stacked PR; do not bypass protection |
-| Separate GitLab project | Pipeline 3078719120 passes at 42bf742e, but four dependency findings remain Needs Triage | Resolve or independently adjudicate findings; do not infer clearance from this GitHub CI |
-| OAuth and service access | Existing completed video task retrieval succeeds through saved OAuth; current balance is readable | Prove a native refresh exchange; investigate accepted audio task returning 402 despite readable balance |
-| Template delivery | One Zapier video was manually retrieved, filtered and saved to Drive | Durable recovery/approval storage, complete native runs, destinations and publication for all recipes |
+| Candidate build, lint and regressions | 343 package regressions pass; exact-head CI includes audit, build, lint, package checks and official local scanner | Recheck implementation changes |
+| Official local security scan | Pinned scanner 0.44.0 passes without suppressed rules; CI now gates publication on it | Verify published provenance and attested source on the actual released version |
+| Published package | Registry still serves 5.4.8 with the previously captured integrity; it is not this source candidate | Authorized versioned release, artifact inspection and installed-package tests |
+| Native video operations | Selected image/video operations and Combine Videos have native/live evidence; concat output fully decoded | Remaining operations/models and full recipes; no catalog-wide claim |
+| Recovery and templates | 190 portfolio checks pass. All 12 recipe artifacts have inactive import evidence. Revised standalone recovery reads/downloads saved model and assembly tasks through OAuth and screens actual container bytes | Drive delivery, authenticated approval/replay behavior and full business outcomes; header screening does not prove playback |
+| Destination access | Isolated n8n credential metadata contains only Picsart OAuth; Drive setup is open for owner | One test Drive connection, private output folder and required review authentication; destination-specific accounts only when needed |
+| Audio recovery | Native n8n and Make errors preserve provider detail, saved task ID and no-resubmission guidance; Zapier candidate tested locally | Resolve accepted audio task HTTP 402; deploy Zapier change after sign-in; verify real audio output |
+| OAuth | Native sign-in and selected service requests succeeded | Prove native token refresh and remaining service authorization |
+| Independent security review | PR #8 OPEN, REVIEW_REQUIRED, no submitted reviews; PR #11 OPEN, DRAFT, REVIEW_REQUIRED, rechecked November 20 | Independent review/merge of #8 before stacked PR #11; preserve branch protection |
+| Default-branch security | GitHub push reports 111 alerts: 4 critical, 44 high, 56 moderate, 7 low | Merge reviewed fixes and rescan; candidate audit is not default-branch clearance |
+| Separate GitLab project | Last verified pipeline 3078719120 passes at 42bf742e; four findings remain Needs Triage | Resolve or independently adjudicate separately; do not infer clearance from GitHub CI |
+| Platform/template release | Make draft changes and Zapier draft remain separate from publication; 36 portfolio entries are not fully validated/published | Native rollout, complete runs, review/submission, public listing checks |
+
+Evidence in the owner's upgrade workspace: n8n-ci-action-runtime-2026-11-20.json, n8n-audio-recovery-fix-2026-11-20.json, cross-platform-audio-recovery-2026-11-20.json, n8n-recovery-container-2026-11-20.json and n8n-current-recovery-live-2026-11-20.json. These receipts are not bundled with the package.
 
 No new generation is needed to inspect an already accepted task. Preserve accepted IDs and do not resubmit after an ambiguous result.
 
