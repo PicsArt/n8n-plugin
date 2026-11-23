@@ -25,6 +25,12 @@ No new generation is needed to inspect an already accepted task. Preserve accept
 
 This branch is stacked on security PR #8. It adds optional core-managed OAuth to existing nodes, preserves saved API-key workflows, adds the OAuth-only Audio node, and aligns captured model choices and descriptions. Video fixes cover bounded polling and task recovery, optional fields, segment validation, compression and trim export mapping, Effects request mapping, output file metadata and Fit bounds.
 
+## November 23 — OAuth endpoint and accepted-audio recheck
+
+The public discovery document still advertises the configured token endpoint, refresh_token and S256. A credential-free token POST now returns401 rather than the previously observed HTML404. The existing isolated n8n GET-only workflow successfully reads its saved video task through the preserved OAuth connection. This restores native result access evidence; forced token expiry/refresh remains unproven. Current Backstage refresh documentation confirms form encoding, required grant_type/refresh_token, public-client client_id and confidential-client HTTP Basic. No client, credential or endpoint configuration changed.
+
+The previously accepted narration task was read once through that same connection and still returns402 (Not enough available credits). No replacement job was submitted. Backend rejection remains unresolved; this response alone does not establish the account balance. Evidence is in the owner workspace: oauth-refresh-recheck-2026-11-23.md and n8n-audio-existing-task-recheck-2026-11-23.json.
+
 ## Verified November 18, 2026
 
 - Build, lint and all 199 package regressions pass locally at 772c46dc. Tests cover authentication, model schemas, audio response identity, dependency compatibility and video behavior; mocks are not live proof.
