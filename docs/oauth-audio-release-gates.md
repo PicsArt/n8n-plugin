@@ -86,3 +86,10 @@ Added Get Video Processing Result to the existing Video node. It performs one au
 ## Generation v2 native negative execution — November 19
 
 Imported inactive PicsartV2BoundsNative19 into isolated n8n 2.45.6 and executed three parallel native generation-v2 nodes with invalid width63, height1025 and duration0. Each returned the expected NodeOperationError and pairedItem0 via continue-on-fail. Installed executor SHA256 b25d1bc805a516063d8719fd61e978eb26b59cc07901dd0a91ff378951aaac89 matches the current build. Source places these guards before HTTP; no generation is expected and no task ID returned. There is no independent network/billing trace. This closes these three native negative checks, not successful legacy generation, forced refresh, all field rendering, or publication. Native model/edit recovery templates also download existing MP4/MOV outputs; Drive delivery remains unverified. Private receipts: n8n-generation-v2-native-bounds-2026-11-19.json and n8n-native-recovery-template-2026-11-19.json.
+
+
+## PNG conversion quality parity — November 23
+
+PNG-to-JPG and PNG-to-WebP now expose and submit integer quality 10–100, default 90, for URL and binary inputs. Missing quality in saved workflows uses the documented backend default. Invalid values fail before upload/processing/download. Existing authentication selection and output mapping remain intact. Build, lint and all 360 regressions pass, including 12 new tests covering both formats, both input modes, both authentication methods, defaults/bounds, malformed values and output mapping. These are local/mock results; installed native fields and paid/live outputs are not yet verified.
+
+Backend documentation was consulted through Backstage: image-processing and editor-tools-adapter API entities did not establish the legacy tools/1.0/edit quality contract. The authoritative fallback is https://docs.picsart.io/reference/image-edit (quality integer 10–100, default90), checked November23. Historical captured Make and Zapier requests already send quality; fresh cross-platform UI/boundary parity remains to verify.

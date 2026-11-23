@@ -29,4 +29,13 @@ export const convertPngToWebpProperties: INodeProperties[] = [
 			},
 		},
 	},
+	{
+		displayName: 'Quality',
+		name: 'quality',
+		type: 'number',
+		default: 90,
+		typeOptions: { minValue: 10, maxValue: 100, numberPrecision: 0 },
+		description: 'Output quality from 10 to 100. Higher values produce larger files.',
+		displayOptions: { show: { operation: ['Convert PNG to WEBP'] } },
+	},
 ];

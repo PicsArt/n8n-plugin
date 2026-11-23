@@ -16,6 +16,11 @@ export async function executeConvertPngToWebp(
 	const inputBinaryField: string = context.getNodeParameter('inputBinaryField', itemIndex, '') as string;
 	const imageUrl: string = context.getNodeParameter('image_url', itemIndex, '') as string;
 
+	const quality = context.getNodeParameter('quality', itemIndex, 90);
+	if (typeof quality !== 'number' || !Number.isInteger(quality) || quality < 10 || quality > 100) {
+		throw new NodeOperationError(context.getNode(), 'Quality must be an integer from 10 to 100', { itemIndex });
+	}
+
 	// Check if binary data exists (only if resource is DATA)
 	let binaryDataBuffer = null;
 	let fileName = 'image.png';
@@ -94,6 +99,7 @@ export async function executeConvertPngToWebp(
 	}
 
 	formFields.format = 'WEBP';
+	formFields.quality = String(quality);
 
 	const multipart = buildMultipartFormData(formFields);
 	
