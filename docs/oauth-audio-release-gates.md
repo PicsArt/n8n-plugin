@@ -1,25 +1,25 @@
 # OAuth, audio and video parity release gates
 
-## Current release decision — November 20, 2026
+## Current release decision — November 23, 2026
 
-Keep this PR in draft. Functional changes through `fd745ae3` and CI runtime maintenance at `b5290c11` passed [CI 44691597021](https://github.com/PicsArt/n8n-plugin/actions/runs/44691597021). Publication and published-package scanning were skipped. This table supersedes historical counts and scanner failures below; it does not certify untested operations.
+Keep this PR in draft. Functional head `407a80d010f41acf240b73bf39d6f35113ec73ee` passed [CI 45140822638](https://github.com/PicsArt/n8n-plugin/actions/runs/45140822638). Publication and published-package scanning were skipped. This table supersedes historical test counts and resolved scanner failures below; it does not certify untested operations.
 
 | Gate | Current evidence | Remaining action |
 | --- | --- | --- |
-| Candidate build, lint and regressions | 343 package regressions pass; exact-head CI includes audit, build, lint, package checks and official local scanner | Recheck implementation changes |
-| Official local security scan | Pinned scanner 0.44.0 passes without suppressed rules; CI now gates publication on it | Verify published provenance and attested source on the actual released version |
-| Published package | Registry still serves 5.4.8 with the previously captured integrity; it is not this source candidate | Authorized versioned release, artifact inspection and installed-package tests |
-| Native video operations | Selected image/video operations and Combine Videos have native/live evidence; concat output fully decoded | Remaining operations/models and full recipes; no catalog-wide claim |
-| Recovery and templates | 190 portfolio checks pass. All 12 recipe artifacts have inactive import evidence. Revised standalone recovery reads/downloads saved model and assembly tasks through OAuth and screens actual container bytes | Drive delivery, authenticated approval/replay behavior and full business outcomes; header screening does not prove playback |
-| Destination access | Isolated n8n credential metadata contains only Picsart OAuth; Drive setup is open for owner | One test Drive connection, private output folder and required review authentication; destination-specific accounts only when needed |
-| Audio recovery | Native n8n and Make errors preserve provider detail, saved task ID and no-resubmission guidance; Zapier candidate tested locally | Resolve accepted audio task HTTP 402; deploy Zapier change after sign-in; verify real audio output |
-| OAuth | Native sign-in and selected service requests succeeded | Prove native token refresh and remaining service authorization |
-| Independent security review | PR #8 OPEN, REVIEW_REQUIRED, no submitted reviews; PR #11 OPEN, DRAFT, REVIEW_REQUIRED, rechecked November 20 | Independent review/merge of #8 before stacked PR #11; preserve branch protection |
-| Default-branch security | GitHub push reports 111 alerts: 4 critical, 44 high, 56 moderate, 7 low | Merge reviewed fixes and rescan; candidate audit is not default-branch clearance |
-| Separate GitLab project | Last verified pipeline 3078719120 passes at 42bf742e; four findings remain Needs Triage | Resolve or independently adjudicate separately; do not infer clearance from GitHub CI |
-| Platform/template release | Make draft changes and Zapier draft remain separate from publication; 36 portfolio entries are not fully validated/published | Native rollout, complete runs, review/submission, public listing checks |
+| Candidate build, lint and regressions | Exact functional-head CI passes quality checks; the pipeline includes audit, build, lint, package checks and the official local scanner | Recheck subsequent implementation changes |
+| Official local security scan | Pinned scanner 0.44.0 passes without suppressed rules; CI gates publication on it | Verify published provenance and attested source on the actual released version |
+| Published package | Last captured registry artifact is 5.4.8; it is not this source candidate | Authorized versioned release, fresh registry/artifact inspection and installed-package tests |
+| Native video operations | Selected image/video operations and Combine Videos have native/live evidence; concat output fully decoded; strict Trim/Fit input and completed-result URL guards are included | Remaining operations/models and full recipes; no catalog-wide claim |
+| Recovery delivery | Current standalone recovery has inactive native import/export evidence. Ten disposable native n8n executions verify real PostgreSQL reservation/expression/credential handling and upload composition against a local HTTP fixture; concurrent attempts retain one ID and one upload | Persistent deployment database, live Google OAuth/delivery, media playback/privacy and complete Picsart-task recovery remain unverified |
+| Destination access | Existing isolated Picsart OAuth works; test-only PostgreSQL credentials were created only in disposable containers and removed | Complete the pending isolated Drive setup and configure a persistent dedicated workflow database; destination-specific accounts only when needed |
+| Audio recovery | n8n, Make and Zapier preserve provider detail, saved task ID and no-resubmission guidance; saved audio result still returns HTTP 402 | Resolve provider rejection and verify actual audio output without duplicate submission |
+| OAuth and model catalog | Native sign-in and selected service calls succeeded. Documented catalog route returns 401 with the same native OAuth connection that returns 200 from balance. Shared REST reader/selection retention passes eight local contract tests, not deployed | Prove native token refresh; confirm catalog route/auth compatibility before wiring dynamic selectors; verify remaining services |
+| Independent security review | PR #8 OPEN, REVIEW_REQUIRED, no submitted reviews; PR #11 OPEN, DRAFT, REVIEW_REQUIRED, rechecked November 23 | Independent review/merge of #8 before stacked PR #11; preserve branch protection |
+| Default-branch security | Historical push reported default-branch alerts; candidate checks do not clear them | Merge reviewed fixes and obtain a fresh default-branch rescan; do not treat the historical count as current |
+| Separate GitLab project | Last native inspection: MR !2 head `675eb25d`, pipeline 3101577570 passed; three unsuppressed uri-js findings remain Needs Triage (one High, two Medium) despite scoped patches; SAST and secret detection show zero | Independent applicability/remediation review; do not infer scanner clearance from passing CI or GitHub changes |
+| Platform/template release | Make and Zapier changes remain developer drafts; fresh Zapier validation shows zero errors/publishing tasks and three recovery-ID dropdown warnings. Thirty-six portfolio entries are not fully validated/published | Complete native runs and destinations, resolve Make installer mapping loss, submit only completed templates, verify public listings |
 
-Evidence in the owner's upgrade workspace: n8n-ci-action-runtime-2026-11-20.json, n8n-audio-recovery-fix-2026-11-20.json, cross-platform-audio-recovery-2026-11-20.json, n8n-recovery-container-2026-11-20.json and n8n-current-recovery-live-2026-11-20.json. These receipts are not bundled with the package.
+Evidence is retained in the owner's upgrade workspace, not bundled with this package: `drive-delivery-native-concurrent-2026-11-23.json`, `drive-reservation-native-workflow-2026-11-23.json`, `recovery-durable-wiring-native-2026-11-23.json`, `model-catalog-oauth-contract-2026-11-23.md`, `gitlab-security-current-head-2026-11-23.json`, and `session-restored-release-check-2026-11-23.json`. The recovery transport tests use synthetic media and a credential-free local Drive fixture, not Google's service. No additional Picsart generation or spending was involved.
 
 No new generation is needed to inspect an already accepted task. Preserve accepted IDs and do not resubmit after an ambiguous result.
 
