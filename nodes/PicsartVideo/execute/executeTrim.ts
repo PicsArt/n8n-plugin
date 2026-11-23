@@ -24,6 +24,10 @@ export async function executeTrim(
 	const format = mode === 'advanced'
 		? (context.getNodeParameter('cropExportFormat', itemIndex, 'MP4') as string)
 		: 'MP4';
+	if (typeof videoUrl !== 'string') {
+		throw new NodeOperationError(context.getNode(), 'Video URL must be a string', { itemIndex });
+	}
+
 	if (!videoUrl || videoUrl.trim().length === 0) {
 		throw new NodeOperationError(
 			context.getNode(),
