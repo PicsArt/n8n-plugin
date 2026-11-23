@@ -12,6 +12,10 @@ export async function executeConvertPngToJpg(
 	// Get resource type
 	const resource: string = context.getNodeParameter('resource', itemIndex) as string;
 	
+	if (resource !== 'DATA' && resource !== 'Image URL') {
+		throw new NodeOperationError(context.getNode(), 'Choose Binary Image or Image URL as the input resource', { itemIndex });
+	}
+
 	// Get parameters
 	const inputBinaryField: string = context.getNodeParameter('inputBinaryField', itemIndex, '') as string;
 	const imageUrl: string = context.getNodeParameter('image_url', itemIndex, '') as string;
@@ -119,12 +123,28 @@ export async function executeConvertPngToJpg(
 			},
 		);
 
+		const outputUrl = result?.data?.url;
+		let parsedUrl: URL;
+		try {
+			if (typeof outputUrl !== 'string' || outputUrl !== outputUrl.trim()) throw new Error('Invalid URL');
+			parsedUrl = new URL(outputUrl);
+		} catch {
+			throw new NodeOperationError(context.getNode(), 'Conversion returned no valid output URL', { itemIndex });
+		}
+		if (parsedUrl.protocol !== 'https:' || parsedUrl.username || parsedUrl.password) {
+			throw new NodeOperationError(context.getNode(), 'Conversion output must be an HTTPS URL without embedded credentials', { itemIndex });
+		}
+
 		// Download the converted image
 		const imageBuffer = await context.helpers.httpRequest({
 			method: 'GET',
-			url: result?.data?.url,
+			url: outputUrl,
 			encoding: 'arraybuffer',
 		});
+
+		if (!imageBuffer || imageBuffer.length === 0) {
+			throw new NodeOperationError(context.getNode(), 'Converted image download is empty', { itemIndex });
+		}
 
 		// Return converted image data
 		returnData.push({

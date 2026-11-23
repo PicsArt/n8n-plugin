@@ -93,3 +93,10 @@ Imported inactive PicsartV2BoundsNative19 into isolated n8n 2.45.6 and executed 
 PNG-to-JPG and PNG-to-WebP now expose and submit integer quality 10–100, default 90, for URL and binary inputs. Missing quality in saved workflows uses the documented backend default. Invalid values fail before upload/processing/download. Existing authentication selection and output mapping remain intact. Build, lint and all 360 regressions pass, including 12 new tests covering both formats, both input modes, both authentication methods, defaults/bounds, malformed values and output mapping. These are local/mock results; installed native fields and paid/live outputs are not yet verified.
 
 Backend documentation was consulted through Backstage: image-processing and editor-tools-adapter API entities did not establish the legacy tools/1.0/edit quality contract. The authoritative fallback is https://docs.picsart.io/reference/image-edit (quality integer 10–100, default90), checked November23. Historical captured Make and Zapier requests already send quality; fresh cross-platform UI/boundary parity remains to verify.
+
+
+## PNG result validation — November 23
+
+Both converters reject unsupported input resources before submission, validate returned URLs before download (string, no surrounding whitespace, HTTPS, no embedded credentials), and reject empty downloads before binary output. Signed HTTPS URLs remain unchanged and downloads use the unauthenticated helper. Eight new mock regressions cover malformed results, valid signed URLs, empty bytes and unknown resources. Build/lint and368 tests pass. This is not comprehensive SSRF protection, image decoding, native UI rendering or live output verification; redirect/address-policy handling remains with the host HTTP helper. Make/Zapier equivalents still require current behavior inspection before claiming cross-platform guard parity.
+
+The earlier quality fix at565cc7c3 passed CI45173791363 including audit and local scanner; publication was skipped. Eight network-disabled native rejection cases used synthetic credentials only; their evidence is retained in the upgrade workspace.
