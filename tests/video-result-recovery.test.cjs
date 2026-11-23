@@ -18,3 +18,11 @@ for(const response of [{status:'failed'},{status:'unknown'},{status:'success',da
 test('404 retains task without classifying pending or retrying',async()=>{const c=ctx(Object.assign(new Error('missing'),{statusCode:404})),out=[];await executeGetVideoResult(c,0,out);assert.equal(out[0].json.status,'not_found');assert.equal(c.calls.length,1);});
 test('401 retains task for recovery',async()=>{const c=ctx(Object.assign(new Error('unauthorized'),{statusCode:401}));await assert.rejects(()=>executeGetVideoResult(c,0,[]),/Authentication.*saved-job/);});
 for(const id of ['', '../escape',' x','a?b'])test('invalid ID rejected before HTTP '+id,async()=>{const c=ctx({},id);await assert.rejects(()=>executeGetVideoResult(c,0,[]));assert.equal(c.calls.length,0);});
+for(const envelope of ['data','result','top'])test('rejects non-string completed URLs in '+envelope,async()=>{
+ for(const value of [['https://example.com/done.mp4'],{href:'https://example.com/done.mp4'},42,true]){
+  const response={status:'success',...(envelope==='top'?{url:value}:{[envelope]:{url:value}})};
+  const c=ctx(response),out=[];
+  await assert.rejects(()=>executeGetVideoResult(c,0,out),/saved-job/);
+  assert.equal(out.length,0);assert.equal(c.calls.length,1);assert.equal(c.calls[0].options.method,'GET');
+ }
+});

@@ -36,6 +36,9 @@ export async function executeGetVideoResult(context: IExecuteFunctions, itemInde
   let video_url: string | undefined;
   if (completed) {
    video_url = result.data?.url ?? result.url ?? result.result?.url;
+   if (typeof video_url !== 'string') {
+    throw new NodeOperationError(context.getNode(), 'Completed video output URL must be a string', { itemIndex });
+   }
    let url: URL;
    try { url = new URL(video_url ?? ''); } catch {
     throw new NodeOperationError(context.getNode(), 'Completed video has no valid output URL', { itemIndex });
