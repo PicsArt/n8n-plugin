@@ -70,13 +70,13 @@ export class PicsartImage implements INodeType {
 					name: 'Convert PNG to JPG',
 					value: 'Convert PNG to JPG',
 					action: 'Convert PNG image to JPG format',
-					description: 'Convert PNG images to JPG format',
+					description: 'Convert a PNG image to JPG and choose the compression level for web images and other exports',
 				},
 				{
 					name: 'Convert PNG to WEBP',
 					value: 'Convert PNG to WEBP',
 					action: 'Convert PNG image to WEBP format',
-					description: 'Convert PNG images to WEBP format',
+					description: 'Convert a PNG image to WebP and choose the compression level for website images',
 				},
 				{
 					name: 'Crop Image',
