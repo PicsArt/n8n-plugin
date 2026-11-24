@@ -71,12 +71,12 @@ test('OAuth authorization failures propagate and do not retry with an API key', 
   assert.equal(ctx.downloads.length, 0);
 });
 
-test('legacy nodes preserve API-key defaults; new audio node requires OAuth', () => {
+test('legacy nodes preserve API-key defaults; new audio and AI resize nodes require OAuth', () => {
   const manifest = require('../package.json');
   for (const file of manifest.n8n.nodes) {
     const Node = Object.values(require('../' + file))[0];
     const node = new Node();
-    if (node.description.name === 'picsartAudio') {
+    if (['picsartAudio', 'picsartAiResize'].includes(node.description.name)) {
       assert.deepEqual(node.description.credentials, [{ name: 'picsartOAuth2Api', required: true }]);
       assert.equal(node.description.properties.some(p => p.name === 'authentication'), false);
       continue;

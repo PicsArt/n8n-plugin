@@ -66,7 +66,8 @@
       "dist/nodes/PicsartGeneration/PicsartGeneration.node.js",
       "dist/nodes/PicsartVideo/PicsartVideo.node.js",
       "dist/nodes/ExtractImageColors/ExtractImageColors.node.js",
-      "dist/nodes/PicsartAudio/PicsartAudio.node.js"
+      "dist/nodes/PicsartAudio/PicsartAudio.node.js",
+      "dist/nodes/PicsartAiResize/PicsartAiResize.node.js"
     ]
   },
   "devDependencies": {

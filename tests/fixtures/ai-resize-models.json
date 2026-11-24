@@ -1,0 +1,191 @@
+{
+  "status": "success",
+  "response": {
+    "id": "5495887a-487b-4dfc-bee0-cb35b556938d",
+    "status": "COMPLETED",
+    "created": "2026-11-24T11:03:12.092Z",
+    "updated": "2026-11-24T11:03:12.092Z",
+    "result": [
+      {
+        "model": "urn:air:sdxl:model:fluxai:flux_kontext_max@1",
+        "name": "Flux Kontext Max"
+      },
+      {
+        "model": "urn:air:sdxl:model:fluxai:flux_kontext_pro@1",
+        "name": "Flux Kontext Pro"
+      },
+      {
+        "model": "urn:air:fluxai:model:fluxai:flux-2-flex@1",
+        "name": "Flux 2 Flex"
+      },
+      {
+        "model": "urn:air:fluxai:model:fluxai:flux-2-pro@1",
+        "name": "Flux 2 Pro"
+      },
+      {
+        "model": "urn:air:fluxai:model:fluxai:flux-2-max@1",
+        "name": "Flux 2 Max"
+      },
+      {
+        "model": "urn:air:fluxai:model:fluxai:flux-2-pro-preview@1",
+        "name": "Flux 2 Pro Preview"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@4.0",
+        "name": "Seedream 4.0"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@4.5",
+        "name": "Seedream 4.5"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@4.7",
+        "name": "Seedream 4.7"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@5.0-lite",
+        "name": "Seedream 5.0 Lite"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@5.0-pro",
+        "name": "Seedream 5.0 Pro"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@5.0-flash",
+        "name": "Seedream 5.0 Flash"
+      },
+      {
+        "model": "urn:air:seedream:model:seedream:seedream@5.5",
+        "name": "Seedream 5.5"
+      },
+      {
+        "model": "urn:air:google:model:google:gemini-3-pro-image-preview@1",
+        "name": "Gemini 3 Pro Image Preview"
+      },
+      {
+        "model": "urn:air:google:model:google:gemini-3.1-flash-image-preview@1",
+        "name": "Gemini 3.1 Flash Image Preview"
+      },
+      {
+        "model": "urn:air:google:model:google:gemini-3-pro-image@1",
+        "name": "Gemini 3 Pro Image"
+      },
+      {
+        "model": "urn:air:google:model:google:gemini-3.1-flash-image@1",
+        "name": "Gemini 3.1 Flash Image"
+      },
+      {
+        "model": "urn:air:google:model:google:gemini-3.1-flash-lite-image@1",
+        "name": "Gemini 3.1 Flash Lite Image"
+      },
+      {
+        "model": "urn:air:google:model:google:gemini-nano-banana-2.1@1",
+        "name": "Gemini Nano Banana 2.1"
+      },
+      {
+        "model": "urn:air:openai:model:openai:gpt-image-2@1",
+        "name": "GPT Image 2"
+      },
+      {
+        "model": "urn:air:openai:model:openai:gpt-image-2.5-flare@1",
+        "name": "GPT Image 2.5 Flare"
+      },
+      {
+        "model": "urn:air:openai:model:openai:gpt-image-2.5-sunburst@1",
+        "name": "GPT Image 2.5 Sunburst"
+      },
+      {
+        "model": "urn:air:openai:model:openai:gpt-image-2.6-flare@1",
+        "name": "GPT Image 2.6 Flare"
+      },
+      {
+        "model": "urn:air:openai:model:openai:gpt-image-2.6-sunburst@1",
+        "name": "GPT Image 2.6 Sunburst"
+      },
+      {
+        "model": "urn:air:runway:model:runway:gen4-image-ref@1",
+        "name": "Runway Gen4 Image Ref"
+      },
+      {
+        "model": "urn:air:qwen:model:qwen:qwen-image@1",
+        "name": "Qwen Image"
+      },
+      {
+        "model": "urn:air:qwen:model:qwen:qwen-image-2.0-pro@1",
+        "name": "Qwen Image 2.0 Pro"
+      },
+      {
+        "model": "urn:air:qwen:model:qwen:qwen-image-3.0-pro@1",
+        "name": "Qwen Image 3.0 Pro"
+      },
+      {
+        "model": "urn:air:picsart:model:picsart:qwen-image-edit@1",
+        "name": "Picsart Image Edit"
+      },
+      {
+        "model": "urn:air:xai:model:xai:grok-imagine-image-edit@1",
+        "name": "Grok Imagine Image Edit"
+      },
+      {
+        "model": "urn:air:xai:model:xai:grok-imagine-image-2.0-edit@1",
+        "name": "Grok Imagine Image 2.0 Edit"
+      },
+      {
+        "model": "urn:air:kling:model:kling:kling-v3@1",
+        "name": "Kling V3"
+      },
+      {
+        "model": "urn:air:kling:model:kling:kling-image-o1@1",
+        "name": "Kling Image O1"
+      },
+      {
+        "model": "urn:air:kling:model:kling:kling-v3-omni@1",
+        "name": "Kling V3 Omni"
+      },
+      {
+        "model": "urn:air:kling:model:kling:kling-v4-image@1",
+        "name": "Kling V4 Image"
+      },
+      {
+        "model": "urn:air:minimax:model:minimax:minimax-h3-image@1",
+        "name": "MiniMax H3 Image"
+      },
+      {
+        "model": "urn:air:minimax:model:minimax:minimax-h3-image-highspeed@1",
+        "name": "MiniMax H3 Image Highspeed"
+      },
+      {
+        "model": "urn:air:meta:model:meta:muse-image-1.0@1",
+        "name": "Meta Muse Image 1.0"
+      },
+      {
+        "model": "urn:air:fluxai:model:fluxai:flux-3-image@1",
+        "name": "Flux 3 Image"
+      },
+      {
+        "model": "urn:air:fluxai:model:fluxai:flux-3-image-klein@1",
+        "name": "Flux 3 Image Klein"
+      },
+      {
+        "model": "urn:air:ideogram:model:ideogram:ideogram@4.5",
+        "name": "Ideogram V4.5"
+      },
+      {
+        "model": "urn:air:luma:model:luma:uni-1@1",
+        "name": "Luma UNI-1"
+      },
+      {
+        "model": "urn:air:luma:model:luma:uni-1-max@1",
+        "name": "Luma UNI-1 Max"
+      },
+      {
+        "model": "urn:air:wan:model:wan:wan-2.6-image@1",
+        "name": "Wan 2.6 Image"
+      }
+    ],
+    "usage": {
+      "credits": 0,
+      "details": []
+    }
+  }
+}
