@@ -137,6 +137,7 @@ export class PicsartAiResize implements INodeType {
 		icon: 'file:../icons/picsart.svg',
 		group: ['transform'],
 		version: 1,
+		usableAsTool: true,
 		subtitle: '={{ $parameter["operation"] }}',
 		description:
 			'Recompose a source image for selected sizes with AI and verify returned image dimensions. Exact dimensions and visual fidelity require result review.',
