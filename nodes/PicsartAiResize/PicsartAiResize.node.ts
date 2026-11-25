@@ -196,6 +196,8 @@ export class PicsartAiResize implements INodeType {
 					const result = body?.response;
 					if (body?.status !== 'success' || !result)
 						throw Error('Result retrieval failed; do not resubmit');
+					if (result.id !== id)
+						throw Error('Result task ID does not match the saved task; do not use this result');
 					if (['ACCEPTED', 'IN_PROGRESS'].includes(result.status)) {
 						output.push({
 							json: {
