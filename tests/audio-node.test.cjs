@@ -6,16 +6,17 @@ function context(items,responses,keepGoing=false){
  const calls=[];
  return {calls,getInputData:()=>items.map(()=>({json:{}})),getNodeParameter:(key,i,fallback)=>items[i][key]??fallback,getNode:()=>({name:'Audio',type:'picsartAudio',typeVersion:1,parameters:{}}),continueOnFail:()=>keepGoing,helpers:{httpRequestWithAuthentication:async(credential,options)=>{calls.push({credential,options});if(!responses.length)throw new Error('Unexpected request');return responses.shift();}}};
 }
+const completed={status:'success',response:{id:'task-1',status:'COMPLETED',result:{url:'https://example.com/final.wav'}}};
 const accepted={status:'success',response:{id:'task-1',status:'SUBMITTED'}};
 test('music uses n8n OAuth and preserves optional media references',async()=>{
- const ctx=context([{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano',advanced:{imageUrls:'https://example.com/a.png\nhttps://example.com/b.png'}}],[accepted]);
+ const ctx=context([{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano',advanced:{imageUrls:'https://example.com/a.png\nhttps://example.com/b.png'}}],[accepted,completed]);
  const out=await node.execute.call(ctx);
- assert.equal(ctx.calls.length,1);assert.equal(ctx.calls[0].credential,'picsartOAuth2Api');
+ assert.equal(ctx.calls.length,2);assert.equal(ctx.calls[0].credential,'picsartOAuth2Api');
  assert.deepEqual(ctx.calls[0].options.body,{params:{model:'lyria-3-pro',params:{prompt:'Piano',imageUrls:['https://example.com/a.png','https://example.com/b.png']}}});
- assert.equal(out[0][0].json.task_id,'task-1');assert.equal(out[0][0].json.completed,false);
+ assert.equal(out[0][0].json.task_id,'task-1');assert.equal(out[0][0].json.completed,true);assert.equal(out[0][0].json.url,'https://example.com/final.wav');
 });
 test('voice controls preserve false and zero',async()=>{
- const ctx=context([{operation:'text_to_speech',model:'eleven-v3',prompt:'Hello',advanced:{stability:0,useSpeakerBoost:false}}],[accepted]);
+ const ctx=context([{operation:'text_to_speech',model:'eleven-v3',prompt:'Hello',advanced:{stability:0,useSpeakerBoost:false}}],[accepted,completed]);
  await node.execute.call(ctx);assert.equal(ctx.calls[0].options.body.params.params.stability,0);assert.equal(ctx.calls[0].options.body.params.params.useSpeakerBoost,false);
 });
 for(const item of [
@@ -40,7 +41,7 @@ test('completed result returns actual media without authenticated CDN request',a
  const out=await node.execute.call(ctx);assert.equal(out[0][0].json.url,'https://example.com/audio.wav');assert.equal(ctx.calls.length,1);
 });
 test('continue on fail preserves pairing for following items',async()=>{
- const ctx=context([{operation:'generate_music',model:'bad',prompt:'x'},{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano'}],[accepted],true);
+ const ctx=context([{operation:'generate_music',model:'bad',prompt:'x'},{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano'}],[accepted,completed],true);
  const out=await node.execute.call(ctx);assert.equal(out[0].length,2);assert.ok(out[0][0].json.error);assert.deepEqual(out[0][1].pairedItem,{item:1});
 });
 test('forms expose creative inputs and place optional controls in Advanced',()=>{
@@ -59,14 +60,14 @@ for(const [operation,group] of Object.entries(registry.groups))test('n8n resolve
  assert.ok(!Object.hasOwn(params,'params_json'));
 });
 test('Seed single-image list and false/zero controls survive normalization',async()=>{
- const ctx=context([{operation:'text_to_speech',model:'seed-audio-1.0',prompt:'Hello',advanced:{imageUrls:'https://example.com/ref.png',speechRate:0,aigcWatermark:false}}],[accepted]);
+ const ctx=context([{operation:'text_to_speech',model:'seed-audio-1.0',prompt:'Hello',advanced:{imageUrls:'https://example.com/ref.png',speechRate:0,aigcWatermark:false}}],[accepted,completed]);
  await node.execute.call(ctx);assert.deepEqual(ctx.calls[0].options.body.params.params,{prompt:'Hello',imageUrls:['https://example.com/ref.png'],speechRate:0,aigcWatermark:false});
 });
 test('video soundtrack needs video and submits video list exactly once',async()=>{
  const missing=context([{operation:'generate_audio_from_video',model:'kling-v2a'}],[]);
  await assert.rejects(node.execute.call(missing));assert.equal(missing.calls.length,0);
- const ctx=context([{operation:'generate_audio_from_video',model:'eleven-video-to-music',prompt:'Quiet strings',videoUrls:'https://example.com/clip.mp4'}],[accepted]);
- await node.execute.call(ctx);assert.equal(ctx.calls.length,1);assert.deepEqual(ctx.calls[0].options.body.params.params.videoUrls,['https://example.com/clip.mp4']);
+ const ctx=context([{operation:'generate_audio_from_video',model:'eleven-video-to-music',prompt:'Quiet strings',videoUrls:'https://example.com/clip.mp4'}],[accepted,completed]);
+ await node.execute.call(ctx);assert.equal(ctx.calls.length,2);assert.deepEqual(ctx.calls[0].options.body.params.params.videoUrls,['https://example.com/clip.mp4']);
 });
 test('oversized submission ID is not accepted for later polling',async()=>{
  const ctx=context([{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano'}],[{status:'success',response:{id:'x'.repeat(513)}}]);
@@ -116,7 +117,7 @@ for(const status of ['ACCEPTED','IN_PROGRESS'])test('gateway queued audio is pen
 });
 
 test('gateway transport includes SDK platform and touchpoint on submit and result',async()=>{
- const ctx=context([{operation:'generate_sound_effects',model:'elevenlabs-sfx',prompt:'Mug on table',advanced:{duration:2}}],[accepted]);await node.execute.call(ctx);
+ const ctx=context([{operation:'generate_sound_effects',model:'elevenlabs-sfx',prompt:'Mug on table',advanced:{duration:2}}],[accepted,completed]);await node.execute.call(ctx);
  const get=context([{operation:'get_audio_result',taskId:'task-1'}],[{status:'success',response:{id:'task-1',status:'ACCEPTED'}}]);await node.execute.call(get);
  for(const call of [...ctx.calls,...get.calls]){assert.equal(call.options.headers.platform,'api');assert.equal(call.options.headers['X-Touchpoint'],'sdk');assert.equal(call.credential,'picsartOAuth2Api');}
 });
@@ -133,4 +134,13 @@ test('retrieval HTTP failure retains saved task and provider detail without resu
 test('retrieval parser failure retains the requested task in continue-on-fail output',async()=>{
  const ctx=context([{operation:'get_audio_result',taskId:'requested-audio-job'}],[{status:'success',response:{id:'different',status:'COMPLETED'}}],true);
  const [[out]]=await node.execute.call(ctx);assert.equal(out.json.task_id,'requested-audio-job');assert.equal(out.json.completed,false);assert.match(out.json.error,/does not match/);assert.equal(ctx.calls.length,1);
+});
+
+test('generation failure after acceptance preserves task without another POST',async()=>{
+ const ctx=context([{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano'}],[accepted,{status:'success',response:{id:'task-1',status:'FAILED'}}],true);
+ const [[out]]=await node.execute.call(ctx);assert.ok(out.json.error);assert.equal(out.json.task_id,'task-1');assert.equal(ctx.calls.filter(c=>c.options.method==='POST').length,1);assert.equal(out.json.url,undefined);
+});
+test('generation rejects result from another task',async()=>{
+ const ctx=context([{operation:'generate_music',model:'lyria-3-pro',prompt:'Piano'}],[accepted,{...completed,response:{...completed.response,id:'other'}}],true);
+ const [[out]]=await node.execute.call(ctx);assert.ok(out.json.error);assert.equal(out.json.task_id,'task-1');assert.equal(out.json.url,undefined);
 });

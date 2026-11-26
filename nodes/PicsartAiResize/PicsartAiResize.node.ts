@@ -10,6 +10,7 @@ import type {
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import registry from './registry.json';
+import { waitBeforeGenerationPoll } from '../PicsartGeneration/execute/pollDelay';
 import { https, size, catalogOptions, pngDimensions } from './helpers';
 const task = 'api-bu/images/image-to-image',
 	base = 'https://api.picsart.com/gw-v2/workflows/';
@@ -130,6 +131,66 @@ const properties: INodeProperties[] = [
 		displayOptions: { show: { operation: ['get_ai_resize_result'] } },
 	})),
 ];
+async function completeResize(
+	context: IExecuteFunctions,
+	id: string,
+	requested: { width: number; height: number },
+): Promise<IDataObject> {
+	for (let attempt = 0; attempt < 300; attempt++) {
+		await waitBeforeGenerationPoll(attempt);
+		const body = await context.helpers.httpRequestWithAuthentication.call(
+			context,
+			'picsartOAuth2Api',
+			{
+				method: 'GET',
+				url: base + task + '/' + encodeURIComponent(id) + '/result',
+				headers,
+				json: true,
+				timeout: 30000,
+			},
+		);
+		const result = body?.response;
+		if (body?.status !== 'success' || result?.id !== id)
+			throw Error('Invalid or mismatched resize result');
+		if (['ACCEPTED', 'IN_PROGRESS'].includes(result.status)) continue;
+		if (
+			result.status !== 'COMPLETED' ||
+			!Array.isArray(result.result?.data) ||
+			result.result.data.length !== 1
+		)
+			throw Error(
+				'Task is failed, unknown, or returned an unexpected image count; inspect before any resubmission',
+			);
+		const image = result.result.data[0];
+		if (image.status !== undefined && image.status !== 'success')
+			throw Error('Task returned an unsuccessful image');
+		const url = https(image.url);
+		const bytes = await context.helpers.httpRequest({
+			method: 'GET',
+			url,
+			encoding: 'arraybuffer',
+			disableFollowRedirect: true,
+			timeout: 30000,
+		});
+		const actual = pngDimensions(Buffer.from(bytes));
+		return {
+			task_id: id,
+			status: 'COMPLETED',
+			completed: true,
+			image_url: url,
+			mime_type: 'image/png',
+			requested_width: requested.width,
+			requested_height: requested.height,
+			actual_width: actual.width,
+			actual_height: actual.height,
+			size_match: actual.width === requested.width && actual.height === requested.height,
+			dimension_measurement: 'PNG IHDR',
+			review_required: true,
+			visual_fidelity_verified: false,
+		};
+	}
+	throw Error('Resize polling limit reached; retrieve saved tasks without resubmitting.');
+}
 export class PicsartAiResize implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Picsart AI Resize',
@@ -330,7 +391,13 @@ export class PicsartAiResize implements INodeType {
 						review_required: true,
 					});
 				}
-				for (const receipt of accepted) output.push({ json: receipt, pairedItem: { item: i } });
+				for (const receipt of accepted) {
+					const completed = await completeResize(this, receipt.task_id as string, {
+						width: receipt.requested_width as number,
+						height: receipt.requested_height as number,
+					});
+					output.push({ json: { ...receipt, ...completed }, pairedItem: { item: i } });
+				}
 			} catch (error) {
 				const message =
 					(error as Error).message +

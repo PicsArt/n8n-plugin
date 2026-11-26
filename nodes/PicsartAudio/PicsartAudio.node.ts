@@ -8,6 +8,7 @@ import type {
 } from 'n8n-workflow';
 import { ApplicationError, NodeOperationError } from 'n8n-workflow';
 import registry from './registry.json';
+import { waitBeforeGenerationPoll } from '../PicsartGeneration/execute/pollDelay';
 
 type Field = {
 	type: string;
@@ -109,7 +110,8 @@ const properties: INodeProperties[] = [
 			{
 				name: 'Get Audio Result',
 				value: 'get_audio_result',
-				description: 'Check an audio task and retrieve its available outputs when processing is complete',
+				description:
+					'Check an audio task and retrieve its available outputs when processing is complete',
 				action: 'Get an audio result',
 			},
 			{
@@ -142,7 +144,8 @@ properties.push(
 			{
 				name: 'ElevenLabs Music V2',
 				value: 'elevenlabs-music-v2',
-				description: 'Generate vocal or instrumental music from a text prompt for soundtracks and audio projects',
+				description:
+					'Generate vocal or instrumental music from a text prompt for soundtracks and audio projects',
 			},
 			{
 				name: 'Lyria 3 Clip',
@@ -167,7 +170,8 @@ properties.push(
 			{
 				name: 'MiniMax Music V3',
 				value: 'minimax-music-v3',
-				description: 'Generate music from a style prompt and optional lyrics with configurable audio encoding',
+				description:
+					'Generate music from a style prompt and optional lyrics with configurable audio encoding',
 			},
 		],
 		displayOptions: {
@@ -185,12 +189,14 @@ properties.push(
 			{
 				name: 'Async Flash v1.0',
 				value: 'async-flash-v1',
-				description: 'Convert text to speech with the Async Flash voice engine for narration and voiceovers',
+				description:
+					'Convert text to speech with the Async Flash voice engine for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V3',
 				value: 'eleven-v3',
-				description: 'Convert a script to speech with tone and pacing controls for narration and voiceovers',
+				description:
+					'Convert a script to speech with tone and pacing controls for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V4',
@@ -200,7 +206,8 @@ properties.push(
 			{
 				name: 'Eleven V4 Turbo',
 				value: 'eleven-v4-turbo',
-				description: 'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery',
+				description:
+					'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery',
 			},
 			{
 				name: 'Gemini 2.5 Flash TTS',
@@ -215,12 +222,14 @@ properties.push(
 			{
 				name: 'Gemini 3.8 Flash Lite TTS',
 				value: 'gemini-3.8-flash-lite-tts',
-				description: 'Convert text to speech with delivery instructions using the Flash Lite voice model',
+				description:
+					'Convert text to speech with delivery instructions using the Flash Lite voice model',
 			},
 			{
 				name: 'Gemini 3.8 Flash TTS',
 				value: 'gemini-3.8-flash-tts',
-				description: 'Convert text to speech with delivery instructions and vocal events for expressive narration',
+				description:
+					'Convert text to speech with delivery instructions and vocal events for expressive narration',
 			},
 			{
 				name: 'Grok TTS',
@@ -230,12 +239,14 @@ properties.push(
 			{
 				name: 'Seed Audio',
 				value: 'seed-audio-1.0',
-				description: 'Convert English or Chinese text to speech using a named voice or a permitted audio reference',
+				description:
+					'Convert English or Chinese text to speech using a named voice or a permitted audio reference',
 			},
 			{
 				name: 'Seed Audio Multilingual',
 				value: 'seed-audio-1.0-multilingual',
-				description: 'Convert multilingual text to speech using a named voice or a permitted audio reference',
+				description:
+					'Convert multilingual text to speech using a named voice or a permitted audio reference',
 			},
 		],
 		displayOptions: {
@@ -253,12 +264,14 @@ properties.push(
 			{
 				name: 'Async Flash v1.0',
 				value: 'async-flash-v1',
-				description: 'Convert text to speech with the Async Flash voice engine for narration and voiceovers',
+				description:
+					'Convert text to speech with the Async Flash voice engine for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V3',
 				value: 'eleven-v3',
-				description: 'Convert a script to speech with tone and pacing controls for narration and voiceovers',
+				description:
+					'Convert a script to speech with tone and pacing controls for narration and voiceovers',
 			},
 			{
 				name: 'Eleven V4',
@@ -268,7 +281,8 @@ properties.push(
 			{
 				name: 'Eleven V4 Turbo',
 				value: 'eleven-v4-turbo',
-				description: 'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery',
+				description:
+					'Convert a script to speech with the Turbo voice engine and audio tags for voiceover delivery',
 			},
 			{
 				name: 'Gemini 2.5 Flash TTS',
@@ -283,12 +297,14 @@ properties.push(
 			{
 				name: 'Gemini 3.8 Flash Lite TTS',
 				value: 'gemini-3.8-flash-lite-tts',
-				description: 'Convert text to speech with delivery instructions using the Flash Lite voice model',
+				description:
+					'Convert text to speech with delivery instructions using the Flash Lite voice model',
 			},
 			{
 				name: 'Gemini 3.8 Flash TTS',
 				value: 'gemini-3.8-flash-tts',
-				description: 'Convert text to speech with delivery instructions and vocal events for expressive narration',
+				description:
+					'Convert text to speech with delivery instructions and vocal events for expressive narration',
 			},
 			{
 				name: 'Grok TTS',
@@ -298,12 +314,14 @@ properties.push(
 			{
 				name: 'Seed Audio',
 				value: 'seed-audio-1.0',
-				description: 'Convert English or Chinese text to speech using a named voice or a permitted audio reference',
+				description:
+					'Convert English or Chinese text to speech using a named voice or a permitted audio reference',
 			},
 			{
 				name: 'Seed Audio Multilingual',
 				value: 'seed-audio-1.0-multilingual',
-				description: 'Convert multilingual text to speech using a named voice or a permitted audio reference',
+				description:
+					'Convert multilingual text to speech using a named voice or a permitted audio reference',
 			},
 		],
 		displayOptions: {
@@ -321,7 +339,8 @@ properties.push(
 			{
 				name: 'ElevenLabs SFX V2',
 				value: 'elevenlabs-sfx',
-				description: 'Generate sound effects from a text description for videos and other audio projects',
+				description:
+					'Generate sound effects from a text description for videos and other audio projects',
 			},
 			{
 				name: 'Kling T2A',
@@ -359,7 +378,8 @@ properties.push(
 			{
 				name: 'Mirelo SFX 2.0 (Video to Audio)',
 				value: 'mirelo-sfx-2.0-video-to-audio',
-				description: 'Generate an audio track synchronized to a source video for soundtrack editing',
+				description:
+					'Generate an audio track synchronized to a source video for soundtrack editing',
 			},
 		],
 		displayOptions: {
@@ -377,12 +397,14 @@ properties.push(
 			{
 				name: 'Eleven Multilingual STS V2',
 				value: 'eleven-multilingual-sts-v2',
-				description: 'Change the speaker in multilingual audio while retaining timing and vocal expression',
+				description:
+					'Change the speaker in multilingual audio while retaining timing and vocal expression',
 			},
 			{
 				name: 'Eleven STS V2',
 				value: 'eleven-sts-v2',
-				description: 'Change the speaker in an audio recording while retaining timing and vocal expression',
+				description:
+					'Change the speaker in an audio recording while retaining timing and vocal expression',
 			},
 		],
 		displayOptions: {
@@ -436,7 +458,8 @@ properties.push(
 			{
 				name: 'Eleven Voice Previews',
 				value: 'eleven-voice-create',
-				description: 'Generate voice previews from a description to compare delivery before selecting a voice',
+				description:
+					'Generate voice previews from a description to compare delivery before selecting a voice',
 			},
 			{
 				name: 'Eleven Voice Design Multilingual V2',
@@ -446,7 +469,8 @@ properties.push(
 			{
 				name: 'Eleven Voice Design V3',
 				value: 'eleven-voice-design-v3',
-				description: 'Design a voice from a text description for narration and character voice previews',
+				description:
+					'Design a voice from a text description for narration and character voice previews',
 			},
 		],
 		displayOptions: {
@@ -497,6 +521,41 @@ function resultUrls(result: { url?: unknown; items?: unknown } | undefined): str
 	}
 	if (!urls.length) throw new ApplicationError('Completed audio result contains no media.');
 	return [...new Set(urls)];
+}
+export async function waitForAudioResult(context: IExecuteFunctions, id: string, attempts = 300) {
+	for (let attempt = 0; attempt < attempts; attempt++) {
+		await waitBeforeGenerationPoll(attempt);
+		const envelope = await context.helpers.httpRequestWithAuthentication.call(
+			context,
+			'picsartOAuth2Api',
+			{
+				method: 'GET',
+				url: baseUrl + '/' + encodeURIComponent(id) + '/result',
+				headers: { Accept: 'application/json', platform: 'api', 'X-Touchpoint': 'sdk' },
+				timeout: 30000,
+			},
+		);
+		const r = envelope?.response;
+		if (envelope?.status !== 'success' || r?.id !== id)
+			throw new ApplicationError('Invalid audio result or mismatched task ID.');
+		if (r.status === 'COMPLETED') {
+			const urls = resultUrls(r.result);
+			return {
+				task_id: id,
+				status: r.status,
+				completed: true,
+				url: urls[0],
+				urls,
+				items: r.result.items,
+				result: r.result,
+			};
+		}
+		if (!['ACCEPTED', 'IN_PROGRESS'].includes(r.status))
+			throw new ApplicationError('Audio processing failed or returned an unknown status.');
+	}
+	throw new ApplicationError(
+		'Audio processing exceeded the polling limit. Retrieve the saved task; do not resubmit.',
+	);
 }
 export class PicsartAudio implements INodeType {
 	description: INodeTypeDescription = {
@@ -623,7 +682,12 @@ export class PicsartAudio implements INodeType {
 					{
 						method: 'POST',
 						url: baseUrl + '/submit',
-						headers: { Accept: 'application/json', 'Content-Type': 'application/json', platform: 'api', 'X-Touchpoint': 'sdk' },
+						headers: {
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+							platform: 'api',
+							'X-Touchpoint': 'sdk',
+						},
 						body: { params: { model, params } },
 					},
 				);
@@ -636,11 +700,11 @@ export class PicsartAudio implements INodeType {
 					throw new ApplicationError(
 						'Submission was not confirmed. Do not automatically resubmit.',
 					);
+				savedTaskId = data.response.id;
+				const completedResult = await waitForAudioResult(this, savedTaskId!);
 				outputs.push({
 					json: {
-						task_id: data.response.id,
-						status: data.response.status || 'SUBMITTED',
-						completed: false,
+						...completedResult,
 						model,
 						operation,
 						resolved_parameters: params as never,
@@ -651,16 +715,38 @@ export class PicsartAudio implements INodeType {
 				if (this.continueOnFail())
 					outputs.push({
 						json: {
-						error: error instanceof Error ? error.message : 'Audio operation failed',
-						...(savedTaskId ? { task_id: savedTaskId, completed: false, recovery: 'Retrieve this saved task again after resolving the error. Do not automatically resubmit generation.' } : {}),
-					},
+							error: error instanceof Error ? error.message : 'Audio operation failed',
+							...(savedTaskId
+								? {
+										task_id: savedTaskId,
+										completed: false,
+										recovery:
+											'Retrieve this saved task again after resolving the error. Do not automatically resubmit generation.',
+									}
+								: {}),
+						},
 						pairedItem: { item: i },
 					});
 				else {
-					const providerDescription = error && typeof error === 'object' && 'description' in error && typeof error.description === 'string' ? error.description : '';
+					const providerDescription =
+						error &&
+						typeof error === 'object' &&
+						'description' in error &&
+						typeof error.description === 'string'
+							? error.description
+							: '';
 					throw new NodeOperationError(this.getNode(), error as Error, {
 						itemIndex: i,
-						...(savedTaskId ? { description: [providerDescription, `Saved task ID: ${savedTaskId}. Retrieve this task again after resolving the error. Do not automatically resubmit generation.`].filter(Boolean).join(' ') } : {}),
+						...(savedTaskId
+							? {
+									description: [
+										providerDescription,
+										`Saved task ID: ${savedTaskId}. Retrieve this task again after resolving the error. Do not automatically resubmit generation.`,
+									]
+										.filter(Boolean)
+										.join(' '),
+								}
+							: {}),
 					});
 				}
 			}
