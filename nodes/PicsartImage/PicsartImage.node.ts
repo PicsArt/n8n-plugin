@@ -1,3 +1,4 @@
+import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
@@ -49,14 +50,10 @@ export class PicsartImage implements INodeType {
 		inputs: ['main' as NodeConnectionType],
 		outputs: ['main' as NodeConnectionType],
 		usableAsTool: true,
-		credentials: [
-			{
-				name: 'picsartApi',
-				required: true,
-			},
-		],
+		credentials: picsartCredentials,
 		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
 		properties: [
+			picsartAuthenticationProperty,
 			{
 				displayName: 'Operation',
 				name: 'operation',
@@ -73,19 +70,19 @@ export class PicsartImage implements INodeType {
 					name: 'Convert PNG to JPG',
 					value: 'Convert PNG to JPG',
 					action: 'Convert PNG image to JPG format',
-					description: 'Convert PNG images to JPG format',
+					description: 'Convert a PNG image to JPG and choose the compression level for web images and other exports',
 				},
 				{
 					name: 'Convert PNG to WEBP',
 					value: 'Convert PNG to WEBP',
 					action: 'Convert PNG image to WEBP format',
-					description: 'Convert PNG images to WEBP format',
+					description: 'Convert a PNG image to WebP and choose the compression level for website images',
 				},
 				{
 					name: 'Crop Image',
 					value: 'Crop Image',
 					action: 'Crop image to specific dimensions',
-					description: 'Crop image to specified width and height',
+					description: 'Crop an image to a specified width and height for product photos, banners, and social media visuals',
 				},
 				{
 					name: 'Describe Image',
@@ -97,13 +94,13 @@ export class PicsartImage implements INodeType {
 					name: 'Enhance',
 					value: 'Enhance',
 					action: 'Enhance and upscale an image',
-					description: 'Enhance and upscale an image',
+					description: 'Increase image resolution with AI upscaling to prepare photos for larger layouts',
 				},
 				{
 					name: 'Face Enhance',
 					value: 'Face Enhance',
 					action: 'Enhance faces in photos',
-					description: 'Turn old, blurry photos into clear portraits with AI face restoration',
+					description: 'Enhance faces in a photo to improve portrait detail and clarity',
 				},
 				{
 					name: 'Hashtag',
@@ -121,19 +118,19 @@ export class PicsartImage implements INodeType {
 					name: 'Resize Image',
 					value: 'Resize Image',
 					action: 'Resize image to specific dimensions',
-					description: 'Resize image to specified width and height',
+					description: 'Resize an image to a specified width and height for website, product, and social media images',
 				},
 				{
 					name: 'Ultra Enhance',
 					value: 'Ultra Enhance',
 					action: 'Ultra enhance with generative model',
-					description: 'Generative upscaling with high frequency detail (2x-16x, up to 64Mpx)',
+					description: 'Enhance image detail with a generative model to prepare photos for further editing or delivery',
 				},
 			{
 				name: 'Ultra Upscale',
 				value: 'Ultra Upscale',
 				action: 'Ultra upscale an image up to 16x',
-				description: 'Ultra upscale an image with advanced AI (2x-16x)',
+				description: 'Upscale an image with AI to increase its resolution and enhance detail for larger visuals',
 			},
 			{
 				name: 'Watermark',
@@ -243,9 +240,9 @@ export class PicsartImage implements INodeType {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					// Re-throw if it's already a NodeOperationError, otherwise wrap it
+					// n8n preserves existing NodeOperationError instances when wrapping them
 					if (error instanceof NodeOperationError) {
-						throw error;
+						throw new NodeOperationError(this.getNode(), error, { itemIndex });
 					}
 					throw new NodeOperationError(this.getNode(), error.message, { itemIndex });
 				}

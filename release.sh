@@ -88,6 +88,16 @@ pnpm run build
 echo -e "${BLUE}🧪 Running linter...${NC}"
 pnpm run lint
 
+# Keep the local release gate aligned with CI before offering a commit or tag.
+echo -e "${BLUE}🧪 Running regression tests...${NC}"
+pnpm test
+
+echo -e "${BLUE}📦 Verifying package contents...${NC}"
+node scripts/verify-package-contents.cjs
+
+echo -e "${BLUE}🔒 Auditing dependencies...${NC}"
+pnpm audit --audit-level moderate
+
 echo -e "${GREEN}✅ All checks passed!${NC}"
 echo ""
 
@@ -138,6 +148,6 @@ echo ""
 echo "3. Or push everything at once:"
 echo -e "   ${BLUE}git push && git push --tags${NC}"
 echo ""
-echo -e "${GREEN}🚀 GitLab CI/CD will automatically publish to NPM!${NC}"
+echo -e "${GREEN}🚀 The version tag triggers GitHub Actions checks and npm publication.${NC}"
 echo ""
 

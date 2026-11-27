@@ -1,0 +1,24 @@
+{
+  "url": "https://example.com/voice-1.mp3",
+  "items": [
+    {
+      "url": "https://example.com/voice-1.mp3",
+      "metadata": {
+        "generatedVoiceId": "fixture-voice-1"
+      }
+    },
+    {
+      "url": "https://example.com/voice-2.mp3",
+      "metadata": {
+        "generatedVoiceId": "fixture-voice-2"
+      }
+    },
+    {
+      "url": "https://example.com/voice-3.mp3",
+      "metadata": {
+        "generatedVoiceId": "fixture-voice-3"
+      }
+    }
+  ],
+  "model": "eleven-voice-design-v3"
+}

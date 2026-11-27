@@ -1,9 +1,18 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { videoOutputMetadata } from './outputMetadata';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
 import type { VideoApiResult, HttpError } from './types';
 
 const EFFECTS_API_URL = 'https://video-api.picsart.io/v1/effects';
+const EFFECT_CODES: Record<string, string> = {
+ 'Focal Zoom': 'focalzoom', 'Lens Blur': 'lensblur', 'Motion Blur': 'motionblur',
+ 'Radial Blur': 'radialblur', 'Smart Blur': 'smartblur', Blur: 'gblur', 'Black And White': 'bw',
+};
+
 const VIDEO_RESULT_URL = 'https://video-api.picsart.io/v1/video';
 import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
@@ -32,16 +41,17 @@ export async function executeVideoEffects(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body = {
 			video_url: videoUrl,
-			effect_name: effectName,
-			format,
+			effects: [EFFECT_CODES[effectName] ?? effectName],
+			export: { format },
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: EFFECTS_API_URL,
@@ -52,9 +62,10 @@ export async function executeVideoEffects(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -67,7 +78,7 @@ export async function executeVideoEffects(
 				response.inference_id ||
 				response.id ||
 				response.job_id ||
-				response.transaction_id;
+				response.transaction_id || null;
 		}
 
 		if (transactionId && !resultVideoUrl) {
@@ -79,7 +90,7 @@ export async function executeVideoEffects(
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -92,7 +103,7 @@ export async function executeVideoEffects(
 						pollAttempts++;
 						continue;
 					}
-					throw err;
+					throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 				}
 
 				if (result.status === 'completed' || result.status === 'success') {
@@ -132,14 +143,13 @@ export async function executeVideoEffects(
 			encoding: 'arraybuffer',
 		});
 
-		const mimeType = format === 'WEBM' ? 'video/webm' : format === 'MOV' ? 'video/quicktime' : 'video/mp4';
-		const ext = format.toLowerCase();
+		const { fileName, mimeType } = videoOutputMetadata('effect-video', format);
 
 		returnData.push({
 			binary: {
 				data: await context.helpers.prepareBinaryData(
 					videoBuffer,
-					`effect-video.${ext}`,
+					fileName,
 					mimeType,
 				),
 			},
@@ -152,6 +162,6 @@ export async function executeVideoEffects(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

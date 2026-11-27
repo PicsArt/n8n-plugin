@@ -1,3 +1,7 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { videoOutputMetadata } from './outputMetadata';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -20,6 +24,10 @@ export async function executeTrim(
 	const format = mode === 'advanced'
 		? (context.getNodeParameter('cropExportFormat', itemIndex, 'MP4') as string)
 		: 'MP4';
+	if (typeof videoUrl !== 'string') {
+		throw new NodeOperationError(context.getNode(), 'Video URL must be a string', { itemIndex });
+	}
+
 	if (!videoUrl || videoUrl.trim().length === 0) {
 		throw new NodeOperationError(
 			context.getNode(),
@@ -36,7 +44,15 @@ export async function executeTrim(
 			);
 		}
 
-		if (startMs < 0) {
+	if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Start and end must be finite numbers in milliseconds',
+			{ itemIndex },
+		);
+	}
+
+	if (startMs < 0) {
 		throw new NodeOperationError(
 			context.getNode(),
 			'Start must be >= 0 (milliseconds)',
@@ -60,17 +76,18 @@ export async function executeTrim(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body = {
 			video_url: videoUrl,
 			start: startMs,
 			end: endMs,
-			format
+			export: { format },
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: TRIM_API_URL,
@@ -81,9 +98,10 @@ export async function executeTrim(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
 		let resultVideoUrl: string | null = null;
-		let transactionId: string | null = null;
 
 		if (response.data?.url) {
 			resultVideoUrl = response.data.url;
@@ -96,7 +114,7 @@ export async function executeTrim(
 				response.inference_id ||
 				response.id ||
 				response.job_id ||
-				response.transaction_id;
+				response.transaction_id || null;
 		}
 
 		if (transactionId && !resultVideoUrl) {
@@ -108,7 +126,7 @@ export async function executeTrim(
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
-						'picsartApi',
+						picsartCredentialType(context),
 						{
 							method: 'GET',
 							url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -121,7 +139,7 @@ export async function executeTrim(
 						pollAttempts++;
 						continue;
 					}
-					throw err;
+					throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 				}
 
 				if (result.status === 'completed' || result.status === 'success') {
@@ -165,8 +183,8 @@ export async function executeTrim(
 			binary: {
 				data: await context.helpers.prepareBinaryData(
 					videoBuffer,
-					'trimmed-video.mp4',
-					'video/mp4',
+					videoOutputMetadata('trimmed-video', format).fileName,
+					videoOutputMetadata('trimmed-video', format).mimeType,
 				),
 			},
 			json: {
@@ -178,6 +196,6 @@ export async function executeTrim(
 			},
 		});
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

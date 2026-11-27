@@ -1,0 +1,914 @@
+{
+  "groups": {
+    "generate_music": {
+      "label": "Generate music",
+      "models": [
+        "lyria-3-pro",
+        "lyria-3-clip",
+        "lyria-3.5",
+        "elevenlabs-music-v2",
+        "minimax-music-v2",
+        "minimax-music-v3"
+      ]
+    },
+    "generate_voiceover": {
+      "label": "Generate voiceover",
+      "models": [
+        "eleven-v3",
+        "eleven-v4",
+        "eleven-v4-turbo",
+        "seed-audio-1.0-multilingual",
+        "seed-audio-1.0",
+        "grok-tts",
+        "gemini-2.5-flash-tts",
+        "gemini-2.5-pro-tts",
+        "gemini-3.8-flash-tts",
+        "gemini-3.8-flash-lite-tts",
+        "async-flash-v1"
+      ]
+    },
+    "text_to_speech": {
+      "label": "Convert text to speech",
+      "models": [
+        "eleven-v3",
+        "eleven-v4",
+        "eleven-v4-turbo",
+        "seed-audio-1.0-multilingual",
+        "seed-audio-1.0",
+        "grok-tts",
+        "gemini-2.5-flash-tts",
+        "gemini-2.5-pro-tts",
+        "gemini-3.8-flash-tts",
+        "gemini-3.8-flash-lite-tts",
+        "async-flash-v1"
+      ]
+    },
+    "generate_sound_effects": {
+      "label": "Generate sound effects",
+      "models": [
+        "elevenlabs-sfx",
+        "kling-t2a",
+        "mirelo-sfx-2.0-text-to-audio"
+      ]
+    },
+    "generate_audio_from_video": {
+      "label": "Generate audio from video",
+      "models": [
+        "kling-v2a",
+        "eleven-video-to-music",
+        "mirelo-sfx-2.0-video-to-audio"
+      ]
+    },
+    "change_voice": {
+      "label": "Change a voice",
+      "models": [
+        "eleven-sts-v2",
+        "eleven-multilingual-sts-v2"
+      ]
+    },
+    "isolate_audio": {
+      "label": "Isolate audio",
+      "models": [
+        "eleven-audio-isolation"
+      ]
+    },
+    "dub_audio": {
+      "label": "Dub audio",
+      "models": [
+        "eleven-dubbing"
+      ]
+    },
+    "design_voice": {
+      "label": "Design a voice",
+      "models": [
+        "eleven-voice-design-v3",
+        "eleven-voice-design-v2",
+        "eleven-voice-create"
+      ]
+    }
+  },
+  "schemas": {
+    "lyria-3-pro": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "imageUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Mood Images",
+        "accept": "image",
+        "max": 10
+      }
+    },
+    "lyria-3-clip": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "imageUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Mood Images",
+        "accept": "image",
+        "max": 10
+      }
+    },
+    "lyria-3.5": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "imageUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Mood Images",
+        "accept": "image",
+        "max": 10
+      }
+    },
+    "elevenlabs-music-v2": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "duration": {
+        "type": "number",
+        "enum": [
+          10,
+          20,
+          30,
+          60,
+          120,
+          180,
+          300,
+          600
+        ],
+        "default": 30
+      },
+      "isInstrumental": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "minimax-music-v2": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "lyricsPrompt": {
+        "type": "string",
+        "label": "Lyrics"
+      },
+      "lyricsOptimizer": {
+        "type": "boolean",
+        "default": false
+      },
+      "isInstrumental": {
+        "type": "boolean",
+        "default": false
+      },
+      "sampleRate": {
+        "type": "number",
+        "enum": [
+          16000,
+          24000,
+          32000,
+          44100
+        ],
+        "default": 44100
+      },
+      "bitrate": {
+        "type": "number",
+        "enum": [
+          32000,
+          64000,
+          128000,
+          256000
+        ],
+        "default": 256000
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "mp3",
+          "wav",
+          "pcm"
+        ],
+        "default": "mp3"
+      }
+    },
+    "minimax-music-v3": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "lyricsPrompt": {
+        "type": "string",
+        "label": "Lyrics"
+      },
+      "lyricsOptimizer": {
+        "type": "boolean",
+        "default": false
+      },
+      "isInstrumental": {
+        "type": "boolean",
+        "default": false
+      },
+      "sampleRate": {
+        "type": "number",
+        "enum": [
+          16000,
+          24000,
+          32000,
+          44100
+        ],
+        "default": 44100
+      },
+      "bitrate": {
+        "type": "number",
+        "enum": [
+          32000,
+          64000,
+          128000,
+          256000
+        ],
+        "default": 256000
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "mp3",
+          "wav",
+          "pcm"
+        ],
+        "default": "mp3"
+      }
+    },
+    "eleven-v3": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "Voice"
+      },
+      "stability": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "similarityBoost": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "styleExaggeration": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "speed": {
+        "type": "number",
+        "min": 0.1,
+        "max": 5,
+        "step": 0.05
+      },
+      "useSpeakerBoost": {
+        "type": "boolean",
+        "default": true
+      },
+      "withTimestamps": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "eleven-v4": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "Voice"
+      },
+      "stability": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "similarityBoost": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "withTimestamps": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "eleven-v4-turbo": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "Voice"
+      },
+      "stability": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "similarityBoost": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "withTimestamps": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "seed-audio-1.0-multilingual": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "en_male_tim_uranus_bigtts",
+        "label": "Voice"
+      },
+      "audioUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Reference Audios",
+        "accept": "audio",
+        "max": 3
+      },
+      "imageUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Reference Image",
+        "accept": "image",
+        "max": 1
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "wav",
+          "mp3",
+          "pcm",
+          "ogg_opus"
+        ],
+        "default": "wav"
+      },
+      "sampleRate": {
+        "type": "number",
+        "enum": [
+          8000,
+          16000,
+          24000,
+          32000,
+          44100,
+          48000
+        ],
+        "default": 44100
+      },
+      "speechRate": {
+        "type": "number",
+        "min": -50,
+        "max": 100,
+        "default": 0
+      },
+      "loudnessRate": {
+        "type": "number",
+        "min": -50,
+        "max": 100,
+        "default": 0
+      },
+      "pitchRate": {
+        "type": "number",
+        "min": -12,
+        "max": 12,
+        "default": 0
+      },
+      "aigcWatermark": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "seed-audio-1.0": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "en_male_tim_uranus_bigtts",
+        "label": "Voice"
+      },
+      "audioUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Reference Audios",
+        "accept": "audio",
+        "max": 3
+      },
+      "imageUrls": {
+        "type": "file",
+        "required": false,
+        "label": "Reference Image",
+        "accept": "image",
+        "max": 1
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "wav",
+          "mp3",
+          "pcm",
+          "ogg_opus"
+        ],
+        "default": "wav"
+      },
+      "sampleRate": {
+        "type": "number",
+        "enum": [
+          8000,
+          16000,
+          24000,
+          32000,
+          44100,
+          48000
+        ],
+        "default": 44100
+      },
+      "speechRate": {
+        "type": "number",
+        "min": -50,
+        "max": 100,
+        "default": 0
+      },
+      "loudnessRate": {
+        "type": "number",
+        "min": -50,
+        "max": 100,
+        "default": 0
+      },
+      "pitchRate": {
+        "type": "number",
+        "min": -12,
+        "max": 12,
+        "default": 0
+      },
+      "aigcWatermark": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "grok-tts": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "accent": {
+        "type": "string",
+        "label": "Accent"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "eve",
+        "label": "Voice"
+      }
+    },
+    "gemini-2.5-flash-tts": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "accent": {
+        "type": "string",
+        "label": "Accent"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "Kore",
+        "label": "Voice"
+      }
+    },
+    "gemini-2.5-pro-tts": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "accent": {
+        "type": "string",
+        "label": "Accent"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "Kore",
+        "label": "Voice"
+      }
+    },
+    "gemini-3.8-flash-tts": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "accent": {
+        "type": "string",
+        "label": "Accent"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "Kore",
+        "label": "Voice"
+      },
+      "style": {
+        "type": "string",
+        "label": "Style"
+      }
+    },
+    "gemini-3.8-flash-lite-tts": {
+      "language": {
+        "type": "string",
+        "label": "Language"
+      },
+      "accent": {
+        "type": "string",
+        "label": "Accent"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "Kore",
+        "label": "Voice"
+      },
+      "style": {
+        "type": "string",
+        "label": "Style"
+      }
+    },
+    "async-flash-v1": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "cca0e076-b350-4966-b570-4c2fca50b525",
+        "label": "Voice"
+      },
+      "container": {
+        "type": "string",
+        "enum": [
+          "mp3",
+          "wav",
+          "raw"
+        ],
+        "default": "mp3"
+      },
+      "sampleRate": {
+        "type": "number",
+        "min": 8000,
+        "max": 48000,
+        "default": 24000
+      },
+      "encoding": {
+        "type": "string",
+        "enum": [
+          "pcm_s16le",
+          "pcm_f32le"
+        ],
+        "default": "pcm_s16le"
+      },
+      "bitRate": {
+        "type": "number",
+        "min": 32000,
+        "max": 320000,
+        "default": 192000
+      }
+    },
+    "elevenlabs-sfx": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "duration": {
+        "type": "number",
+        "min": 0.5,
+        "max": 30,
+        "step": 0.5,
+        "default": 5
+      }
+    },
+    "kling-t2a": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "duration": {
+        "type": "number",
+        "min": 3,
+        "max": 10,
+        "step": 0.5,
+        "default": 5
+      }
+    },
+    "mirelo-sfx-2.0-text-to-audio": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "negativePrompt": {
+        "type": "string",
+        "label": "Negative Prompt"
+      },
+      "duration": {
+        "type": "number",
+        "min": 1,
+        "max": 600,
+        "step": 1,
+        "default": 30
+      },
+      "count": {
+        "type": "number",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "default": 2
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "wav",
+          "mp3",
+          "aac",
+          "flac"
+        ],
+        "default": "wav"
+      },
+      "bitrateKbps": {
+        "type": "number",
+        "min": 32,
+        "max": 320,
+        "step": 1
+      },
+      "seed": {
+        "type": "number",
+        "min": 0,
+        "max": 2147483647,
+        "step": 1
+      }
+    },
+    "kling-v2a": {
+      "videoUrl": {
+        "type": "file",
+        "required": true,
+        "label": "Source Video (3-20s, \u2264100MB)",
+        "accept": "video"
+      }
+    },
+    "eleven-video-to-music": {
+      "videoUrls": {
+        "type": "file",
+        "required": true,
+        "label": "Videos",
+        "accept": "video",
+        "max": 10
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      }
+    },
+    "mirelo-sfx-2.0-video-to-audio": {
+      "videoUrl": {
+        "type": "file",
+        "required": true,
+        "label": "Source Video",
+        "accept": "video"
+      },
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      },
+      "negativePrompt": {
+        "type": "string",
+        "label": "Negative Prompt"
+      },
+      "preserveSpeech": {
+        "type": "boolean",
+        "default": true
+      },
+      "duration": {
+        "type": "number",
+        "min": 1,
+        "max": 600,
+        "step": 1,
+        "default": 10
+      },
+      "count": {
+        "type": "number",
+        "enum": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "default": 2
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "wav",
+          "mp3",
+          "aac",
+          "flac"
+        ],
+        "default": "wav"
+      },
+      "bitrateKbps": {
+        "type": "number",
+        "min": 32,
+        "max": 320,
+        "step": 1
+      },
+      "seed": {
+        "type": "number",
+        "min": 0,
+        "max": 2147483647,
+        "step": 1
+      }
+    },
+    "eleven-sts-v2": {
+      "audioUrl": {
+        "type": "file",
+        "required": true,
+        "label": "Speech Audio",
+        "accept": "audio"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "Voice"
+      },
+      "removeBackgroundNoise": {
+        "type": "boolean",
+        "default": false
+      },
+      "stability": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "similarityBoost": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "styleExaggeration": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "speed": {
+        "type": "number",
+        "min": 0.1,
+        "max": 5,
+        "step": 0.05
+      }
+    },
+    "eleven-multilingual-sts-v2": {
+      "audioUrl": {
+        "type": "file",
+        "required": true,
+        "label": "Speech Audio",
+        "accept": "audio"
+      },
+      "voiceId": {
+        "type": "string",
+        "default": "JBFqnCBsd6RMkjVDRZzb",
+        "label": "Voice"
+      },
+      "removeBackgroundNoise": {
+        "type": "boolean",
+        "default": false
+      },
+      "stability": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "similarityBoost": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "styleExaggeration": {
+        "type": "number",
+        "min": 0,
+        "max": 1,
+        "step": 0.05
+      },
+      "speed": {
+        "type": "number",
+        "min": 0.1,
+        "max": 5,
+        "step": 0.05
+      }
+    },
+    "eleven-audio-isolation": {
+      "audioUrl": {
+        "type": "file",
+        "required": true,
+        "label": "Audio File",
+        "accept": "audio"
+      }
+    },
+    "eleven-dubbing": {
+      "audioUrl": {
+        "type": "file",
+        "required": true,
+        "label": "Source Audio",
+        "accept": "audio"
+      },
+      "language": {
+        "type": "string",
+        "label": "Target Language (ISO 639 code)"
+      }
+    },
+    "eleven-voice-design-v3": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      }
+    },
+    "eleven-voice-design-v2": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      }
+    },
+    "eleven-voice-create": {
+      "prompt": {
+        "type": "string",
+        "label": "Prompt"
+      }
+    }
+  }
+}

@@ -1,3 +1,7 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { videoOutputMetadata } from './outputMetadata';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -14,6 +18,10 @@ export async function executeCompressVideo(
 ): Promise<void> {
 	const videoUrl = context.getNodeParameter('videoUrl', itemIndex) as string;
 	const max_size_mb = context.getNodeParameter('max_size_mb', itemIndex) as number;
+
+	if (!Number.isInteger(max_size_mb) || max_size_mb < 1) {
+		throw new NodeOperationError(context.getNode(), 'Maximum size must be a positive whole number of megabytes', { itemIndex });
+	}
 
 	const mode = context.getNodeParameter('mode', itemIndex, 'simple') as string;
 	let codec: string;
@@ -51,8 +59,10 @@ export async function executeCompressVideo(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const exportParams: Record<string, string | number> = {
+			max_size_mb,
 			codec,
 			format,
 			audio_codec: audioCodec,
@@ -64,13 +74,12 @@ export async function executeCompressVideo(
 
 		const body: Record<string, unknown> = {
 			video_url: videoUrl,
-			max_size_mb,
 			export: exportParams,
 		};
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: EDIT_API_URL,
@@ -81,9 +90,11 @@ export async function executeCompressVideo(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
-		const transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+		transactionId =
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;
@@ -97,8 +108,8 @@ export async function executeCompressVideo(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'edited-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('edited-video', format).fileName,
+							videoOutputMetadata('edited-video', format).mimeType,
 						),
 					},
 					json: { videoUrl: resultUrl, video_url: videoUrl, max_size_mb, export: exportParams },
@@ -120,7 +131,7 @@ export async function executeCompressVideo(
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
-					'picsartApi',
+					picsartCredentialType(context),
 					{
 						method: 'GET',
 						url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -133,7 +144,7 @@ export async function executeCompressVideo(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {
@@ -147,8 +158,8 @@ export async function executeCompressVideo(
 					binary: {
 						data: await context.helpers.prepareBinaryData(
 							videoBuffer,
-							'edited-video.mp4',
-							'video/mp4',
+							videoOutputMetadata('edited-video', format).fileName,
+							videoOutputMetadata('edited-video', format).mimeType,
 						),
 					},
 					json: {
@@ -179,6 +190,6 @@ export async function executeCompressVideo(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

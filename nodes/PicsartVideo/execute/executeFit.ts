@@ -1,3 +1,6 @@
+import { submissionResult } from './submissionResult';
+import { NodeApiError, type JsonObject } from 'n8n-workflow';
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { handleApiError } from './errorHandler';
@@ -16,7 +19,7 @@ export async function executeFit(
 	const mode = context.getNodeParameter('mode', itemIndex, 'simple') as string;
 
 	// Ratio is always available for Fit Video
-	const ratio = context.getNodeParameter('fitRatio', itemIndex, undefined) as number | undefined;
+	const ratio = (context.getNodeParameter('fitRatio', itemIndex, null) ?? undefined) as number | undefined;
 
 	let width: number | undefined;
 	let height: number | undefined;
@@ -26,8 +29,8 @@ export async function executeFit(
 	let bgVideoUrl: string | undefined;
 
 	if (mode === 'advanced') {
-		width = context.getNodeParameter('fitWidth', itemIndex, undefined) as number | undefined;
-		height = context.getNodeParameter('fitHeight', itemIndex, undefined) as number | undefined;
+		width = (context.getNodeParameter('fitWidth', itemIndex, null) ?? undefined) as number | undefined;
+		height = (context.getNodeParameter('fitHeight', itemIndex, null) ?? undefined) as number | undefined;
 		bgColor = context.getNodeParameter('fitBgColor', itemIndex, '') as string;
 		bgBlur = context.getNodeParameter('fitBgBlur', itemIndex, 0) as number;
 		bgImageUrl = context.getNodeParameter('fitBgImageUrl', itemIndex, '') as string;
@@ -39,6 +42,10 @@ export async function executeFit(
 		bgBlur = 0;
 		bgImageUrl = undefined;
 		bgVideoUrl = undefined;
+	}
+
+	if (typeof videoUrl !== 'string') {
+		throw new NodeOperationError(context.getNode(), 'Video URL must be a string', { itemIndex });
 	}
 
 	if (!videoUrl || videoUrl.trim().length === 0) {
@@ -57,7 +64,7 @@ export async function executeFit(
 		);
 	}
 
-	if (ratio != null && (ratio < 0.1 || ratio > 10)) {
+	if (ratio != null && (!Number.isFinite(ratio) || ratio < 0.1 || ratio > 10)) {
 		throw new NodeOperationError(
 			context.getNode(),
 			'Ratio must be between 0.1 and 10 (width/height)',
@@ -65,26 +72,37 @@ export async function executeFit(
 		);
 	}
 
-	if (width != null && width < 1) {
+	if (width != null && (!Number.isFinite(width) || width < 16)) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Width must be >= 1',
+			'Width must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (height != null && height < 1) {
+	if (height != null && (!Number.isFinite(height) || height < 16)) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Height must be >= 1',
+			'Height must be a finite number of at least 16 px',
 			{ itemIndex },
 		);
 	}
 
-	if (bgBlur != null && (bgBlur < 0 || bgBlur > 100)) {
+	if (bgBlur != null && (!Number.isInteger(bgBlur) || bgBlur < 0 || bgBlur > 100)) {
 		throw new NodeOperationError(
 			context.getNode(),
-			'Background blur must be between 0 and 100',
+			'Background blur must be an integer between 0 and 100',
+			{ itemIndex },
+		);
+	}
+
+	const hasRatio = ratio != null;
+	const hasWidth = width != null;
+	const hasHeight = height != null;
+	if ((hasRatio && (hasWidth || hasHeight)) || (!hasRatio && !(hasWidth && hasHeight))) {
+		throw new NodeOperationError(
+			context.getNode(),
+			'Choose either Ratio or both Width and Height, not both sizing methods.',
 			{ itemIndex },
 		);
 	}
@@ -101,6 +119,7 @@ export async function executeFit(
 		);
 	}
 
+	let transactionId: string | null = null;
 	try {
 		const body: Record<string, unknown> = {
 			video_url: videoUrl,
@@ -114,9 +133,9 @@ export async function executeFit(
 		else if (hasBgVideo) body.bg_video_url = String(bgVideoUrl).trim();
 		if (bgBlur != null && bgBlur > 0) body.bg_blur = bgBlur;
 
-		const response = await context.helpers.httpRequestWithAuthentication.call(
+		const submitted = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: FIT_API_URL,
@@ -127,9 +146,11 @@ export async function executeFit(
 				body,
 			},
 		);
+		transactionId = submitted.transaction_id ?? submitted.inference_id ?? submitted.id ?? submitted.job_id ?? null;
+		const response = submissionResult(submitted);
 
-		const transactionId =
-			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id;
+		transactionId =
+			response.transaction_id ?? response.inference_id ?? response.id ?? response.job_id ?? null;
 
 		if (!transactionId) {
 			const resultUrl = response.data?.url ?? response.url ?? response.result?.url;
@@ -166,7 +187,7 @@ export async function executeFit(
 			try {
 				result = await context.helpers.httpRequestWithAuthentication.call(
 					context,
-					'picsartApi',
+					picsartCredentialType(context),
 					{
 						method: 'GET',
 						url: `${VIDEO_RESULT_URL}/${transactionId}`,
@@ -179,7 +200,7 @@ export async function executeFit(
 					pollAttempts++;
 					continue;
 				}
-				throw err;
+				throw new NodeApiError(context.getNode(), err as JsonObject, { itemIndex });
 			}
 
 			if (result.status === 'success' && result.data?.url) {
@@ -224,6 +245,6 @@ export async function executeFit(
 			{ itemIndex },
 		);
 	} catch (error: unknown) {
-		handleApiError(context, error, itemIndex);
+		handleApiError(context, error, itemIndex, transactionId);
 	}
 }

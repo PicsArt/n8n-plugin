@@ -1,14 +1,18 @@
 import type { IExecuteFunctions } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-export function handleApiError(context: IExecuteFunctions, error: any, itemIndex: number): void {
-	const statusCode = error.response?.status || error.statusCode || error.httpCode;
-	const errorMessage =
+export function handleApiError(context: IExecuteFunctions, error: any, itemIndex: number, acceptedTransactionIds: string[] = []): void {
+	const rawStatus = error.response?.status ?? error.statusCode ?? error.httpCode;
+	const statusCode = Number(rawStatus);
+	const providerMessage =
 		error.context?.data?.detail ||
 		error.response?.data?.detail ||
 		error.response?.data?.message ||
 		error.context?.data?.message ||
 		error.message;
+
+	const recovery = acceptedTransactionIds.length ? ` Accepted transaction IDs: ${acceptedTransactionIds.join(', ')}. Retrieve these existing tasks; do not resubmit generation automatically.` : '';
+	const errorMessage = `${providerMessage || ''}${recovery}`;
 
 	if (statusCode === 429) {
 		// Rate limit exceeded - user has insufficient credits
@@ -21,7 +25,7 @@ export function handleApiError(context: IExecuteFunctions, error: any, itemIndex
 		// Authentication/Authorization error
 		throw new NodeOperationError(
 			context.getNode(),
-			`Authentication failed. Please check your API key is valid. ${errorMessage || ''}`,
+			`Authentication or authorization failed. Check the selected Picsart connection and its permissions. ${errorMessage || ''}`,
 			{ itemIndex }
 		);
 	} else if (statusCode >= 400 && statusCode < 500) {

@@ -2,6 +2,8 @@ import { IAuthenticateGeneric, ICredentialTestRequest, ICredentialType, INodePro
 
 export class PicsartApi implements ICredentialType {
 	name = 'picsartApi';
+	icon = 'file:../nodes/icons/picsart.svg' as const;
+
 	displayName = 'Picsart API';
 	documentationUrl = 'https://docs.picsart.io/docs';
 

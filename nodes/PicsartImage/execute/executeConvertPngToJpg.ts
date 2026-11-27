@@ -1,3 +1,4 @@
+import { picsartCredentialType } from '../../authentication';
 import type { IExecuteFunctions, INodeExecutionData } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 import { buildMultipartFormData } from './utils';
@@ -11,9 +12,18 @@ export async function executeConvertPngToJpg(
 	// Get resource type
 	const resource: string = context.getNodeParameter('resource', itemIndex) as string;
 	
+	if (resource !== 'DATA' && resource !== 'Image URL') {
+		throw new NodeOperationError(context.getNode(), 'Choose Binary Image or Image URL as the input resource', { itemIndex });
+	}
+
 	// Get parameters
 	const inputBinaryField: string = context.getNodeParameter('inputBinaryField', itemIndex, '') as string;
 	const imageUrl: string = context.getNodeParameter('image_url', itemIndex, '') as string;
+
+	const quality = context.getNodeParameter('quality', itemIndex, 90);
+	if (typeof quality !== 'number' || !Number.isInteger(quality) || quality < 10 || quality > 100) {
+		throw new NodeOperationError(context.getNode(), 'Quality must be an integer from 10 to 100', { itemIndex });
+	}
 
 	// Check if binary data exists (only if resource is DATA)
 	let binaryDataBuffer = null;
@@ -49,7 +59,7 @@ export async function executeConvertPngToJpg(
 			}
 		} catch (error) {
 			if (error instanceof NodeOperationError) {
-				throw error;
+				throw new NodeOperationError(context.getNode(), error, { itemIndex });
 			}
 			throw new NodeOperationError(
 				context.getNode(),
@@ -93,6 +103,7 @@ export async function executeConvertPngToJpg(
 	}
 
 	formFields.format = 'JPG';
+	formFields.quality = String(quality);
 
 	const multipart = buildMultipartFormData(formFields);
 	
@@ -100,7 +111,7 @@ export async function executeConvertPngToJpg(
 		// Call Picsart API to convert image
 		const result = await context.helpers.httpRequestWithAuthentication.call(
 			context,
-			'picsartApi',
+			picsartCredentialType(context),
 			{
 				method: 'POST',
 				url: 'https://api.picsart.io/tools/1.0/edit',
@@ -112,12 +123,28 @@ export async function executeConvertPngToJpg(
 			},
 		);
 
+		const outputUrl = result?.data?.url;
+		let parsedUrl: URL;
+		try {
+			if (typeof outputUrl !== 'string' || outputUrl !== outputUrl.trim()) throw new Error('Invalid URL');
+			parsedUrl = new URL(outputUrl);
+		} catch {
+			throw new NodeOperationError(context.getNode(), 'Conversion returned no valid output URL', { itemIndex });
+		}
+		if (parsedUrl.protocol !== 'https:' || parsedUrl.username || parsedUrl.password) {
+			throw new NodeOperationError(context.getNode(), 'Conversion output must be an HTTPS URL without embedded credentials', { itemIndex });
+		}
+
 		// Download the converted image
 		const imageBuffer = await context.helpers.httpRequest({
 			method: 'GET',
-			url: result?.data?.url,
+			url: outputUrl,
 			encoding: 'arraybuffer',
 		});
+
+		if (!imageBuffer || imageBuffer.length === 0) {
+			throw new NodeOperationError(context.getNode(), 'Converted image download is empty', { itemIndex });
+		}
 
 		// Return converted image data
 		returnData.push({

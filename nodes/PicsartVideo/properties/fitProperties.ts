@@ -20,7 +20,7 @@ export const fitProperties: INodeProperties[] = [
 		name: 'fitRatio',
 		type: 'number',
 		default: undefined,
-		description: 'Width / height ratio (0.1–10). e.g. 1.778 for 16:9. Leave empty to keep original.',
+		description: 'Width divided by height, from 0.1 to 10. For example, 1.778 for 16:9. Enter a ratio, or use Advanced mode to set both Width and Height instead.',
 		typeOptions: {
 			minValue: 0.1,
 			maxValue: 10,
@@ -37,8 +37,8 @@ export const fitProperties: INodeProperties[] = [
 		name: 'fitWidth',
 		type: 'number',
 		default: undefined,
-		description: 'Target width in px (≥ 1). Leave empty to use ratio or original.',
-		typeOptions: { minValue: 1 },
+		description: 'Target width in pixels, at least 16. Set both Width and Height and leave Ratio empty, or leave both dimensions empty to use Ratio.',
+		typeOptions: { minValue: 16 },
 		displayOptions: {
 			show: {
 				operation: ['Fit Video'],
@@ -51,8 +51,8 @@ export const fitProperties: INodeProperties[] = [
 		name: 'fitHeight',
 		type: 'number',
 		default: undefined,
-		description: 'Target height in px (≥ 1). Leave empty to use ratio or original.',
-		typeOptions: { minValue: 1 },
+		description: 'Target height in pixels, at least 16. Set both Width and Height and leave Ratio empty, or leave both dimensions empty to use Ratio.',
+		typeOptions: { minValue: 16 },
 		displayOptions: {
 			show: {
 				operation: ['Fit Video'],

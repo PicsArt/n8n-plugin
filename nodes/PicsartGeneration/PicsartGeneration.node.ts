@@ -1,8 +1,11 @@
+import { picsartCredentials, picsartAuthenticationProperty } from '../authentication';
 import type {
 	IExecuteFunctions,
 	INodeExecutionData,
 	INodeType,
 	INodeTypeDescription,
+	INodeProperties,
+	INodePropertyOptions,
 	NodeConnectionType,
 } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
@@ -22,31 +25,7 @@ import { executeText2Sound } from './execute/executeText2Sound';
 import { executeImage2Video } from './execute/executeImage2Video';
 import { executePaintingEdit } from './execute/executePaintingEdit';
 
-export class PicsartGeneration implements INodeType {
-	description: INodeTypeDescription = {
-		displayName: 'Picsart Generative AI-Hub',
-		name: 'picsartGeneration',
-		icon: 'file:../icons/picsart.svg',
-		group: ['transform'],
-		version: 1,
-		description:
-			'Generate and edit media with Picsart GenAI API: images, stickers, speech, sound, video, and prompt-based image editing.',
-		subtitle: '={{ $parameter["operation"] }}',
-		defaults: {
-			name: 'Picsart Generative AI-Hub',
-		},
-		inputs: ['main' as NodeConnectionType],
-		outputs: ['main' as NodeConnectionType],
-		usableAsTool: true,
-		credentials: [
-			{
-				name: 'picsartApi',
-				required: true,
-			},
-		],
-		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
-		properties: [
-			{
+const generationOperation: INodeProperties = {
 				displayName: 'Operation',
 				name: 'operation',
 				type: 'options',
@@ -59,38 +38,38 @@ export class PicsartGeneration implements INodeType {
 					description: 'Edit or transform a source image with an AI model using a text prompt',
 				},
 				{
-					name: 'Generate Images from Prompt',
+					name: 'Generate Images From Prompt',
 					value: 'text2Image',
 					action: 'Generate an image from text prompt',
 					description: 'Generate an image from a text prompt using AI',
 				},
 				{
-					name: 'Generate Music/Sound from Prompt',
+					name: 'Generate Music/Sound From Prompt',
 					value: 'Generate Music/Sound from Prompt',
 					action: 'Generate music or sound from a text prompt',
 					description: 'Generate music or sound effects from a text prompt using AI',
 				},
 				{
-					name: 'Generate Speech from Prompt',
+					name: 'Generate Speech From Prompt',
 					value: 'Generate Speech from Prompt',
 					action: 'Generate speech audio from text',
 					description: 'Generate spoken audio from input text using AI text-to-speech',
 				},
 				{
-					name: 'Generate Stickers from Prompt',
+					name: 'Generate Stickers From Prompt',
 					value: 'text2Sticker',
 					action: 'Generate a sticker from text prompt',
 					description: 'Generate a sticker from a text prompt using AI',
 				},
 				{
-					name: 'Generate Video from Prompt',
+					name: 'Generate Video From Prompt',
 					value: 'Generate Video from Prompt',
 					action: 'Generate a video from a text prompt',
 					description:
 						'Generate one video per request from a text prompt only. Output duration, resolution, and audio depend on the selected model.',
 				},
 				{
-					name: 'Generate Video from Prompt and Image',
+					name: 'Generate Video From Prompt and Image',
 					value: 'Generate Video from Prompt and Image',
 					action: 'Generate a video from an image and text prompt',
 					description:
@@ -98,7 +77,55 @@ export class PicsartGeneration implements INodeType {
 				},
 			],
 				default: 'text2Image',
-			},
+			};
+
+const mediaOperations: Record<string, string[]> = {
+ image: ['Edit Image with Prompt', 'text2Image', 'text2Sticker'],
+ audio: ['Generate Music/Sound from Prompt', 'Generate Speech from Prompt'],
+ video: ['Generate Video from Prompt', 'Generate Video from Prompt and Image'],
+};
+const groupedOperations: INodeProperties[] = Object.entries(mediaOperations).map(([resource, values]) => ({
+ ...generationOperation,
+ options: (generationOperation.options as INodePropertyOptions[]).filter(option => values.includes(String(option.value))),
+ default: values[resource === 'image' ? 1 : 0],
+ displayOptions: { show: { resource: [resource], '@version': [2] } },
+}));
+
+export class PicsartGeneration implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'Picsart Generative AI-Hub',
+		name: 'picsartGeneration',
+		icon: 'file:../icons/picsart.svg',
+		group: ['transform'],
+		version: [1, 2],
+		description:
+			'Generate and edit media with Picsart GenAI API: images, stickers, speech, sound, video, and prompt-based image editing.',
+		subtitle: '={{ $parameter["operation"] }}',
+		defaults: {
+			name: 'Picsart Generative AI-Hub',
+		},
+		inputs: ['main' as NodeConnectionType],
+		outputs: ['main' as NodeConnectionType],
+		usableAsTool: true,
+		credentials: picsartCredentials,
+		// https://docs.n8n.io/integrations/creating-nodes/build/reference/code-standards/#resources-and-operations
+		properties: [
+			picsartAuthenticationProperty,
+            {
+                displayName: 'Resource',
+                name: 'resource',
+                type: 'options',
+                noDataExpression: true,
+                options: [
+                    { name: 'Audio', value: 'audio' },
+                    { name: 'Image', value: 'image' },
+                    { name: 'Video', value: 'video' },
+                ],
+                default: 'image',
+                displayOptions: { show: { '@version': [2] } },
+            },
+            { ...generationOperation, displayOptions: { show: { '@version': [1] } } },
+            ...groupedOperations,
 		// Text2Image Operation Parameters
 		...text2ImageProperties,
 		// Text2Sticker Operation Parameters
@@ -149,9 +176,9 @@ export class PicsartGeneration implements INodeType {
 				if (this.continueOnFail()) {
 					returnData.push({ json: items[itemIndex].json, error, pairedItem: itemIndex });
 				} else {
-					// Re-throw if it's already a NodeOperationError, otherwise wrap it
+					// n8n preserves existing NodeOperationError instances when wrapping them
 					if (error instanceof NodeOperationError) {
-						throw error;
+						throw new NodeOperationError(this.getNode(), error, { itemIndex });
 					}
 					throw new NodeOperationError(this.getNode(), error.message, { itemIndex });
 				}

@@ -1,0 +1,99 @@
+{
+	"presets": [
+		{
+			"id": "300x250",
+			"label": "300 \u00d7 250",
+			"width": 300,
+			"height": 250,
+			"source": "original_request",
+			"exact_output_verified": false
+		},
+		{
+			"id": "728x90",
+			"label": "728 \u00d7 90",
+			"width": 728,
+			"height": 90,
+			"source": "original_request",
+			"exact_output_verified": false
+		},
+		{
+			"id": "160x600",
+			"label": "160 \u00d7 600",
+			"width": 160,
+			"height": 600,
+			"source": "original_request",
+			"exact_output_verified": false
+		},
+		{
+			"id": "320x100",
+			"label": "320 \u00d7 100",
+			"width": 320,
+			"height": 100,
+			"source": "original_request",
+			"exact_output_verified": false
+		},
+		{
+			"id": "300x50",
+			"label": "300 \u00d7 50",
+			"width": 300,
+			"height": 50,
+			"source": "original_request",
+			"exact_output_verified": false
+		},
+		{
+			"id": "970x250",
+			"label": "970 \u00d7 250",
+			"width": 970,
+			"height": 250,
+			"source": "original_request",
+			"exact_output_verified": false
+		}
+	],
+	"prompt": "Adapt the supplied image into a {width} \u00d7 {height} banner. Recompose the elements intentionally for the target format. Preserve the main subject, brand identity and intended message. Keep important elements inside the frame. {optional_edit_instructions}",
+	"models": [
+		"urn:air:sdxl:model:fluxai:flux_kontext_max@1",
+		"urn:air:sdxl:model:fluxai:flux_kontext_pro@1",
+		"urn:air:fluxai:model:fluxai:flux-2-flex@1",
+		"urn:air:fluxai:model:fluxai:flux-2-pro@1",
+		"urn:air:fluxai:model:fluxai:flux-2-max@1",
+		"urn:air:fluxai:model:fluxai:flux-2-pro-preview@1",
+		"urn:air:seedream:model:seedream:seedream@4.0",
+		"urn:air:seedream:model:seedream:seedream@4.5",
+		"urn:air:seedream:model:seedream:seedream@4.7",
+		"urn:air:seedream:model:seedream:seedream@5.0-lite",
+		"urn:air:seedream:model:seedream:seedream@5.0-pro",
+		"urn:air:seedream:model:seedream:seedream@5.0-flash",
+		"urn:air:seedream:model:seedream:seedream@5.5",
+		"urn:air:google:model:google:gemini-3-pro-image-preview@1",
+		"urn:air:google:model:google:gemini-3.1-flash-image-preview@1",
+		"urn:air:google:model:google:gemini-3-pro-image@1",
+		"urn:air:google:model:google:gemini-3.1-flash-image@1",
+		"urn:air:google:model:google:gemini-3.1-flash-lite-image@1",
+		"urn:air:google:model:google:gemini-nano-banana-2.1@1",
+		"urn:air:openai:model:openai:gpt-image-2@1",
+		"urn:air:openai:model:openai:gpt-image-2.5-flare@1",
+		"urn:air:openai:model:openai:gpt-image-2.5-sunburst@1",
+		"urn:air:openai:model:openai:gpt-image-2.6-flare@1",
+		"urn:air:openai:model:openai:gpt-image-2.6-sunburst@1",
+		"urn:air:runway:model:runway:gen4-image-ref@1",
+		"urn:air:qwen:model:qwen:qwen-image@1",
+		"urn:air:qwen:model:qwen:qwen-image-2.0-pro@1",
+		"urn:air:qwen:model:qwen:qwen-image-3.0-pro@1",
+		"urn:air:picsart:model:picsart:qwen-image-edit@1",
+		"urn:air:xai:model:xai:grok-imagine-image-edit@1",
+		"urn:air:xai:model:xai:grok-imagine-image-2.0-edit@1",
+		"urn:air:kling:model:kling:kling-v3@1",
+		"urn:air:kling:model:kling:kling-image-o1@1",
+		"urn:air:kling:model:kling:kling-v3-omni@1",
+		"urn:air:kling:model:kling:kling-v4-image@1",
+		"urn:air:minimax:model:minimax:minimax-h3-image@1",
+		"urn:air:minimax:model:minimax:minimax-h3-image-highspeed@1",
+		"urn:air:meta:model:meta:muse-image-1.0@1",
+		"urn:air:fluxai:model:fluxai:flux-3-image@1",
+		"urn:air:fluxai:model:fluxai:flux-3-image-klein@1",
+		"urn:air:ideogram:model:ideogram:ideogram@4.5",
+		"urn:air:luma:model:luma:uni-1@1",
+		"urn:air:luma:model:luma:uni-1-max@1",
+		"urn:air:wan:model:wan:wan-2.6-image@1"
+	]
+}
