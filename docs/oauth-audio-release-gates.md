@@ -1,6 +1,16 @@
 # OAuth, audio and video parity release gates
 
-## Current release decision — November 23, 2026
+## Current release decision — November 27, 2026
+
+Prepared 5.5.0 at functional head `531b164942ee54d98257a3fc3d70e6a0290cb98a`. Security PR #8 is merged and incorporated. GitHub reports zero open Dependabot alerts; the pinned candidate audit has zero vulnerabilities. Build, lint, 393 regressions, 301-file package checks and [CI 45992308252](https://github.com/PicsArt/n8n-plugin/actions/runs/45992308252) pass. Native n8n 2.45.6 additionally passed eight network-disabled malformed resize input cases with synthetic credentials.
+
+PR #11 remains open and requires independent review. npm still serves 5.4.8; no release tag or publication occurred. Forced native OAuth refresh and remaining live-operation coverage are not proven. A fresh read of accepted audio task `ed119a6d-4a2a-494f-b1fc-1a62a0121b3e` still returned HTTP 402 / Not enough available credits on November 27 (isolated execution 193); no new generation was submitted.
+
+Separate GitLab MR !2 remains open at `675eb25d`; pipeline 3101577570 passes but its complete security inventory still shows three Needs Triage uri-js findings (one High, two Medium). No suppression or clearance is inferred from code mitigation. Templates remain P2/P3 and do not block preparation of the node release package.
+
+The following November 23 table is historical evidence; the current decision above supersedes its security counts, version and PR state.
+
+## Historical release decision — November 23, 2026
 
 Keep this PR in draft. Functional head `407a80d010f41acf240b73bf39d6f35113ec73ee` passed [CI 45140822638](https://github.com/PicsArt/n8n-plugin/actions/runs/45140822638). Publication and published-package scanning were skipped. This table supersedes historical test counts and resolved scanner failures below; it does not certify untested operations.
 
