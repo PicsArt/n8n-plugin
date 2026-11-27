@@ -5,7 +5,7 @@ import type { VideoApiResult, HttpError } from './types';
 import { buildMultipartFormData } from './utils';
 
 const WATERMARK_API_URL = 'https://video-api.picsart.io/v1/watermark';
-const maxPollAttempts = 600;
+import { maxPollAttempts, waitBeforeVideoPoll } from './polling';
 
 export async function executeWatermark(
 	context: IExecuteFunctions,
@@ -167,6 +167,7 @@ export async function executeWatermark(
 			let result: VideoApiResult = response as VideoApiResult;
 
 			while (pollAttempts < maxPollAttempts) {
+				await waitBeforeVideoPoll(pollAttempts);
 				try {
 					result = await context.helpers.httpRequestWithAuthentication.call(
 						context,
